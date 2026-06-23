@@ -1,0 +1,19 @@
+node_modules
+dist
+out
+.DS_Store
+.eslintcache
+*.log*
+package-lock.json  
+dist-ssr/          # Vite SSR build
+release/           # Electron builds
+build/             # Build outputs
+.electron-builder/ # Cache builder
+.vite/             # Vite cache
+.env               # Zmienne środowiskowe (bezpieczeństwo!)
+.env.local
+.vscode/           # IDE settings (opcjonalnie)
+coverage/          # Test coverage
+*.exe              # Windows executables
+*.dmg              # macOS builds
+*.AppImage         # Linux builds
