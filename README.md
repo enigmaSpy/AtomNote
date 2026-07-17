@@ -1,26 +1,11 @@
 Design and implementation of the modular knowledge management environment "AtomNote" using graph visualization and code reference mechanisms
-
-```
-Faza 1 🔵
-  ├── Parser struktury folderów → model danych
-  ├── Edytor MDX (tylko Tryb Tworzenia)
-  └── Zapis/odczyt electron.json przez IPC
-
-Faza 2 🔴
-  ├── Force-directed graph 
-  ├── Widok atomowyb 
-  └── Nawigacja między widokami 
-
-Faza 3 🔴
-  ├── System quizów i fiszek
-  ├── Mastery weights
-  ├── Dynamic Code Referencing 
-  └── Harmonogram tygodniowy
-
-Faza 4 🔴
-  ├── Book Mode + paginacja
-  └── TF-IDF tagging
-
-Faza 5 🔴
-  └── S-Pen, React MDX embeds, wiązania kowalencyjne
-```
+## version 0.1
+- [ ]Electron + React + TypeScript + Vite; `contextIsolation`, sandbox.
+- [ ] Typy: `Library`, `Atom`, `Electron`, `Tag`, `Domain`, `Edge` (z atrybutem `layer`), `Bond`, `Entanglement`.
+- [ ] Schematy `library.json`, `atom.json`, `electrons.json`.
+- [ ] Parser katalogu → model. Twarda reguła: dwa poziomy fizyczne, zero rekurencji.
+- [ ] Silnik tagów: jeden mechanizm dla domen, molekuł i kategorii (§3.4).
+- [ ] Domena jako zapisany filtr. Przełącznik domen w UI.
+- [ ] Panel ostrzeżeń strukturalnych.
+- [ ] IPC: bezpieczny odczyt/zapis metadanych + whitelist ścieżek.
+- [ ] Prosty edytor MDX (Tryb Tworzenia, auto-save).
