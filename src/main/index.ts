@@ -1,6 +1,7 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { registerWorldlineIpc } from './ipc/worldline'
 import icon from '../../resources/icon.png?asset'
 
 function createWindow(): void {
@@ -12,8 +13,8 @@ function createWindow(): void {
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
+      preload: join(__dirname, '../preload/index.cjs'),
+      sandbox: true,
       nodeIntegration:false,
       contextIsolation: true
     }
@@ -52,8 +53,8 @@ app.whenReady().then(() => {
   })
 
   // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
-
+  //ipcMain.on('ping', () => console.log('pong'))
+  registerWorldlineIpc()
   createWindow()
 
   app.on('activate', function () {
