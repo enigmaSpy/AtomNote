@@ -48,7 +48,7 @@ export interface StructuralWarning{
     message: string
 }
 
-export interface ParsedWordline{
+export interface ParsedWorldline{
     wordline: Worldline
     warnings: StructuralWarning[]
 }
