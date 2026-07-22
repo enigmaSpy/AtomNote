@@ -2,14 +2,12 @@ export type AtomId = string
 export type ElectronId = string 
 export type WorldlineId = string
 
-export interface Tag {
-    name: string
-}
-
 export interface ElectronNote{
     id: ElectronId
+    atomId: AtomId
     filename: string
     tags: string[]
+    covalentAtomIds: AtomId[]
     mastery: number
     createdAt: string
     updatedAt: string
@@ -25,23 +23,38 @@ export interface Atom{
 }
 
 export type EdgeLayer = 'knowledge' | 'plot'
-export type EdgeKind = 'bond' | 'entanglement' | 'parent-child'
+export type EdgeKind = 'bond' | 'entanglement' //| 'parent-child' 
 export interface Edge{
     from: AtomId | ElectronId
     to: AtomId | ElectronId
     layer: EdgeLayer
     kind: EdgeKind 
 }
-
-export interface Worldline {
+export interface Domain{
+    id: string
+    name: string
+    tags: string[]
+}
+export interface WorldlineDescriptor{
     id: WorldlineId
     name: string
     rootPath: string
+    atomCount: number
+    domains: Domain[]
+}   
+export interface Worldline extends WorldlineDescriptor{
     atoms: Atom[]
     edges: Edge[]
 }
 
-export type WarningReason = 'unexpected-subfolder' | 'schema-invalid' | 'orphan-file'
+export type WarningReason = 
+    | 'unexpected-subfolder'     // pod-folder w atomie (zasada dwóch poziomów)
+    | 'schema-invalid'           // JSON istnieje, ale nie przechodzi walidacji Zod
+    | 'orphan-file'              // plik luzem w korzeniu worldlinea
+    | 'unreadable'               // nieczytelny korzeń / plik metadanych
+    | 'unreadable-atom'          // nieczytelny katalog atomu
+    | 'missing-covalent-target'  // kowalencja wskazuje nieistniejący atom
+    | 'unexpected-file'
 export interface StructuralWarning{
     path: string
     reason: WarningReason
@@ -49,6 +62,6 @@ export interface StructuralWarning{
 }
 
 export interface ParsedWorldline{
-    wordline: Worldline
+    worldline: Worldline
     warnings: StructuralWarning[]
 }

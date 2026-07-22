@@ -1,11 +1,11 @@
 import {z} from 'zod'
 
 export const ElectronMetaSchema = z.object({
-    id: z.string(),
-    filename: z.string(),
+    id: z.uuid(),
     tags: z.array(z.string()).default([]),
-    mastery: z.number().min(0).max(1).default(0),
+    covalentAtomIds: z.array(z.uuid()).default([]),
     createdAt: z.string(),
     updatedAt: z.string()
 });
-export type ElectronMeta = z.infer<typeof ElectronMetaSchema>
+export const ElectronsDictSchema = z.record(z.string(), ElectronMetaSchema)
+export type ElectronsDict = z.infer<typeof ElectronsDictSchema>
