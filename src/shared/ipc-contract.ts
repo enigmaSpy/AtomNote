@@ -1,8 +1,8 @@
-import type { ParsedWordline } from "./domain/types"
+import type { ParsedWorldline } from "./domain/types"
 
 export interface IpcApi{
     worldline:{
-        parse(rootPath: string):Promise<ParsedWordline>
+        parse(rootPath: string):Promise<ParsedWorldline>
     }
 }
 
