@@ -1,53 +1,55 @@
-import { readdir, type Dirent } from "node:fs/promises"
+//?główna funkcja parseWorldline
+import { createWarningCollector } from "@shared/utils/warning"
+import type { Dirent } from "node:fs"
+import { readdir } from "node:fs/promises"
 import { basename, join } from "node:path"
-import type { Atom, ParsedWorldline, StructuralWarning } from '../../shared/domain/types'
+import type { Atom, ParsedWorldline } from '../../shared/domain/types'
+import { atomParse } from "./atom-parser"
+import { readJsonWithSchema } from "./fs-helpers"
+import { WorldlineMetaSchema } from "@shared/schemas/worldline"
 
-export async function ParseWordline(rootPath: string): Promise<ParsedWorldline>{
-    const warnings: StructuralWarning[] = []
+export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>{
+    const collector = createWarningCollector()
     const atoms: Atom[] = []
 
-    const entries = await readdir(rootPath, {withFileTypes: true});
-
-    for (const entry of entries) {
-    if (!entry.isDirectory()) continue
-    if (entry.name.startsWith('.') || entry.name.startsWith('__')) continue
-
-    const atomPath = join(rootPath, entry.name)
-
-    let inner: Dirent<string>[]
+    let entries: Dirent[]
     try {
-      inner = await readdir(atomPath, { withFileTypes: true, encoding: 'utf8' })
-    } catch (err) {
-      warnings.push({
-        path: atomPath,
-        reason: 'orphan-file',
-        message: `Nie można odczytać "${entry.name}": ${(err as Error).message}`
-      })
-      continue 
+        entries = await readdir(rootPath, { withFileTypes: true })
+    } catch (error) {
+        collector.pushWarning(rootPath, 'unreadable', `Nie można odczytać korzenia: ${(error as Error).message}`)
+        return {
+            worldline: { id: basename(rootPath),atomCount:0, name: basename(rootPath), rootPath, atoms: [], edges: [], domains:[] },
+            warnings: collector.warnings
+        }
     }
-
-    for (const child of inner) {
-      const reserved = child.name.startsWith('.') || child.name.startsWith('__')
-      if (child.isDirectory() && !reserved) {
-        warnings.push({
-          path: join(atomPath, child.name),
-          reason: 'unexpected-subfolder',
-          message: `Pod-folder "${child.name}" w atomie "${entry.name}" jest ignorowany (zasada dwóch poziomów, §3.3).`
-        })
-      }
+    const libraryMeta = await readJsonWithSchema(
+        join(rootPath, 'library.json'),
+        WorldlineMetaSchema,
+        collector
+    )
+    //? Atomy
+    for (const entry of entries) {
+        const atom = await atomParse(entry, rootPath, collector)
+        if(atom){
+            atoms.push(atom)
+        }  
     }
+    
 
-    atoms.push({
-      id: entry.name,
-      name: basename(entry.name),
-      description: '',
-      tags: [],
-      mastery: 0,
-      electrons: []
-    })
-  }
     return {
-        wordline: {id: basename(rootPath), name:basename(rootPath), rootPath, atoms, edges:[]},
-        warnings
+        worldline: {
+            id: basename(rootPath),
+            name: basename(rootPath),
+            rootPath,
+            domains: libraryMeta?.domains ??[],
+            atomCount: atoms.length,
+            atoms,
+            edges: libraryMeta?.edges??[],            
+        },
+        warnings: collector.warnings
     }
 }
+
+
+
+
