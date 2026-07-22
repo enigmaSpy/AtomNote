@@ -1,7 +1,8 @@
 Design and implementation of the modular knowledge management environment "AtomNote" using graph visualization and code reference mechanisms
 ## version 0.1
-- [ ]Electron + React + TypeScript + Vite; `contextIsolation`, sandbox.
-- [ ] Typy: `Library`, `Atom`, `Electron`, `Tag`, `Domain`, `Edge` (z atrybutem `layer`), `Bond`, `Entanglement`.
+
+- [x] Electron + React + TypeScript + Vite; `contextIsolation`, sandbox.
+- [x] Typy: `Library`, `Atom`, `Electron`, `Tag`, `Domain`, `Edge`, `Bond`, `Entanglement`.
 - [ ] Schematy `library.json`, `atom.json`, `electrons.json`.
 - [ ] Parser katalogu → model. Twarda reguła: dwa poziomy fizyczne, zero rekurencji.
 - [ ] Silnik tagów: jeden mechanizm dla domen, molekuł i kategorii (§3.4).
