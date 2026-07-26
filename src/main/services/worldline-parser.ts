@@ -5,8 +5,8 @@ import { readdir } from "node:fs/promises"
 import { basename, join } from "node:path"
 import type { Atom, ParsedWorldline } from '../../shared/domain/types'
 import { atomParse } from "./atom-parser"
-import { readJsonWithSchema } from "./fs-helpers"
 import { WorldlineMetaSchema } from "@shared/schemas/worldline"
+import { readJsonWithSchema } from "@shared/utils/json"
 
 export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>{
     const collector = createWarningCollector()
@@ -23,18 +23,20 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
         }
     }
     const libraryMeta = await readJsonWithSchema(
-        join(rootPath, 'library.json'),
+        join(rootPath,'.wordline_data', 'wordline.json'),
         WorldlineMetaSchema,
         collector
     )
     //? Atomy
     for (const entry of entries) {
+        if (!entry.isDirectory() || entry.name.startsWith('.') || entry.name.startsWith('__')) {
+            continue;
+        }
         const atom = await atomParse(entry, rootPath, collector)
         if(atom){
             atoms.push(atom)
         }  
     }
-    
 
     return {
         worldline: {

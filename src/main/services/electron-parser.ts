@@ -5,14 +5,16 @@ import { randomUUID } from "node:crypto";
 import type { Dirent } from "node:fs";
 import { join } from "node:path";
 import type { ElectronsDict } from "@shared/schemas/electron";
-import { calculateElectronMastery } from "@shared/utils/electron-mastery";
-
-export function electronParse(
+export interface ElectronParseResult{
+    electron: ElectronNote,
+    newMetaEntry: ElectronsDict | null
+}
+export async function electronParse(
     child: Dirent, 
     atomId: string, 
     electronsDict: ElectronsDict|null,
     collector: WarningCollector
-):ElectronNote|null{
+):Promise<ElectronParseResult|null>{
 
     const { ext } = getFileData(child.name)
     
@@ -25,16 +27,42 @@ export function electronParse(
         return null;
     }
 
-    const meta = electronsDict?.[child.name]
-    const electronID = randomUUID();
+    const entry = Object.entries(electronsDict ?? {}).find(
+        ([_, meta]) => {
+            return meta.filename === child.name
+        }
+    )
+    let currentElectronId: string;
+    let meta = entry?entry[1]:null;
+    let newMetaEntry: ElectronsDict|null = null;
+    if(entry){
+        currentElectronId = entry[0]
+    }else{
+        currentElectronId = randomUUID()
+        const newMeta = {
+            filename: child.name,
+            tags: [],
+            covalentAtomIds: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        }
+        meta = newMeta;
+        newMetaEntry = {
+            [currentElectronId]: newMeta
+        }
+    }
+    const electronMastery = 0; //TODO: F4
     return{
-        id: meta?.id ?? electronID,
-        atomId: atomId,
-        filename: child.name,
-        tags: meta?.tags??[],
-        covalentAtomIds: meta?.covalentAtomIds ?? [],
-        mastery: calculateElectronMastery(meta?.id??electronID),
-        createdAt: meta?.createdAt ?? new Date().toISOString(),
-        updatedAt: meta?.updatedAt ?? ""
+        electron:{
+            id: currentElectronId,
+            atomId,
+            filename: child.name,
+            tags: meta?.tags??[],
+            covalentAtomIds: meta?.covalentAtomIds ?? [],
+            mastery: electronMastery,
+            createdAt: meta?.createdAt ?? new Date().toISOString(),
+            updatedAt: meta?.updatedAt ?? ""
+        },
+        newMetaEntry
     }
 }

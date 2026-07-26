@@ -1,23 +1,20 @@
 //? loadOrAdoptAtomMeta, parsowanie elektronów
 import type { Atom, ElectronNote } from "@shared/domain/types"
 import type { WarningCollector } from "@shared/utils/warning"
-import type { Dirent } from "node:fs"
-import { readdir } from "node:fs/promises"
+import { mkdir, readdir, writeFile } from "node:fs/promises"
 import { basename, join } from "node:path"
-import { readJsonWithSchema } from "./fs-helpers"
 import { AtomMetaSchema } from "@shared/schemas/atom"
-import { ElectronsDictSchema } from "@shared/schemas/electron"
+import { ElectronsDictSchema, type ElectronsDict } from "@shared/schemas/electron"
 import { electronParse } from "./electron-parser"
 import { randomUUID } from "node:crypto"
+import { readJsonWithSchema } from "@shared/utils/json"
+import type { Dirent } from "node:fs"
+import { appendElectronDate } from "@shared/utils/electron-appendData"
 
 export async function atomParse(entry:Dirent, rootPath:string, collector:WarningCollector):Promise<Atom | null>{
     
-    if (!entry.isDirectory() || entry.name.startsWith('.') || entry.name.startsWith('__')) {
-        return null
-    }
-    const atomPath = join(rootPath, entry.name)
-
-    let inner: Dirent[] = []
+    const atomPath = join(rootPath, entry.name);
+    let inner: Dirent[] = [];
     try {
         inner = await readdir(atomPath, { withFileTypes: true })
     } catch (error) {
@@ -34,17 +31,31 @@ export async function atomParse(entry:Dirent, rootPath:string, collector:Warning
         AtomMetaSchema,
         collector
     )
+    const currentAtomId = atomMeta?.id ?? randomUUID();
+
+    if (atomMeta?.id === undefined){
+        await mkdir(join(atomPath, '.atom_data'), {recursive: true})
+        await writeFile(
+            join(atomPath, '.atom_data', 'atom.json'),
+            JSON.stringify({
+                id:currentAtomId,
+                description: 'adopted',
+                tags: [],
+                createdAt: new Date().toISOString()
+            }, null, 2)
+        );
+    }
     const electronsDict = await readJsonWithSchema(
         join(atomPath, '.atom_data', 'electrons.json'),
         ElectronsDictSchema,
         collector
     )
-    const currentAtomId = atomMeta?.id ?? randomUUID();
     const electrons: ElectronNote[] = [];
+    const newElectronEntries: ElectronsDict = {};
+
     //? Elektrony
     for (const child of inner) {
         const isReserved = child.name.startsWith('.') || child.name.startsWith('__')
-
         if (child.isDirectory() && !isReserved) {
             collector.pushWarning(
                 join(atomPath, child.name),
@@ -54,11 +65,17 @@ export async function atomParse(entry:Dirent, rootPath:string, collector:Warning
             continue
         }
         if(child.isFile()&&!isReserved){
-            const electron = electronParse(child, currentAtomId, electronsDict, collector);
-            if(electron){
-                electrons.push(electron)
+            const result = await electronParse(child, currentAtomId, electronsDict, collector);
+            if(result){
+                electrons.push(result.electron)
+                if(result.newMetaEntry){
+                    Object.assign(newElectronEntries, result.newMetaEntry);
+                }
             }
         }
+    }
+    if (Object.keys(newElectronEntries).length > 0){
+        await appendElectronDate(atomPath, newElectronEntries, collector)
     }
     const atom={
         id: currentAtomId,
@@ -68,6 +85,5 @@ export async function atomParse(entry:Dirent, rootPath:string, collector:Warning
         mastery: 0,//TODO: Dodać funkcję obliczającą
         electrons
     }
-    
     return atom
 }
