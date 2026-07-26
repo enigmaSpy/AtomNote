@@ -12,7 +12,7 @@ export interface ElectronNote{
     createdAt: string
     updatedAt: string
 }
-
+export type ElectronsDict = Record<ElectronId, ElectronNote>
 export interface Atom{
     id: AtomId
     name: string
