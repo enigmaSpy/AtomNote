@@ -8,5 +8,5 @@ export const ReviewEventSchema = z.object({
   selectedAnswerIndices: z.array(z.number().int()).optional()
 })
 
-export const ReviewsFileSchema = z.array(ReviewEventSchema)
+export const ReviewsFileSchema = z.record(z.uuid(),ReviewEventSchema)
 export type ReviewEvent = z.infer<typeof ReviewEventSchema>
