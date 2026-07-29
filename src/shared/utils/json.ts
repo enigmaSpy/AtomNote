@@ -10,7 +10,8 @@ import z from "zod"
 export async function readJsonWithSchema<T>(
     filePath:string,
     schema: z.ZodType<T>,
-    collector?: WarningCollector
+    collector?: WarningCollector,
+    test?: boolean
 ):Promise<T|null>{
     let rawText=''
     try {
@@ -36,6 +37,10 @@ export async function readJsonWithSchema<T>(
         )
         return null;
     }
+    if (test) {
+        console.log(rawJson);
+    }
+    
     const result = schema.safeParse(rawJson);
     if(!result.success){
         collector?.pushWarning(

@@ -4,6 +4,13 @@ import { readJsonWithSchema, writeJson } from "./json";
 import type { WarningCollector } from "./warning";
 import { ElectronsDictSchema } from "@shared/schemas/electron";
 
+/**
+ * Aktualizacja elektron.json o nowe metadane
+ * 
+ * @param atomPath ścieżka atomu
+ * @param newData dane do dopisania do elektronu
+ * @param collector kolektor ostrzeżeń strukturalnych
+ */
 export async function appendElectronDate(//TODO: adopcja przeniesiona na poziom atomu 
     atomPath: string,
     newData: ElectronsDict,
