@@ -7,7 +7,12 @@ import type { Atom, ParsedWorldline } from '../../shared/domain/types'
 import { atomParse } from "./atom-parser"
 import { WorldlineMetaSchema } from "@shared/schemas/worldline"
 import { readJsonWithSchema } from "@shared/utils/json"
-
+/**
+ * Parsuje pojedyńczy wordline, czyta metadane wordline
+ * 
+ * @param rootPath ścieżka wordline
+ * @returns obietnicę typu ParsedWordline
+ */
 export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>{
     const collector = createWarningCollector()
     const atoms: Atom[] = []

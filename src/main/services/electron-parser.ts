@@ -5,10 +5,21 @@ import { randomUUID } from "node:crypto";
 import type { Dirent } from "node:fs";
 import { join } from "node:path";
 import type { ElectronsDict } from "@shared/schemas/electron";
+import { calculateElectronMastery } from "@shared/utils/electron-mastery";
+
 export interface ElectronParseResult{
     electron: ElectronNote,
     newMetaEntry: ElectronsDict | null
 }
+/**
+ * Parsuje elektron, zarządza metadanymi elektrónów
+ * 
+ * @param child obiekt katalogu
+ * @param atomId id Atomu
+ * @param electronsDict słownik elektronów
+ * @param collector kolektor ostrzeżeń strukturalnych
+ * @returns obietnice, która zwraca sparsowany elektron albo null gdy katalok jest neiczytelny
+ */
 export async function electronParse(
     child: Dirent, 
     atomId: string, 
@@ -51,7 +62,7 @@ export async function electronParse(
             [currentElectronId]: newMeta
         }
     }
-    const electronMastery = 0; //TODO: F4
+    const electronMastery = await calculateElectronMastery(currentElectronId, child.parentPath);
     return{
         electron:{
             id: currentElectronId,

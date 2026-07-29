@@ -11,7 +11,18 @@ import { readJsonWithSchema } from "@shared/utils/json"
 import type { Dirent } from "node:fs"
 import { appendElectronDate } from "@shared/utils/electron-appendData"
 
-export async function atomParse(entry:Dirent, rootPath:string, collector:WarningCollector):Promise<Atom | null>{
+/**
+ * Parsuje pojedyńczy atom, czyta metadane, skanuje elektrony, adoptuje brakujące wpisy
+ * 
+ * @param entry wpis katalogu z readdir
+ * @param rootPath  ścieżka wordline
+ * @param collector kolektor ostrzeżeń strukturalnych
+ * @returns  sparsowany Atom lub null kiedy katalog okarzę się nieczytelny
+ */
+export async function atomParse(
+    entry:Dirent, 
+    rootPath:string, 
+    collector:WarningCollector):Promise<Atom | null>{
     
     const atomPath = join(rootPath, entry.name);
     let inner: Dirent[] = [];
