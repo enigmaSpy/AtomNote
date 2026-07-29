@@ -11,7 +11,7 @@ import { ElectronsDictSchema } from "@shared/schemas/electron";
  * @param newData dane do dopisania do elektronu
  * @param collector kolektor ostrzeżeń strukturalnych
  */
-export async function appendElectronDate(//TODO: adopcja przeniesiona na poziom atomu 
+export async function appendElectronData(//TODO: adopcja przeniesiona na poziom atomu 
     atomPath: string,
     newData: ElectronsDict,
     collector: WarningCollector,
@@ -27,5 +27,5 @@ export async function appendElectronDate(//TODO: adopcja przeniesiona na poziom 
         ...newData     
     };
     
-    await writeJson(updated, filePath, collector);
+    await writeJson(filePath, updated,  collector);
 }
