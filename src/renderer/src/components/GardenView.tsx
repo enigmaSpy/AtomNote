@@ -1,12 +1,15 @@
+import { ElectronContext } from "./ElectronContext"
 import { WorldlineTree } from "./WorldlineTree"
 
-export const Template = () => {//TODO: Do zmiany
+export const GardenView = () => {
   return (
     <main style={{display:'flex'}}>
         <WorldlineTree/>
         <div
             style={{width:'30vw'}}
-        >a</div>
+        >
+          <ElectronContext/>
+        </div>
         <div
         style={{flex:'30vw'}}
         >c</div>
