@@ -54,7 +54,10 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
                 activeElectronId:null
             }
         )},
-        selectElectron: (electronId)=> set({activeElectronId: electronId}),
+        selectElectron: (electronId)=> {
+            const {activeElectronId} = get();
+            set({activeElectronId: electronId === activeElectronId? null: electronId})
+        },
         clearWorldline: ()=>set({
             worldlineData: null,
             activeAtomId: null,

@@ -1,11 +1,11 @@
-import type { ElectronNote, ParsedWorldline } from "./domain/types"
+import type { ParsedWorldline } from "./domain/types"
 
 export interface IpcApi{
     worldline:{
         parse(rootPath: string):Promise<ParsedWorldline>
     },
     electron:{
-        read(filePath: string):Promise<ElectronNote>
+        read(filePath: string):Promise<string>
     }
 }
 

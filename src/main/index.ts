@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerWorldlineIpc } from './ipc/worldline.ipc'
 import icon from '../../resources/icon.png?asset'
+import { registerElectronIpc } from './ipc/electron.ipc'
 
 function createWindow(): void {
   // Create the browser window.
@@ -56,6 +57,7 @@ app.whenReady().then(() => {
   // IPC test
   //ipcMain.on('ping', () => console.log('pong'))
   registerWorldlineIpc()
+  registerElectronIpc();
   createWindow()
 
   app.on('activate', function () {
