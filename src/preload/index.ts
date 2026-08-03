@@ -5,6 +5,9 @@ import type { IpcApi } from '../shared/ipc-contract'
 const api: IpcApi = {
   worldline: {
     parse: (rootPath) => ipcRenderer.invoke(IPC_CHANNELS.WORLDLINE_PARSE, rootPath)
+  },
+  electron:{
+    read: (filePath) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_READ, filePath)
   }
 }
 

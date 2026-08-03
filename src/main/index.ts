@@ -1,7 +1,7 @@
 import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { registerWorldlineIpc } from './ipc/worldline'
+import { registerWorldlineIpc } from './ipc/worldline.ipc'
 import icon from '../../resources/icon.png?asset'
 
 function createWindow(): void {
