@@ -1,8 +1,8 @@
 import type { ElectronsDict } from "@shared/schemas/electron";
-import { join } from "node:path";
-import { readJsonWithSchema, writeJson } from "./json";
-import type { WarningCollector } from "./warning";
 import { ElectronsDictSchema } from "@shared/schemas/electron";
+import { join } from "node:path";
+import { readJsonWithSchema, writeJson } from "../../../shared/utils/json";
+import type { WarningCollector } from "../../../shared/utils/warning";
 
 /**
  * Aktualizacja elektron.json o nowe metadane
@@ -11,7 +11,7 @@ import { ElectronsDictSchema } from "@shared/schemas/electron";
  * @param newData dane do dopisania do elektronu
  * @param collector kolektor ostrzeżeń strukturalnych
  */
-export async function appendElectronData(//TODO: adopcja przeniesiona na poziom atomu 
+export async function appendElectronData(
     atomPath: string,
     newData: ElectronsDict,
     collector: WarningCollector,

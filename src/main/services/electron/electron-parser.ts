@@ -1,11 +1,11 @@
+import { calculateElectronMastery } from "@main/services/electron/electron-mastery";
 import type { ElectronNote } from "@shared/domain/types";
+import type { ElectronsDict } from "@shared/schemas/electron";
 import { getFileData } from "@shared/utils/path";
 import type { WarningCollector } from "@shared/utils/warning";
 import { randomUUID } from "node:crypto";
 import type { Dirent } from "node:fs";
 import { join } from "node:path";
-import type { ElectronsDict } from "@shared/schemas/electron";
-import { calculateElectronMastery } from "@shared/utils/electron-mastery";
 
 export interface ElectronParseResult{
     electron: ElectronNote,

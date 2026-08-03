@@ -1,9 +1,8 @@
 import { FlashcardsDictSchema } from "@shared/schemas/flashcard";
 import { QuizzesFileSchema } from "@shared/schemas/quiz";
 import { join } from "path";
-import { readJsonWithSchema } from "./json";
+import { readJsonWithSchema } from "../../../shared/utils/json";
 
-//TODO: Do przeniesienia - kiedy ogarnę strukturę plików
 /**
  * Funkcja oblicza mastery elektronu
  * 

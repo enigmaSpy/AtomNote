@@ -1,12 +1,12 @@
 //?główna funkcja parseWorldline
+import { WorldlineMetaSchema } from "@shared/schemas/worldline"
+import { readJsonWithSchema } from "@shared/utils/json"
 import { createWarningCollector } from "@shared/utils/warning"
 import type { Dirent } from "node:fs"
 import { readdir } from "node:fs/promises"
 import { basename, join } from "node:path"
-import type { Atom, ParsedWorldline } from '../../shared/domain/types'
-import { atomParse } from "./atom-parser"
-import { WorldlineMetaSchema } from "@shared/schemas/worldline"
-import { readJsonWithSchema } from "@shared/utils/json"
+import type { Atom, ParsedWorldline } from '../../../shared/domain/types'
+import { atomParse } from "../atom/atom-parser"
 /**
  * Parsuje pojedyńczy worldline, czyta metadane worldline
  * 
