@@ -3,11 +3,13 @@ import { AtomsTree } from "./AtomsTree";
 
 export const WorldlineTree = () => {
     const { worldlineData, isLoading, actions } = useWorldlineStore();
-    if (isLoading) return <div>Pobieranie struktury Atomów...</div>;
+    if (isLoading) return <div className="cursor-progress">Pobieranie struktury Atomów...</div>;
 
     return (
-        <nav style={{width:'30vw', background:'red'}}>
-            <button onClick={() => actions.loadWorldline('C:/dev/worldline-test')}>
+        <nav style={{width:'18vw', background:'red'}}>
+            <button 
+                className="cursor-pointer"
+                onClick={() => actions.loadWorldline('C:/dev/worldline-test')}>
                 Załaduj Worldline
             </button>
             <div>

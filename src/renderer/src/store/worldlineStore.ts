@@ -18,7 +18,7 @@ interface WorldlineStore{
     actions: WorldlineStoreActions;
 }
 
-export const useWorldlineStore = create<WorldlineStore>((set)=>({
+export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
     worldlineData: null,
     isLoading: false,
     activeAtomId: null,
@@ -36,18 +36,33 @@ export const useWorldlineStore = create<WorldlineStore>((set)=>({
                     activeElectronId: null,
                 });
             } catch (error) {
-                set({ worldlineData: null , error: (error as Error).message});
+                set({
+                    worldlineData: null ,
+                    error: (error as Error).message,
+                    activeAtomId: null,
+                    activeElectronId: null
+                    });
             }finally{
                 set({isLoading:false})
             }
         },
 
-        selectAtom: (atomId)=> set({activeAtomId: atomId,activeElectronId:null}),
+        selectAtom: (atomId)=> {
+            const {activeAtomId} = get();
+            set({
+                activeAtomId: activeAtomId === atomId? null: atomId,
+                activeElectronId:null
+            }
+        )},
         selectElectron: (electronId)=> set({activeElectronId: electronId}),
         clearWorldline: ()=>set({
             worldlineData: null,
             activeAtomId: null,
-            activeElectronId: null
+            activeElectronId: null,
+            isLoading: false,
+            error: null
         })
     }
-}))
+}));
+
+export const useWorldlineActions = ()=> useWorldlineStore((state)=>state.actions);

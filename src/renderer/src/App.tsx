@@ -1,10 +1,10 @@
-import { Template } from "./components/template"
+import { GardenView } from "./components/GardenView"
 
 function App(): React.JSX.Element {
   
   return (
     <>
-      <Template/>
+      <GardenView/>
     </>
   )
 }

@@ -1,37 +1,26 @@
-import { useWorldlineStore } from "@renderer/store/worldlineStore"
-import type { Atom } from "@shared/domain/types"
+import { useWorldlineActions, useWorldlineStore } from "@renderer/store/worldlineStore"
+import type { Atom, ElectronNote } from "@shared/domain/types"
+import { memo, useCallback } from "react"
 import { Fragment } from "react/jsx-runtime"
 
 interface AtomsTreeProps{
     atoms: Atom[];
 }
-
 export const AtomsTree = ({atoms}:AtomsTreeProps) => {
-    const {actions, activeAtomId} = useWorldlineStore();
+    const activeAtomId = useWorldlineStore((state)=>state.activeAtomId);
+
     return (
         <ul>
             {atoms.map((atom)=>(
                 <Fragment key={atom.id}>
-                    <li
-                        style={{cursor:'pointer', 
-                                fontWeight: atom.id=== activeAtomId?'bold':'normal'
-                            }}//TODO: Do przepisania w css
-                            onClick={()=>actions.selectAtom(atom.id)}
-                    >
-                        {atom.name} ({atom.mastery}%)
-                    </li>
+                    <AtomTreeItem atom={atom}/>
+
                     {atom.id === activeAtomId&&(
                         <ul
-                            style={{padding: '1rem'}}
+                            className="p-4"
                         >
-                            {atom.electrons.map((electron)=>(
-                                <li
-                                    key={electron.id}
-                                    onClick={()=>actions.selectElectron(electron.id)}
-                                    style={{cursor:'pointer'}}
-                                >
-                                    {electron.filename} ({electron.mastery}%)
-                                </li>
+                            {atom.electrons?.map((electron)=>(
+                                <ElectronTreeItem key={electron.id} electron={electron}/>
                             ))}
                         </ul>
                     )}
@@ -40,3 +29,29 @@ export const AtomsTree = ({atoms}:AtomsTreeProps) => {
         </ul>
     )
 }
+
+const AtomTreeItem = memo(({atom}:{atom:Atom})=>{
+    const { selectAtom } = useWorldlineActions();
+    const handleSelect = useCallback(()=>selectAtom(atom.id),[atom.id, selectAtom])
+    return (
+        <li className="cursor-pointer bg-amber-300 text-balance" 
+            onClick={handleSelect}
+        >
+            {atom.name} ({atom.mastery}%)
+        </li>
+    )
+});
+
+const ElectronTreeItem = memo(({electron}:{electron:ElectronNote})=>{
+    const { selectElectron } = useWorldlineActions();
+    const handleSelect = useCallback(()=>selectElectron(electron.id),[electron.id, selectElectron])
+    return(
+        <li
+            key={electron.id}
+            onClick={handleSelect}
+            className="cursor-pointer truncate"
+        >
+            {electron.filename} ({electron.mastery}%)
+        </li>
+    )
+});
