@@ -5,7 +5,7 @@ export interface IpcApi{
         parse(rootPath: string):Promise<ParsedWorldline>
     },
     electron:{
-        read(filePath: string):Promise<string>
+        read(rootPath, atomName, filename):Promise<string>
     }
 }
 

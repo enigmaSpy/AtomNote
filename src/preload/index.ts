@@ -7,7 +7,7 @@ const api: IpcApi = {
     parse: (rootPath) => ipcRenderer.invoke(IPC_CHANNELS.WORLDLINE_PARSE, rootPath)
   },
   electron:{
-    read: (filePath) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_READ, filePath)
+    read: (rootPath:string, atomName:string, filename:string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_READ, rootPath, atomName, filename)
   }
 }
 
