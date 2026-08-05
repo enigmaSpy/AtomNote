@@ -26,9 +26,11 @@
     "docs": "typedoc --out docs/api src/shared src/main"
   },
   "dependencies": {
+    "@codemirror/lang-markdown": "^6.5.2",
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@uiw/react-codemirror": "^4.25.11",
     "tailwindcss": "^4.3.3",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"

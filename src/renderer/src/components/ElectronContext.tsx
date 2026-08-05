@@ -1,11 +1,14 @@
 import { useWorldlineStore } from "@renderer/store/worldlineStore";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import ReactCodeMirror from "@uiw/react-codemirror";
+import { markdown } from "@codemirror/lang-markdown";
 
 export const ElectronContext = () => {
     const activeElectronId = useWorldlineStore(state=>(state.activeElectronId));
     const activeAtomId = useWorldlineStore(state=>(state.activeAtomId));
     const worldlineData = useWorldlineStore(state =>(state.worldlineData));
     
+
     const [electronContext, setElectronContext] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
     useEffect(()=>{
@@ -47,7 +50,11 @@ export const ElectronContext = () => {
         return ()=>{
             isCancelled=true;
         }
-    },[ activeElectronId, worldlineData])                       
+    },[ activeElectronId, worldlineData]);
+    
+    const handleChange = useCallback((value:string)=>{
+        setElectronContext(value)
+    },[])
     
     if (!activeElectronId) {
         return <div className="p-4 text-gray-400">Widok Grafu</div>;
@@ -56,8 +63,15 @@ export const ElectronContext = () => {
         return <div className="p-4">Wczytywanie Elektronu...</div>;
     }
     return (
-        <article className="p-6 prose dark:prose-invert max-w-none">
-            <pre className="whitespace-pre-wrap font-sans">{electronContext}</pre>
-        </article>
+        <div className="p-6 prose dark:prose-invert max-w-none">
+            <ReactCodeMirror
+                value={electronContext}
+                height="100%"
+                extensions={[markdown()]}
+                onChange={handleChange}
+                className="h-full text-base font-mono"
+                theme='dark'
+            />
+        </div>
     );
 };
