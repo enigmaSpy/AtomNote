@@ -3,10 +3,10 @@ Design and implementation of the modular knowledge management environment "AtomN
 
 - [x] Electron + React + TypeScript + Vite; `contextIsolation`, sandbox.
 - [x] Typy: `Library`, `Atom`, `Electron`, `Tag`, `Domain`, `Edge`, `Bond`, `Entanglement`.
-- [ ] Schematy `library.json`, `atom.json`, `electrons.json`.
-- [ ] Parser katalogu → model. Twarda reguła: dwa poziomy fizyczne, zero rekurencji.
+- [x] Schematy `worldline.json`, `atom.json`, `electrons.json`.
+- [x] Parser katalogu → model. Twarda reguła: dwa poziomy fizyczne, zero rekurencji.
 - [ ] Silnik tagów: jeden mechanizm dla domen, molekuł i kategorii (§3.4).
 - [ ] Domena jako zapisany filtr. Przełącznik domen w UI.
-- [ ] Panel ostrzeżeń strukturalnych.
+- [x] Panel ostrzeżeń strukturalnych.
 - [ ] IPC: bezpieczny odczyt/zapis metadanych + whitelist ścieżek.
 - [ ] Prosty edytor MDX (Tryb Tworzenia, auto-save).
