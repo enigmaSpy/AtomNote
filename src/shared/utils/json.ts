@@ -21,14 +21,13 @@ export async function readJsonWithSchema<T>(
     filePath:string,
     schema: z.ZodType<T>,
     collector?: WarningCollector,
-    test?: boolean
 ):Promise<ReadResult<T>>{
     let rawText:string;
     try {
         rawText = await readFile(filePath, 'utf-8')
     } catch (error) {
         if(isEnoent(error)){
-           return {status: 'not-found'} 
+            return {status: 'not-found'} 
         }
         collector?.pushWarning(
             filePath,
