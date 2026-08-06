@@ -1,13 +1,10 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { writeFileApp } from "@shared/utils/file";
 
 export async function saveCacheElectron(rootPath, atomName, filename, context){
-    //const filePath = join(rootPath, atomName, filename);
-    //try {
-    //    const file = await readFile(filePath, {encoding:'utf-8'})
-        
-        
-    //} catch (error) {
-        
-    //}
+    try {
+        await writeFileApp(context, rootPath, atomName, '__cache__', filename)
+    } catch (error) {
+        console.error(`Zapis ${filename} nieudany:`, error);
+        throw new Error(`Błąd zapisu cache: ${(error as Error).message}`);
+    }
 }
