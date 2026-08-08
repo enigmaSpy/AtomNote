@@ -1,4 +1,4 @@
-import { ElectronContext } from "./ElectronContext"
+import { NoteEditor } from "./NoteEditor"
 import { WorldlineTree } from "./WorldlineTree"
 
 export const GardenView = () => {
@@ -8,7 +8,7 @@ export const GardenView = () => {
         <div
             style={{width:'30vw'}}
         >
-          <ElectronContext/>
+          <NoteEditor/>
         </div>
         <div
         style={{flex:'30vw'}}

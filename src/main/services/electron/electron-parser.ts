@@ -29,7 +29,7 @@ export async function electronParse(
 
     const { ext } = getFileData(child.name)
     
-    if (ext !== "mdx" && ext !== "md") {
+    if (ext !== "txt" && ext !== "md") {
         collector.pushWarning(
             join(child.parentPath, child.name),
                 'unexpected-file',
