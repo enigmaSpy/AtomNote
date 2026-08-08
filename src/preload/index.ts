@@ -9,7 +9,6 @@ const api: IpcApi = {
   },
   electron:{
     read: (rootPath:string, atomName:string, filename:string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_READ, rootPath, atomName, filename),
-    saveCache: (rootPath:string, atomName:string, filename:string, content: string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_SAVECACHE, rootPath, atomName, filename, content),
     save: (rootPath:string, atomName:string, filename:string, content: string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_SAVE, rootPath, atomName, filename, content)
   }
   //atom:{
