@@ -17,3 +17,5 @@ coverage/          # Test coverage
 *.exe              # Windows executables
 *.dmg              # macOS builds
 *.AppImage         # Linux builds
+
+docs

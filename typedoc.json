@@ -1,0 +1,17 @@
+{
+  "$schema": "https://typedoc.org",
+  "entryPointStrategy": "expand",
+  "entryPoints": [
+    "./src/main",
+    "./src/preload",
+    "./src/renderer/src"
+  ],
+  "exclude": [
+    "**/*.html",
+    "**/assets/**"
+  ],
+  "out": "docs",
+  "name": "AtomNote",
+  "includeVersion": true,
+  "tsconfig": "./tsconfig.json"
+}
