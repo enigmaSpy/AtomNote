@@ -1,5 +1,5 @@
 import { useWorldlineStore } from "@renderer/store/worldlineStore";
-import { AtomsTree } from "./AtomsTree";
+import { AtomsTree } from "./Garden/AtomsTree";
 
 export const WorldlineTree = () => {
     const { worldlineData, isLoading, actions } = useWorldlineStore();

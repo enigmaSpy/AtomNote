@@ -19,11 +19,3 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.editorReadMode{
-  h1{
-    color: red;
-    font-size: 2rem;
-    font-weight: bold;
-    cursor: unset;
-  }
-}

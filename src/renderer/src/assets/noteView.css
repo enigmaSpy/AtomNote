@@ -1,0 +1,8 @@
+.editorReadMode{
+    h1{
+        color: red;
+        font-size: 2rem;
+        font-weight: bold;
+        cursor: unset;
+    }
+}

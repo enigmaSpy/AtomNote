@@ -1,13 +1,17 @@
 import { useWorldlineStore } from "@renderer/store/worldlineStore";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactCodeMirror from "@uiw/react-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { useDebounce } from "@renderer/hooks/useDebounce";
 import Markdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
-
-
+import "../../assets/noteView.css";
+/**
+ *  Widk notatki, pozwala edytować oraz wyświetlać notatkę
+ * 
+ * @returns zwraca widok notatki
+ */
 export const NoteEditor = () => {
     const activeElectronId = useWorldlineStore(state=>(state.activeElectronId));
     const activeAtomId = useWorldlineStore(state=>(state.activeAtomId));
@@ -26,8 +30,8 @@ export const NoteEditor = () => {
     useEffect(() => {
         currentNoteRef.current = { pathObj, content };
     }, [pathObj, content]);
+    
     //?Load content from memory
-
     useEffect(()=>{
         let isCancelled = false;
         setIsLoading(true);
@@ -84,9 +88,8 @@ export const NoteEditor = () => {
 
         window.api.electron
             .save(pathObj.rootPath, pathObj.atomName, pathObj.filename, debounceContent)
-            .then(() => console.log(`[Auto-save] Zapisano cache dla ${pathObj.filename}`))
-            .catch((err) => console.error(`[Auto-save Error]:`, err));
-            
+            //.then(() => console.log(`[Auto-save] Zapisano cache dla ${pathObj.filename}`))
+            //.catch((err) => console.error(`[Auto-save Error]:`, err));
     }, [debounceContent]);
     
     if (!activeElectronId) {
@@ -95,19 +98,21 @@ export const NoteEditor = () => {
     if (isLoading) {
         return <div className="p-4">Wczytywanie Elektronu...</div>;
     }
-    if (isEditMode){
-        return (
-            <div className="editorReadMode">
-                <button onClick={()=>setIsEditMode((prev)=>!prev)}>Podgląd</button>
-                <Markdown rehypePlugins={[rehypeRaw,remarkGfm]}>{/*//TODO: remarkGfm odpala linki, do ogarnięcia */} 
-                    {content}
-                </Markdown>
-            </div>
-        )
-    }else{
-        return (
-            <div>
-                <button onClick={()=>setIsEditMode((prev)=>!prev)}>Edycja</button>
+    return (
+        <div>
+            <button onClick={()=>setIsEditMode((prev)=>!prev)}>{isEditMode?"Podgląd":"Edycja"}</button>
+            {isEditMode?(
+                <div className="editorReadMode">   
+                    <Markdown
+                        rehypePlugins={[rehypeRaw]}
+                        remarkPlugins={[remarkGfm]}
+                        disallowedElements={['input']}
+                        //components={}
+                    >{/*//TODO : remarkGfm odpala linki, do ogarnięcia + custom components*/} 
+                        {content}
+                    </Markdown>
+                </div>
+            ):(
                 <ReactCodeMirror
                     value={content}
                     height="100%"
@@ -120,8 +125,7 @@ export const NoteEditor = () => {
                     className="h-full text-base font-mono"
                     theme='dark'
                 />
-            </div>
-        );
-    }
-    
+            )}
+        </div>
+    );
 };

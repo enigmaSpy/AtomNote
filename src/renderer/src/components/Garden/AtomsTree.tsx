@@ -6,6 +6,12 @@ import { Fragment } from "react/jsx-runtime"
 interface AtomsTreeProps{
     atoms: Atom[];
 }
+/**
+ * Zwraca drzewo aotomów 
+ * 
+ * @param param0  atomy z bierzącego wordline
+ * @returns 
+ */
 export const AtomsTree = ({atoms}:AtomsTreeProps) => {
     const activeAtomId = useWorldlineStore((state)=>state.activeAtomId);
 
