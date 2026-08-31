@@ -7,6 +7,7 @@ import Markdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import "../../assets/noteView.css";
+import { getCurrentFileName } from "@renderer/utils/currentFileName";
 /**
  *  Widk notatki, pozwala edytować oraz wyświetlać notatkę
  * 
@@ -17,7 +18,7 @@ export const NoteEditor = () => {
     const activeAtomId = useWorldlineStore(state=>(state.activeAtomId));
     const worldlineData = useWorldlineStore(state =>(state.worldlineData));
 
-    const [isEditMode, setIsEditMode] = useState<boolean>(false);
+    const [isPreviewMode, setIsPreviewMode] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [content, setContent] = useState<string>("");
     const [pathObj, setPathObj] = useState({
@@ -33,33 +34,34 @@ export const NoteEditor = () => {
     
     //?Load content from memory
     useEffect(()=>{
+        if(!activeAtomId || !activeElectronId || !worldlineData){
+                setIsLoading(false)
+                return;
+            }
         let isCancelled = false;
         setIsLoading(true);
         (async()=>{
-            if(!activeAtomId || !activeElectronId || !worldlineData){
+            
+            
+            const {atomName: currentAtom, electronName:currentElectron} = getCurrentFileName();
+            if (!currentAtom || !currentElectron) {
+                if (!isCancelled) setIsLoading(false);
                 return;
             }
-            const currentAtom = worldlineData?.worldline.atoms
-                        .find((atom)=>atom.id===activeAtomId);
-            if(!currentAtom) return;
-
-            const currentElectron = currentAtom?.electrons
-                        .find((electron)=>electron.id===activeElectronId);
-            if(!currentElectron)return;
             const rootPath = worldlineData.worldline.rootPath;          
             try {
                 const savedContext = await window.api.electron.read(
                     rootPath,
-                    currentAtom.name,
-                    currentElectron.filename
+                    currentAtom,
+                    currentElectron
                 );
                 
                 if (!isCancelled) {
                     setContent(savedContext);
                     setPathObj({
                         rootPath,
-                        atomName: currentAtom.name,
-                        filename: currentElectron.filename,
+                        atomName: currentAtom,
+                        filename: currentElectron,
                     });
                 }
             } catch (error) {
@@ -81,27 +83,24 @@ export const NoteEditor = () => {
         };
     }, [activeElectronId, activeAtomId, worldlineData]);
     
-
-    //?background save cache
     useEffect(() => {
         if (!pathObj.filename || isLoading) return;
 
         window.api.electron
             .save(pathObj.rootPath, pathObj.atomName, pathObj.filename, debounceContent)
-            //.then(() => console.log(`[Auto-save] Zapisano cache dla ${pathObj.filename}`))
-            //.catch((err) => console.error(`[Auto-save Error]:`, err));
     }, [debounceContent]);
     
     if (!activeElectronId) {
         return <div className="p-4 text-gray-400">Widok Grafu</div>;
     }
+    
     if (isLoading) {
         return <div className="p-4">Wczytywanie Elektronu...</div>;
     }
     return (
-        <div>
-            <button onClick={()=>setIsEditMode((prev)=>!prev)}>{isEditMode?"Podgląd":"Edycja"}</button>
-            {isEditMode?(
+        <div className="flex-2">
+            <button onClick={()=>setIsPreviewMode((prev)=>!prev)}>{isPreviewMode?"Podgląd":"Edycja"}</button>
+            {isPreviewMode?(
                 <div className="editorReadMode">   
                     <Markdown
                         rehypePlugins={[rehypeRaw]}

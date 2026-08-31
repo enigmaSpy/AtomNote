@@ -1,18 +1,41 @@
+import { useState } from "react"
+import { StudySyncManager } from "../providers/StudySyncManager"
 import { WorldlineTree } from "../WorldlineTree"
 import { NoteEditor } from "./NoteEditor"
-//TODO sadasdsa
+import { NoteMeta } from "./NoteMeta"
+import { Modal } from "../Modal"
+import { FlashcardsPreview } from "../Study/FlashcardsPreview"
+import { QuizPreview } from "../Study/QuizPreview"
+
+type StudyType = 'flashcards'|'quiz'|null;
+/**
+ * Widok Ogrodu
+ * 
+ * @returns Zwraca wiodok Ogrodu (Notatki ustrukturyzwne)
+ */
 export const GardenView = () => {
+  const [isStudyOpen, setIsStudyOpen] = useState(false);
+  const [studyType, setStudyType] = useState<StudyType>(null);
+
+  const openStudyModal = (type: Exclude<StudyType, null>)=>{
+    setStudyType(type);
+    setIsStudyOpen(true);
+  }
+  const closeStudyModal = ()=>{
+    setStudyType(null);
+    setIsStudyOpen(false);
+  }
   return (
-    <main style={{display:'flex'}}>
-        <WorldlineTree/>
-        <div
-            style={{width:'30vw'}}
-        >
+    <StudySyncManager>
+      <Modal onClose={closeStudyModal} isOpen={isStudyOpen}>
+        {studyType === 'flashcards' && <FlashcardsPreview />}
+        {studyType === 'quiz' && <QuizPreview />}
+      </Modal>
+      <main style={{display:'flex'}}>
+          <WorldlineTree/>
           <NoteEditor/>
-        </div>
-        <div
-        style={{flex:'30vw'}}
-        >c</div>
-    </main>
+          <NoteMeta onOpenStudy={openStudyModal}/>
+      </main>
+    </StudySyncManager>
   )
 }

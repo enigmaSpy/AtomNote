@@ -1,6 +1,11 @@
 import { useWorldlineStore } from "@renderer/store/worldlineStore";
 import { AtomsTree } from "./Garden/AtomsTree";
-
+/**
+ * Nawigacja plików (na razie statyczna ścieżka)
+ * 
+ * @returns Zwraca nawigację notatek 
+ */
+//TODO: Zmiana ścieżki statycznej na automatyczną
 export const WorldlineTree = () => {
     const { worldlineData, isLoading, actions } = useWorldlineStore();
     if (isLoading) return <div className="cursor-progress">Pobieranie struktury Atomów...</div>;

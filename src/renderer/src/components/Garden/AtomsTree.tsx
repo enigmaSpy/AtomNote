@@ -9,7 +9,7 @@ interface AtomsTreeProps{
 /**
  * Zwraca drzewo aotomów 
  * 
- * @param param0  atomy z bierzącego wordline
+ * @param atoms  atomy z bierzącego wordline
  * @returns 
  */
 export const AtomsTree = ({atoms}:AtomsTreeProps) => {
@@ -55,7 +55,7 @@ const ElectronTreeItem = memo(({electron}:{electron:ElectronNote})=>{
         <li
             key={electron.id}
             onClick={handleSelect}
-            className="cursor-pointer truncate"
+            className="cursor-pointer truncate flex-1"
         >
             {electron.filename} ({electron.mastery}%)
         </li>
