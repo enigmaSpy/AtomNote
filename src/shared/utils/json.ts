@@ -27,6 +27,7 @@ export async function readJsonWithSchema<T>(
         rawText = await readFile(filePath, 'utf-8')
     } catch (error) {
         if(isEnoent(error)){
+            console.error(`not found: ${(error as Error).message}`);
             return {status: 'not-found'} 
         }
         collector?.pushWarning(
@@ -34,6 +35,7 @@ export async function readJsonWithSchema<T>(
             'unreadable',
             `Nie można odczytać pliku: ${(error as Error).message}`
         )
+        console.error(`invalid: ${(error as Error).message}`);
         return {status: 'invalid'}
     }
 
@@ -46,6 +48,7 @@ export async function readJsonWithSchema<T>(
             'schema-invalid',
             `Błąd składni pliku JSON: ${(error as Error).message}`
         )
+        console.error(`invalid: ${(error as Error).message}`);
         return {status: 'invalid'};
     }
     
@@ -56,9 +59,19 @@ export async function readJsonWithSchema<T>(
             'schema-invalid',
             `Nieprawidłowa struktura danych: ${result.error.issues[0]?.message}`
         );
+        console.error(`invalid: Nieprawidłowa struktura danych: ${result.error.issues[0]?.message}`);
         return {status: 'invalid'};
     }
     return {status: 'ok',data:result.data};
+}
+
+export async function readJson(path:string, collector:WarningCollector){
+    try {
+        const data = await readFile(path, 'utf-8');
+        return JSON.parse(data)
+    } catch (error) {
+        collector.pushWarning(path, 'unreadable', `Nie można odczytać pliku: ${(error as Error).message}`)
+    }
 }
 
 /**
@@ -70,7 +83,7 @@ export async function readJsonWithSchema<T>(
 export async function writeJson<T>(
     filePath: string,
     data: T,
-    collector: WarningCollector
+    collector?: WarningCollector
 ):Promise<boolean>{
     try {
         await mkdir(dirname(filePath), {recursive: true});

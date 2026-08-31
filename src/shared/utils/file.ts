@@ -8,9 +8,9 @@ export function readFileApp(...segments:string[]):Promise<string>{
 
 export async function writeFileApp(context: string,...segments:string[]):Promise<void>{
     
-        const filePath = join(...segments);
-        await mkdir(dirname(filePath), {recursive:true})
-        await writeFile(filePath, context, {encoding: 'utf-8'});
+    const filePath = join(...segments);
+    await mkdir(dirname(filePath), {recursive:true})
+    await writeFile(filePath, context, {encoding: 'utf-8'});
 }
 
 
