@@ -17,7 +17,9 @@ interface WorldlineStore{
 
     actions: WorldlineStoreActions;
 }
-
+/**
+ * Magazyn worldline
+ */
 export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
     worldlineData: null,
     isLoading: false,
