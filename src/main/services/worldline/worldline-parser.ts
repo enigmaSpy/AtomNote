@@ -1,6 +1,5 @@
-//?główna funkcja parseWorldline
 import { WorldlineMetaSchema } from "@shared/schemas/worldline"
-import { readJsonWithSchema } from "@shared/utils/json"
+import { readJsonWithSchema, writeJson } from "@shared/utils/json"
 import { createWarningCollector } from "@shared/utils/warning"
 import type { Dirent } from "node:fs"
 import { readdir } from "node:fs/promises"
@@ -27,9 +26,9 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
             warnings: collector.warnings
         }
     }
-
+    const worldlinePath = join(rootPath, '.worldline_data', 'worldline.json')
     const worldlineMetaRes = await readJsonWithSchema(
-        join(rootPath, '.worldline_data', 'worldline.json'),
+        worldlinePath,
         WorldlineMetaSchema,
         collector
     )
@@ -37,9 +36,18 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
     let worldlineMeta;
     if (worldlineMetaRes.status === 'ok') {
         worldlineMeta = worldlineMetaRes.data;
+    }else{
+        worldlineMeta={
+            description: "",
+            createdAt: new Date().toISOString(),
+            domains: [],
+            edges: [],
+            settings: {}
+        }
+    
+        await writeJson(worldlinePath, worldlineMeta, collector);
     }
 
-    //? Atomy
     for (const entry of entries) {
         if (!entry.isDirectory() || entry.name.startsWith('.') || entry.name.startsWith('__')) {
             continue;
@@ -55,10 +63,10 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
             id: basename(rootPath),
             name: basename(rootPath),
             rootPath,
-            domains: worldlineMeta?.domains ?? [],
+            domains: worldlineMeta.domains,
             atomCount: atoms.length,
             atoms,
-            edges: worldlineMeta?.edges ?? [],            
+            edges: worldlineMeta.edges,            
         },
         warnings: collector.warnings
     }

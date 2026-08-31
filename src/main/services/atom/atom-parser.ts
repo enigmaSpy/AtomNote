@@ -1,5 +1,4 @@
 //? loadOrAdoptAtomMeta, parsowanie elektronów
-import { appendElectronData } from "@main/services/electron/electron-appendData"
 import type { Atom, ElectronNote } from "@shared/domain/types"
 import { AtomMetaSchema, type AtomMeta } from "@shared/schemas/atom"
 import { ElectronsDictSchema, type ElectronsDict } from "@shared/schemas/electron"
@@ -26,94 +25,97 @@ export async function atomParse(
 ): Promise<Atom | null> {
     
     const atomPath = join(rootPath, entry.name);
-    let inner: Dirent[] = [];
+    let currentAtomFiles: Dirent[] = [];
     try {
-        inner = await readdir(atomPath, { withFileTypes: true })
+        currentAtomFiles = await readdir(atomPath, { withFileTypes: true })
     } catch (error) {
         collector.pushWarning(
             atomPath,
             'unreadable-atom',
             `Nie można odczytać "${entry.name}": ${(error as Error).message}`
-        )            
+        );            
         return null;
     }
 
+    const atomMetaPath = join(atomPath, '.atom_data', 'atom.json')
     const atomMetaRes = await readJsonWithSchema(
-        join(atomPath, '.atom_data', 'atom.json'),
+        atomMetaPath,
         AtomMetaSchema,
         collector
-    )
+    );
 
-    let currentAtomId: string;
-    let atomMeta: AtomMeta | null = null;
-
-    if (atomMetaRes.status === 'ok') {
+    let atomMeta: AtomMeta;
+    if(atomMetaRes.status === "ok"){
         atomMeta = atomMetaRes.data;
-        currentAtomId = atomMeta.id;
-    } else if (atomMetaRes.status === 'not-found') {
-        currentAtomId = randomUUID();
-        await writeJson(
-            join(atomPath, '.atom_data', 'atom.json'),
-            {
-                id: currentAtomId,
-                description: 'adopted',
-                tags: [],
-                createdAt: new Date().toISOString()
-            },
-            collector
-        )
-    } else {
-        currentAtomId = randomUUID();
+    }else{
+        atomMeta ={
+            id: randomUUID(),
+            description: 'adopted',
+            tags: [],
+            createdAt: new Date().toISOString()
+        };
+        await writeJson(atomMetaPath, atomMeta, collector);
     }
+    const currentAtomId = atomMeta.id;
+
+    const electronsPath = join(atomPath, '.atom_data', 'electrons.json');
+    const electronsRes = await readJsonWithSchema(electronsPath, ElectronsDictSchema, collector);
+    
+    let isElectronsDirty = electronsRes.status !== 'ok';
+    const electronsDict: ElectronsDict = electronsRes.status === 'ok' ? electronsRes.data : {};
 
     const electrons: ElectronNote[] = [];
-    const newElectronEntries: ElectronsDict = {};
 
-    const electronsRes = await readJsonWithSchema(
-        join(atomPath, '.atom_data', 'electrons.json'),
-        ElectronsDictSchema,
-        collector
-    )
-
-    const electronsDict = electronsRes.status === 'ok' ? electronsRes.data : {};
-
-    //? Elektrony
-    for (const child of inner) {
-        const isReserved = child.name.startsWith('.') || child.name.startsWith('__')
-        if (child.isDirectory() && !isReserved) {
+    for(const currentElectron of currentAtomFiles){
+        const isReserved = currentElectron.name.startsWith('.')||currentElectron.name.startsWith('__');
+        if(currentElectron.isDirectory() && !isReserved){
             collector.pushWarning(
-                join(atomPath, child.name),
+                join(atomPath,currentElectron.name),
                 'unexpected-subfolder',
-                `Pod-folder "${child.name}" w atomie jest ignorowany.`
-            )
-            continue
+                `Podfolder ${currentElectron.name} w ${entry.name} jest ignorowany`);
+            continue;
         }
-        
-        if (child.isFile() && !isReserved) {
-            const result = await electronParse(child, currentAtomId, electronsDict, collector);
-            if (result) {
-                electrons.push(result.electron)
-                if (result.newMetaEntry) {
-                    Object.assign(newElectronEntries, result.newMetaEntry);
-                }
+        if(currentElectron.isFile()&&!isReserved){
+            const dictEntry = Object.entries(electronsDict).find(([_, meta])=>meta.filename === currentElectron.name);
+
+            let electronId: string;
+            let electronMeta;
+
+            if(dictEntry){
+                electronId = dictEntry[0];
+                electronMeta = dictEntry[1];
+            }else{
+                electronId = randomUUID();
+                electronMeta = {
+                    filename: currentElectron.name,
+                    tags: [],
+                    covalentAtomsIds: [],
+                    createdAt: new Date().toISOString(),
+                    upDatedAt: new Date().toISOString()
+                };
+                electronsDict[electronId] = electronMeta;
+                isElectronsDirty = true;
+            }
+
+            const parsedElectron = await electronParse(currentElectron, currentAtomId, electronId, electronMeta, collector);
+            if (parsedElectron){
+                electrons.push(parsedElectron);
             }
         }
     }
 
-    if (Object.keys(newElectronEntries).length > 0) {
-        await appendElectronData(atomPath, newElectronEntries, collector)
+    if (isElectronsDirty){
+        await writeJson(electronsPath, electronsDict, collector);
     }
+    const totalElectronMastery = electrons.reduce((acc, cur)=> acc+cur.mastery, 0);
+    const atomMastery = electrons.length > 0 ? totalElectronMastery/electrons.length:0;
 
-    const totalElectronMastery = electrons.reduce((acc, cur) => acc + cur.mastery, 0);
-    const atomMastery = electrons.length > 0 ? totalElectronMastery / electrons.length : 0;
-
-    const atom: Atom = {
+    return {
         id: currentAtomId,
         name: basename(entry.name),
-        description: atomMeta?.description ?? '',
-        tags: atomMeta?.tags ?? [],
-        mastery: atomMastery,
+        description: atomMeta.description,
+        tags: atomMeta.tags,
+        mastery: Number(atomMastery.toFixed(2)),
         electrons
     }
-    return atom
 }
