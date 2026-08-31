@@ -8,5 +8,5 @@ Design and implementation of the modular knowledge management environment "AtomN
 - [ ] Silnik tagów: jeden mechanizm dla domen, molekuł i kategorii.
 - [ ] Domena jako zapisany filtr. Przełącznik domen w UI.
 - [x] Panel ostrzeżeń strukturalnych.
-- [ ] IPC: bezpieczny odczyt/zapis metadanych + whitelist ścieżek.
+- [x] IPC: bezpieczny odczyt/zapis metadanych + whitelist ścieżek.
 - [x] Prosty edytor MDX (Tryb Tworzenia, auto-save).
