@@ -65,3 +65,18 @@ export interface ParsedWorldline{
     worldline: Worldline
     warnings: StructuralWarning[]
 }
+
+export interface Flashcard{
+    id: string;
+    front: string;
+    back: string;
+    mastery: number;
+}
+
+export interface QuizQuestion{
+    id: string
+    question: string
+    answers: string[]
+    correctAnswerIndex: number[]
+    mastery: number
+}

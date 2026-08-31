@@ -8,11 +8,13 @@ export const FlashcardSchema = z.object({
 })
 
 export const FlashcardSetSchema = z.object({
-  id: z.uuid(),
   cards: z.array(FlashcardSchema)
 })
 
-export const FlashcardsDictSchema = z.record(z.uuid(),FlashcardSetSchema)
+export const FlashcardsDictSchema = z.record(
+  z.uuid(),
+  FlashcardSetSchema
+)
 export type FlashcardsDict = z.infer<typeof FlashcardsDictSchema>;
 export type Flashcard = z.infer<typeof FlashcardSchema>
 export type FlashcardSet = z.infer<typeof FlashcardSetSchema>

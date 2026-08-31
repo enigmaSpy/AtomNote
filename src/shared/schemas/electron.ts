@@ -7,5 +7,8 @@ export const ElectronMetaSchema = z.object({
     createdAt: z.string(),
     updatedAt: z.string()
 });
-export const ElectronsDictSchema = z.record(z.uuid(), ElectronMetaSchema)
+export const ElectronsDictSchema = z.record(
+    z.uuid(), ElectronMetaSchema
+);
 export type ElectronsDict = z.infer<typeof ElectronsDictSchema>
+export type ElectronMeta = z.infer<typeof ElectronMetaSchema>
