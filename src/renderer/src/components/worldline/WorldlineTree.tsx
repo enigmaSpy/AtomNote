@@ -1,5 +1,5 @@
 import { useWorldlineStore } from "@renderer/store/worldlineStore";
-import { AtomsTree } from "./Garden/AtomsTree";
+import { AtomsTree } from "./AtomsTree";
 /**
  * Nawigacja plików (na razie statyczna ścieżka)
  * 

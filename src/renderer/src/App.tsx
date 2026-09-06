@@ -1,4 +1,4 @@
-import { GardenView } from "./components/Garden/GardenView"
+import { GardenView } from "./views/GardenView"
 
 function App(): React.JSX.Element {
   

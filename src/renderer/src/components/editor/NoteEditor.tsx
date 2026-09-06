@@ -6,7 +6,7 @@ import { useDebounce } from "@renderer/hooks/useDebounce";
 import Markdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
-import "../../assets/noteView.css";
+import "./NoteEditor.module.css";
 import { getCurrentFileName } from "@renderer/utils/currentFileName";
 /**
  *  Widk notatki, pozwala edytować oraz wyświetlać notatkę

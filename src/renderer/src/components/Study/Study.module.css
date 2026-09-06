@@ -1,0 +1,104 @@
+.studyCover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80svw;
+  height: 80svh;
+  margin: 0 auto;
+  background-color: #f8fafc;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  user-select: none;
+  padding: 2rem;
+  gap: 1rem;
+}
+
+.studyCover h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.studyCover > div:first-child {
+  font-size: 1.1rem;
+  color: #475569;
+}
+
+.flashcard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+  min-height: 200px;
+  padding: 2rem;
+  background-color: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #0f172a;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  text-align: center;
+}
+
+.flashcard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  border-color: #cbd5e1;
+}
+
+.studyCover > div:last-child {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.studyCover button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.studyCover button:active {
+  transform: scale(0.97);
+}
+
+.studyCover button:first-of-type {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.studyCover button:first-of-type:hover {
+  background-color: #fecaca;
+}
+
+.studyCover button:last-of-type {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.studyCover button:last-of-type:hover {
+  background-color: #bbf7d0;
+}
+
+.studyCover > div:only-child {
+  font-size: 1.2rem;
+  color: #64748b;
+}
+
+.studyCover button {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+.studyCover button:hover {
+  background-color: #cbd5e1;
+}
