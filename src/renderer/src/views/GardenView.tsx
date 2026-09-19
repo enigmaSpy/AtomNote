@@ -1,13 +1,17 @@
 import { useState } from "react"
 import { NoteMeta } from "../components/editor/NoteMeta"
 import { NoteEditor } from "../components/editor/NoteEditor"
-import { WorldlineTree } from "../components/worldline/WorldlineTree"
+import { WorldlineNav } from "../components/worldline/WorldlineNav"
 import { StudySyncManager } from "../components/providers/StudySyncManager"
 import { FlashcardSession } from "../components/study/FlashcardSession"
 import { QuizPreview } from "../components/study/QuizPreview"
 import { Modal } from "../components/ui/Modal"
 import styles from './Garden.module.css'
-type StudyType = 'flashcards'|'quiz'|null;
+import { useWorldlineStore } from "@renderer/store/worldlineStore"
+import { WorldlineGraph } from "@renderer/components/graph/WorldlineGraph"
+import { FlashcardsPreview } from "@renderer/components/study/FlashcardsPreview"
+import clsx from "clsx"
+type StudyType = 'flashcards'|'quiz'|'flashcardsPreview'|null;
 /**
  * Widok Ogrodu
  * 
@@ -16,6 +20,7 @@ type StudyType = 'flashcards'|'quiz'|null;
 export const GardenView = () => {
   const [isStudyOpen, setIsStudyOpen] = useState(false);
   const [studyType, setStudyType] = useState<StudyType>(null);
+  const activeElectronId = useWorldlineStore(state => state.activeElectronId);
 
   const openStudyModal = (type: Exclude<StudyType, null>)=>{
     setStudyType(type);
@@ -25,17 +30,31 @@ export const GardenView = () => {
     setStudyType(null);
     setIsStudyOpen(false);
   }
+  //TODO: Przenieść logikę renderowania Grafu do głównego widoku
   return (
-    <StudySyncManager>
-      <Modal onClose={closeStudyModal} isOpen={isStudyOpen}>
+      <StudySyncManager>
+      <Modal onClose={closeStudyModal} isOpen={isStudyOpen&&studyType!='flashcardsPreview'}>
         {studyType === 'flashcards' && <FlashcardSession />}
         {studyType === 'quiz' && <QuizPreview />}
       </Modal>
       <main className={styles.gardenView}>
-          <WorldlineTree/>
-          <NoteEditor/>
-          <NoteMeta onOpenStudy={openStudyModal}/>
+          <WorldlineNav collapsed={studyType === 'flashcardsPreview'}/>
+          {activeElectronId? (
+            <>
+                <NoteEditor/>
+                {studyType==='flashcardsPreview'?(
+                  <FlashcardsPreview onClose={closeStudyModal}/>
+                  ):(
+                  <NoteMeta onOpenStudy={openStudyModal}/>
+                )}
+            </>
+          ):(
+            <WorldlineGraph/>
+          )}
       </main>
+      <div>
+        tutaj będzie mini terminal
+      </div>
     </StudySyncManager>
   )
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-
+import styles from './Ui.module.css'
 export const Modal = ({isOpen, onClose, children}) => {
     const dialogRef = useRef<HTMLDialogElement | null>(null);
     useEffect(()=>{
@@ -14,14 +14,16 @@ export const Modal = ({isOpen, onClose, children}) => {
     },[isOpen])
   return (
     <dialog
+        className={styles.modal}
         ref={dialogRef}
         onClose={onClose}
     >
         {children}
         <button
+            className={styles.exit}
             onClick={onClose}
         >
-            Zamknij
+            X
         </button>
     </dialog>
   )

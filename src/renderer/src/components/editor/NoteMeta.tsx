@@ -1,7 +1,7 @@
 import { useStudyStore } from '@renderer/store/studyStore';
-
+import styles from './NoteEditor.module.css'
 interface NoteMetaProps{
-    onOpenStudy: (type: 'flashcards' | 'quiz')=>void;
+    onOpenStudy: (type: 'flashcards' | 'quiz' | 'flashcardsPreview')=>void;
 }
 /**
  * Widok ten jest panelem, który umożliwa odtworzenie, stworzenie, edycję i usunięcie pytań i fiszek.
@@ -13,9 +13,9 @@ export const  NoteMeta = ({onOpenStudy}:NoteMetaProps) => {
     const flashcards = useStudyStore(state=>state.flashcards);
     const quizzes = useStudyStore(state=>state.quizzes);
     return (
-        <div className='flex-row gap-4 flex-1'>
+        <div className={styles.noteMeta}>
             <div>
-                <button>
+                <button onClick={()=>onOpenStudy('flashcardsPreview')}>
                     {flashcards[0]? "Edytuj Fiszki":"Stwórz Fiszki"}
                 </button>
                 {flashcards[0]? 

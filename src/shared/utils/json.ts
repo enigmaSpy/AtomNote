@@ -1,13 +1,24 @@
 import { isEnoent, type WarningCollector } from "@shared/utils/warning"
-import { mkdir, readFile, writeFile } from "node:fs/promises"
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises"
 import { dirname } from "node:path";
 import z from "zod"
 
 export type ReadResult<T>=
-    | {status: 'ok'; data: T}
+    | {status: 'ok'; data?: T}
     | {status: 'not-found'}
     | {status: `invalid`}
-//? writeElectronsMeta, isEnoent, emptyWorldline
+export type WriteResult =
+    | { status: 'ok' }
+    | { status: 'invalid' }
+    | { status: 'write-failed' };
+export async function readJson(path:string, collector:WarningCollector){
+    try {
+        const data = await readFile(path, 'utf-8');
+        return JSON.parse(data)
+    } catch (error) {
+        collector.pushWarning(path, 'unreadable', `Nie można odczytać pliku: ${(error as Error).message}`)
+    }
+}
 /**
  * Bezpieczne odczytanie pliku JSON i walidacja ze schematem Zoda
  * 
@@ -24,7 +35,7 @@ export async function readJsonWithSchema<T>(
 ):Promise<ReadResult<T>>{
     let rawText:string;
     try {
-        rawText = await readFile(filePath, 'utf-8')
+        rawText = await readFile(filePath, 'utf8')
     } catch (error) {
         if(isEnoent(error)){
             console.error(`not found: ${(error as Error).message}`);
@@ -35,7 +46,7 @@ export async function readJsonWithSchema<T>(
             'unreadable',
             `Nie można odczytać pliku: ${(error as Error).message}`
         )
-        console.error(`invalid: ${(error as Error).message}`);
+        if(!collector) console.error(`invalid: ${(error as Error).message}`);
         return {status: 'invalid'}
     }
 
@@ -48,7 +59,7 @@ export async function readJsonWithSchema<T>(
             'schema-invalid',
             `Błąd składni pliku JSON: ${(error as Error).message}`
         )
-        console.error(`invalid: ${(error as Error).message}`);
+        if(!collector) console.error(`invalid: ${(error as Error).message}`);
         return {status: 'invalid'};
     }
     
@@ -57,22 +68,14 @@ export async function readJsonWithSchema<T>(
         collector?.pushWarning(
             filePath,
             'schema-invalid',
-            `Nieprawidłowa struktura danych: ${result.error.issues[0]?.message}`
+            `Nieprawidłowa struktura danych: ${z.prettifyError(result.error)}`
         );
-        console.error(`invalid: Nieprawidłowa struktura danych: ${result.error.issues[0]?.message}`);
+        if (!collector) console.error(`invalid: Nieprawidłowa struktura danych: ${z.prettifyError(result.error)}`);
         return {status: 'invalid'};
     }
     return {status: 'ok',data:result.data};
 }
 
-export async function readJson(path:string, collector:WarningCollector){
-    try {
-        const data = await readFile(path, 'utf-8');
-        return JSON.parse(data)
-    } catch (error) {
-        collector.pushWarning(path, 'unreadable', `Nie można odczytać pliku: ${(error as Error).message}`)
-    }
-}
 
 /**
  * 
@@ -88,18 +91,39 @@ export async function writeJson<T>(
     try {
         await mkdir(dirname(filePath), {recursive: true});
         const jsonString = JSON.stringify(data);
-        await writeFile(filePath, jsonString);
+        const tmp = `${filePath}.${process.pid}.tmp`;
+        await writeFile(tmp, jsonString, 'utf8');
+        await rename(tmp, filePath);
         return true;
     } catch (error) {
-        if(!isEnoent(error)){
-            collector?.pushWarning(
-                filePath,
-                'unreadable',
-                `Nie można odczytać pliku: ${(error as Error).message}`
-            )
-        }
+        collector?.pushWarning(
+            filePath,
+            'write-failed',
+            `Nie można zapisać pliku: ${(error as Error).message}`
+        )
         return false
     }   
+}
+
+export async function writeJsonWithSchema<T>(
+    filePath: string,
+    schema: z.ZodType<T>,
+    data: T,
+    collector?:WarningCollector
+):Promise<WriteResult>{
+    const result = schema.safeParse(data);
+    if(!result.success){
+        collector?.pushWarning(
+            filePath,
+            'schema-invalid',
+            `Nieprawidłowa struktura danych: ${z.prettifyError(result.error)}`
+        );
+        if (!collector) console.error(`invalid: Nieprawidłowa struktura danych: ${z.prettifyError(result.error)}`);
+        return {status: 'invalid'}
+    }
+    const success = await writeJson(filePath, result.data, collector);
+    if(!success) return {status:"write-failed"}
+    return {status: 'ok'}
 }
 
 export async function updateJson(){

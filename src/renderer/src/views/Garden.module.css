@@ -1,3 +1,5 @@
 .gardenView{
     display: flex;
+    flex:auto;
+    height: 95svh;
 }

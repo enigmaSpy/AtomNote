@@ -1,0 +1,33 @@
+.leftPanel {
+  background: var(--bg-suface-1);
+  color: var(--text-primary);
+  border: 1px solid black;
+  overflow: hidden;
+  user-select: none;
+  flex-shrink: 0;
+  flex-grow: 0;
+  position: relative;
+
+  transition: min-width 0.2s ease-out;
+  li,
+  ul {
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  ul {
+    margin-left: 0.9em;
+  }
+}
+.navOpen {
+  /*min-width: 20ch;*/
+  width: auto;
+  width: 16svw;
+}
+.navCollapsed {
+  min-width: 0;
+  width: 0;
+  padding: 0;
+  border: none;
+}

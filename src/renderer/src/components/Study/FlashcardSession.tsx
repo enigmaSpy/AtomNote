@@ -23,6 +23,10 @@ export const FlashcardSession = () => {
         setUnknownCards(newUnknown)
         
     }
+    const newStudySession = ()=>{
+        setUnknownCards([...flashcards]);
+        setRound(0);
+    }
     const flashcardsState = {
         knownIds: [] as string[],
         nextCardHandler: function(known:boolean){
@@ -34,9 +38,7 @@ export const FlashcardSession = () => {
                 clearUnknownCards(this.knownIds, unknowCards)
             }else{
                 setCardPointer((prev)=>prev+1);
-            }
-            console.log(unknowCards);
-            
+            }            
         }
     }
     return (
@@ -46,7 +48,7 @@ export const FlashcardSession = () => {
             {unknowCards.length<=0?
             (
                 <div>
-                    <button>Zacznij od nowa!</button>
+                    <button onClick={()=>newStudySession()}>Zacznij od nowa!</button>
                 </div>
             ):(
                 <>

@@ -1,13 +1,20 @@
 /*TODO: Podmianka statycznych kolorów*/
-.editorReadMode {
-  line-height: 1.6;
-  color: #1e293b;
-  font-size: 1rem;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 1rem 0;
-  word-wrap: break-word;
+.noteWrapper{
+  width: calc(100svw - 20ch - 40ch);
+  max-width: calc(100svw - 20ch - 40ch);
+  overflow-y: auto;
+  position: relative;
+  word-break: break-all;
+}
 
+.previewMode{
+  line-height: 1.6;
+  color: #4477c8;
+  font-size: 1rem;
+  margin: 0 auto;
+  padding: 1rem;
+  word-wrap: break-word;
+  background-color: rgb(238, 190, 190);
   h1,h2,h3,h4,h5,h6 {
     font-weight: 700;
     line-height: 1.3;
@@ -165,8 +172,26 @@
     pointer-events: none; 
   }
 }
+.editMode{
+}
+.noteMeta{
+  width: 40ch;
+  background: var(--bg-surface-1);
+}
 
-
-
-
-
+.switchMode{
+    padding: 5px;
+    position:absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    background: var(--accent-tonal-bg);
+    color: var(--accent-default);
+    border:2px solid transparent;
+    width: 10ch;
+    &:hover{
+      color: var(--accent-hover);
+      background: var(--accent-tonal-hover);
+      border: 2px solid var(--accent-tonal-hover);
+    }
+}

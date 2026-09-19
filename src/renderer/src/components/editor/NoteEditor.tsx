@@ -6,7 +6,7 @@ import { useDebounce } from "@renderer/hooks/useDebounce";
 import Markdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
-import "./NoteEditor.module.css";
+import styles from "./NoteEditor.module.css";
 import { getCurrentFileName } from "@renderer/utils/currentFileName";
 /**
  *  Widk notatki, pozwala edytować oraz wyświetlać notatkę
@@ -17,52 +17,50 @@ export const NoteEditor = () => {
     const activeElectronId = useWorldlineStore(state=>(state.activeElectronId));
     const activeAtomId = useWorldlineStore(state=>(state.activeAtomId));
     const worldlineData = useWorldlineStore(state =>(state.worldlineData));
+    const currentPath = useWorldlineStore(state => state.currentPath);
 
     const [isPreviewMode, setIsPreviewMode] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [content, setContent] = useState<string>("");
-    const [pathObj, setPathObj] = useState({
-        rootPath: "",
-        atomName: "",
-        filename: ""
-    });
+    
+    const activeNames = getCurrentFileName();
+    //const activeAtomName = activeNames.atomName;
+    const activeElectronName = activeNames.electronName;
+    
     const debounceContent = useDebounce(content, 500);
-    const currentNoteRef = useRef({ pathObj, content });
+
+    const loadedNoteRef = useRef({path: "", file:"", content:""}); 
     useEffect(() => {
-        currentNoteRef.current = { pathObj, content };
-    }, [pathObj, content]);
+        if(loadedNoteRef.current.file){
+            loadedNoteRef.current.content = content;
+        }
+    }, [content]);
     
     //?Load content from memory
     useEffect(()=>{
-        if(!activeAtomId || !activeElectronId || !worldlineData){
+        if(!activeAtomId || !activeElectronId || !worldlineData || !activeElectronName ||!currentPath){
                 setIsLoading(false)
                 return;
             }
         let isCancelled = false;
         setIsLoading(true);
+
+        const targetPath = currentPath;
+        const targetFile = activeElectronName;
         (async()=>{
             
-            
-            const {atomName: currentAtom, electronName:currentElectron} = getCurrentFileName();
-            if (!currentAtom || !currentElectron) {
-                if (!isCancelled) setIsLoading(false);
-                return;
-            }
-            const rootPath = worldlineData.worldline.rootPath;          
             try {
                 const savedContext = await window.api.electron.read(
-                    rootPath,
-                    currentAtom,
-                    currentElectron
+                    targetPath,
+                    targetFile
                 );
-                
                 if (!isCancelled) {
                     setContent(savedContext);
-                    setPathObj({
-                        rootPath,
-                        atomName: currentAtom,
-                        filename: currentElectron,
-                    });
+                    loadedNoteRef.current={
+                        path: targetPath,
+                        file: targetFile,
+                        content: savedContext
+                    }
                 }
             } catch (error) {
                 if (!isCancelled) {
@@ -75,37 +73,38 @@ export const NoteEditor = () => {
 
         return () => {
             isCancelled = true;
-            const { pathObj: oldPath, content: oldContent } = currentNoteRef.current;
-            if (oldPath.filename) {
-                window.api.electron.save(oldPath.rootPath, oldPath.atomName, oldPath.filename, oldContent)
+            const {path: savePath, file:saveFile, content: saveContent} = loadedNoteRef.current;
+            if (savePath && saveFile) {
+                window.api.electron.save(savePath, saveFile, saveContent)
                     .catch((err) => console.error(`[Flush Save Error]:`, err));
             }
         };
-    }, [activeElectronId, activeAtomId, worldlineData]);
+    }, [activeElectronId]);
     
     useEffect(() => {
-        if (!pathObj.filename || isLoading) return;
+        const {path, file} = loadedNoteRef.current;
+        if (!file || isLoading) return;
 
         window.api.electron
-            .save(pathObj.rootPath, pathObj.atomName, pathObj.filename, debounceContent)
-    }, [debounceContent]);
-    
-    if (!activeElectronId) {
-        return <div className="p-4 text-gray-400">Widok Grafu</div>;
-    }
+            .save(path, file, debounceContent)
+            .catch(console.error);
+    }, [debounceContent, isLoading]);
     
     if (isLoading) {
         return <div className="p-4">Wczytywanie Elektronu...</div>;
     }
     return (
-        <div className="flex-2">
-            <button onClick={()=>setIsPreviewMode((prev)=>!prev)}>{isPreviewMode?"Podgląd":"Edycja"}</button>
+        <div className={styles.noteWrapper}>
+            <button className={styles.switchMode}
+                onClick={()=>setIsPreviewMode((prev)=>!prev)}>{!isPreviewMode?"Podgląd":"Edycja"}
+            </button>
             {isPreviewMode?(
-                <div className="editorReadMode">   
+                <div className={styles.previewMode}>   
                     <Markdown
                         rehypePlugins={[rehypeRaw]}
                         remarkPlugins={[remarkGfm]}
                         disallowedElements={['input']}
+                        
                         //components={}
                     >{/*//TODO : remarkGfm odpala linki, do ogarnięcia + custom components*/} 
                         {content}
@@ -114,15 +113,16 @@ export const NoteEditor = () => {
             ):(
                 <ReactCodeMirror
                     value={content}
-                    height="100%"
+                    className={styles.editMode}
+                    height="95svh"
                     extensions={[markdown()]}
                     onChange={
                         (value)=>{
                             setContent(value);
                         }
                     }
-                    className="h-full text-base font-mono"
-                    theme='dark'
+                        
+                    theme='light'
                 />
             )}
         </div>

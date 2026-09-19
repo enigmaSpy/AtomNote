@@ -1,104 +1,253 @@
 .studyCover {
+  flex: 0 0 50%;
+  max-width: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 80svw;
-  height: 80svh;
-  margin: 0 auto;
-  background-color: #f8fafc;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  user-select: none;
-  padding: 2rem;
-  gap: 1rem;
-}
+  gap: 1.5rem;
+  padding: 1.5rem;
+  box-sizing: border-box;
 
-.studyCover h2 {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-}
+  button {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition:
+      transform 0.15s ease,
+      opacity 0.15s ease;
 
-.studyCover > div:first-child {
-  font-size: 1.1rem;
-  color: #475569;
+    &:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  button:first-child {
+    color: var(--color-error);
+    background: var(--color-error-tonal);
+  }
+
+  button:last-child {
+    color: var(--color-success);
+    background: var(--color-success-tonal);
+    margin: 0 1rem;
+  }
 }
 
 .flashcard {
+  width: 100%;
+  max-width: 360px;
+  min-height: 480px;
+  aspect-ratio: 5 / 7;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  box-sizing: border-box;
+
+  background-color: var(--card-bg, #ffffff);
+  border-radius: 16px;
+  border: 1px solid var(--card-border, rgba(0, 0, 0, 0.08));
+
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 10px 15px -3px rgba(0, 0, 0, 0.08);
+
+  text-align: center;
+  user-select: none;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+  margin: 0 auto;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  color: var(--text-primary);
+}
+
+.header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 600px;
-  min-height: 200px;
-  padding: 2rem;
-  background-color: #ffffff;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: #0f172a;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  text-align: center;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: var(--bg-sunken);
+    color: var(--text-primary);
+  }
 }
 
-.flashcard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-  border-color: #cbd5e1;
-}
-
-.studyCover > div:last-child {
+.form {
   display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: var(--bg-surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
 }
 
-.studyCover button {
-  padding: 0.6rem 1.2rem;
+.formTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.inputsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 52px;
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface-2);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent-focus-ring);
+    box-shadow: 0 0 0 2px var(--accent-tonal-bg);
+  }
+}
+
+.submitButton {
+  align-self: flex-end;
+  background-color: var(--accent-default);
+  color: #ffffff;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1.2rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--accent-hover);
+  }
+
+  &:active {
+    background-color: var(--accent-active);
+  }
 }
 
-.studyCover button:active {
-  transform: scale(0.97);
+.listSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.studyCover button:first-of-type {
-  background-color: #fee2e2;
-  color: #b91c1c;
+.searchWrapper {
+  width: 100%;
 }
 
-.studyCover button:first-of-type:hover {
-  background-color: #fecaca;
+.cardsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
-.studyCover button:last-of-type {
-  background-color: #dcfce7;
-  color: #15803d;
+.flashcardItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  background-color: var(--bg-surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--bg-surface-2);
+    border-color: var(--border-strong);
+  }
+
+  position: relative;
+  span {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 0.4rem 1rem;
+  }
 }
 
-.studyCover button:last-of-type:hover {
-  background-color: #bbf7d0;
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
 }
 
-.studyCover > div:only-child {
-  font-size: 1.2rem;
-  color: #64748b;
+.cardFront {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  word-break: break-word;
 }
 
-.studyCover button {
-  background-color: #e2e8f0;
-  color: #1e293b;
+.cardBack {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  word-break: break-word;
 }
-.studyCover button:hover {
-  background-color: #cbd5e1;
+
+.masteryBadge {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-md) var(--radius-md) var(--radius-md) var(--radius-full);
+  background-color: var(--accent-tonal-bg);
+  color: var(--accent-default);
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }

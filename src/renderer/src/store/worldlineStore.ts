@@ -6,14 +6,15 @@ interface WorldlineStoreActions{
     selectElectron: (electronId: string | null)=>void;
     selectAtom: (atomId: string | null)=>void;
     clearWorldline: ()=>void;
+    setPath: (rootPath: string, atomName:string)=>Promise<void>
 }
-
 interface WorldlineStore{
     worldlineData: ParsedWorldline | null;
     isLoading: boolean;
     activeAtomId: string | null;
     activeElectronId: string | null;
     error: string|null;
+    currentPath:string|null;
 
     actions: WorldlineStoreActions;
 }
@@ -26,7 +27,8 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
     activeAtomId: null,
     activeElectronId: null,
     error: null,
-
+    currentPath: null,
+    
     actions:{
         loadWorldline: async (rootPath: string)=>{
             set({isLoading:true, error:null})
@@ -42,7 +44,8 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
                     worldlineData: null ,
                     error: (error as Error).message,
                     activeAtomId: null,
-                    activeElectronId: null
+                    activeElectronId: null,
+                    currentPath: null
                     });
             }finally{
                 set({isLoading:false})
@@ -64,8 +67,15 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             activeAtomId: null,
             activeElectronId: null,
             isLoading: false,
-            error: null
-        })
+            error: null,
+            currentPath: null
+        }),
+        setPath:async (rootPath, atomName)=>{
+            const path = await window.api.helpers.getPath(rootPath, atomName);
+            set({
+                currentPath: path
+            })
+        }
     }
 }));
 

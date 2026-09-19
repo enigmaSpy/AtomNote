@@ -1,13 +1,13 @@
 :root{
     --bg-main: #f6f8f9;
     --bg-sunken: #EDF1F3;
-    --bg-suface-1: #FFF;
-    --bg-sufrace-2: #F2F5F6;
+    --bg-surface-1: #FFF;
+    --bg-surface-2: #F2F5F6;
 
     --bg-main-dark: #191C1F;
     --bg-sunken-dark: #14171A;
-    --bg-suface-1-dark: #22272B;
-    --bg-sufrace-2-dark: #282E33;
+    --bg-surface-1-dark: #22272B;
+    --bg-surface-2-dark: #282E33;
 
     --text-primary: #1A2126;
     --text-secondary: #5B6770;
@@ -31,22 +31,39 @@
     --accent-tonal-bg-dark: #223236;
     --accent-tonal-hover-dark: #2A3D42;
 
-    --feedback-success: #4A7A4F;
-    --feedback-success-tonal: #E9F0E9;
-    --feedback-warning: #8A6D2F;
-    --feedback-warning-tonal: #F4EEE0;
-    --feedback-error: #A05252;
-    --feedback-error-tonal: #F3E9E9;
-    --feedback-error: #54648F;
-    --feedback-error-tonal: #E9ECF3;
+    --color-success: #4A7A4F;
+    --color-success-tonal: #E9F0E9;
+    --color-warning: #8A6D2F;
+    --color-warning-tonal: #F4EEE0;
+    --color-error: #A05252;
+    --color-error-tonal: #F3E9E9;
+    --color-info: #54648F;
+    --color-info-tonal: #E9ECF3;
 
-    --feedback-success-dark: #86AC7C;
-    --feedback-success-tonal-dark: #222E26;
-    --feedback-warning-dark: #C2A46A;
-    --feedback-warning-tonal-dark: #332D1D;
-    --feedback-error-dark: #C58080;
-    --feedback-error-tonal-dark: #382626;
-    --feedback-error-dark: #8FA0CC;
-    --feedback-error-tonal-dark: #272E3D;
+    --color-success-dark: #86AC7C;
+    --color-success-tonal-dark: #222E26;
+    --color-warning-dark: #C2A46A;
+    --color-warning-tonal-dark: #332D1D;
+    --color-error-dark: #C58080;
+    --color-error-tonal-dark: #382626;
+    --color-info-dark: #8FA0CC;
+    --color-info-tonal-dark: #272E3D;
+
+    --border-subtle: rgba(26, 33, 38, 0.08);
+  --border-strong: rgba(26, 33, 38, 0.16);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+
+  --dialog-backdrop: rgba(20, 23, 26, 0.45);
+
+  --overlay-hover: rgba(0, 0, 0, 0.04);
 }
 
+:root {
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+}

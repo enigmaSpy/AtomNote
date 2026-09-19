@@ -1,3 +1,4 @@
+
 export type AtomId = string
 export type ElectronId = string 
 export type WorldlineId = string
@@ -55,6 +56,7 @@ export type WarningReason =
     | 'unreadable-atom'          // nieczytelny katalog atomu
     | 'missing-covalent-target'  // kowalencja wskazuje nieistniejący atom
     | 'unexpected-file'
+    | 'write-failed'
 export interface StructuralWarning{
     path: string
     reason: WarningReason
@@ -80,3 +82,4 @@ export interface QuizQuestion{
     correctAnswerIndex: number[]
     mastery: number
 }
+export type StudyType = 'flashcard' | 'quiz'

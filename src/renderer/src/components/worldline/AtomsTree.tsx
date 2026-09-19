@@ -1,8 +1,8 @@
 import { useWorldlineActions, useWorldlineStore } from "@renderer/store/worldlineStore"
+import { getCurrentFileName } from "@renderer/utils/currentFileName";
 import type { Atom, ElectronNote } from "@shared/domain/types"
 import { memo, useCallback } from "react"
 import { Fragment } from "react/jsx-runtime"
-
 interface AtomsTreeProps{
     atoms: Atom[];
 }
@@ -38,7 +38,10 @@ export const AtomsTree = ({atoms}:AtomsTreeProps) => {
 
 const AtomTreeItem = memo(({atom}:{atom:Atom})=>{
     const { selectAtom } = useWorldlineActions();
-    const handleSelect = useCallback(()=>selectAtom(atom.id),[atom.id, selectAtom])
+    const handleSelect = useCallback(
+        ()=>selectAtom(atom.id),[atom.id, selectAtom]
+        
+    )
     return (
         <li className="cursor-pointer bg-amber-300 text-balance" 
             onClick={handleSelect}
@@ -49,8 +52,15 @@ const AtomTreeItem = memo(({atom}:{atom:Atom})=>{
 });
 
 const ElectronTreeItem = memo(({electron}:{electron:ElectronNote})=>{
-    const { selectElectron } = useWorldlineActions();
-    const handleSelect = useCallback(()=>selectElectron(electron.id),[electron.id, selectElectron])
+    const { selectElectron, setPath } = useWorldlineActions();
+    const activeAtomName = getCurrentFileName().atomName;
+    const rootPath = useWorldlineStore(state => state.worldlineData)?.worldline.rootPath;
+    if(!rootPath || !activeAtomName) return//TODO: dodać obsługę ostrzeżeń
+    
+    const handleSelect = useCallback(()=>{
+        selectElectron(electron.id);
+        setPath(rootPath, activeAtomName);        
+    },[electron.id, selectElectron])
     return(
         <li
             key={electron.id}

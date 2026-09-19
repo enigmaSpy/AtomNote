@@ -1,0 +1,4 @@
+.graph{
+    background: red;
+    width: calc(100svw - 20ch);
+}

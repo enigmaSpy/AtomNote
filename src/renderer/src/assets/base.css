@@ -1,3 +1,4 @@
+@import "tailwindcss";
 *,
 *::before,
 *::after {
@@ -6,16 +7,44 @@
   font-weight: normal;
 }
 
+ul,ol{
+  padding: 0;
+}
 ul {
   list-style: none;
 }
 
 body {
   min-height: 100vh;
+  font-size: clamp(0.9rem, 0.6rem + 1vw, 1.1rem);
   color: var(--color-text);
   background: var(--color-background);
   line-height: 1.6;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+button{
+  cursor: pointer;
+}
+.searchInput {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface-1);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent-focus-ring);
+  }
 }
