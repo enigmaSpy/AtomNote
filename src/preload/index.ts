@@ -8,14 +8,18 @@ const api: IpcApi = {
     //create()
   },
   electron:{
-    read: (rootPath:string, atomName:string, filename:string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_READ, rootPath, atomName, filename),
-    save: (rootPath:string, atomName:string, filename:string, content: string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_SAVE, rootPath, atomName, filename, content)
+    read: (path:string, filename:string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_READ, path, filename),
+    save: (path:string, filename:string, content: string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_SAVE, path, filename, content)
   },
   //atom:{
     //create()
   //},
   study:{
-    read:(rootPath, atomPath, electronId)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_READ, rootPath, atomPath, electronId)
+    read:(path, electronId)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_READ, path, electronId),
+    add:(path, electronId, content, target)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_ADD, path, electronId, content, target),
+  },
+  helpers:{
+    getPath: (rootPath:string, atomName:string)=>ipcRenderer.invoke(IPC_CHANNELS.HELPERS_GETPATH, rootPath, atomName),
   }
 }
 

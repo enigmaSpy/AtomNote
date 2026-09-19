@@ -3,27 +3,24 @@ import { QuizzesFileSchema, type QuizQuestion } from "@shared/schemas/quiz";
 import { readJsonWithSchema } from "@shared/utils/json";
 import { join } from "path";
 
+type Target = 'flashcards.json' | 'quizzes.json'
 /**
  * Pobiera fiszki przypisane do konkretnego elektronu
  */
 export async function fetchElectronStudyMaterials(
-    rootPath: string,
-    atomName: string, 
+    path: string,
     electronId: string,
 ) {
-
-    const flashcards = await getStudyData(rootPath, atomName, electronId, 'flashcards.json');
-    const quizzes = await getStudyData(rootPath, atomName, electronId, 'quizzes.json');
-    
-
+    const flashcards = await getStudyData(path, electronId, 'flashcards.json');
+    const quizzes = await getStudyData(path, electronId, 'quizzes.json');
     
     return {flashcards,quizzes};
 }
 
-async function getStudyData(rootPath:string,atomName: string,electronId:string, source:string): Promise<Flashcard[]|QuizQuestion[]>{    
+async function getStudyData(path: string,electronId:string, target:Target): Promise<Flashcard[]|QuizQuestion[]>{    
 
-    const filePath = join(rootPath, atomName, "__quiz__", source);
-    if (source === 'flashcards.json') {
+    const filePath = join(path, "__quiz__", target);
+    if (target === 'flashcards.json') {
         const result = await readJsonWithSchema(filePath, FlashcardsDictSchema);
         console.log(filePath);
         
@@ -33,12 +30,10 @@ async function getStudyData(rootPath:string,atomName: string,electronId:string, 
             return []
         };
         if (result.status==='not-found') {
-            console.log("nieznaleziono");
-            console.log(filePath);
             return []
         }
-        return result.data[electronId]?.cards ?? [];
-    }else if(source === 'quizzes.json'){
+        return result.data![electronId]?.cards ?? [];
+    }else if(target === 'quizzes.json'){
         const result = await readJsonWithSchema(filePath, QuizzesFileSchema);
         console.log(filePath);
         if (result.status === 'invalid'){
@@ -47,12 +42,30 @@ async function getStudyData(rootPath:string,atomName: string,electronId:string, 
             return []
         };
         if (result.status==='not-found') {
-            console.log("nieznaleziono");
-            console.log(filePath);
             return []
         }        
-        return result.data[electronId]?.questions ?? [];
+        return result.data![electronId]?.questions ?? [];
     }
-    throw new Error("Invalid source, required 'flashcard.json' or 'quizzes.json'");
+    throw new Error("Invalid target, required 'flashcard.json' or 'quizzes.json'");
+}
+
+export async function getFullStudyData(path: string, target: Target) {
+    const filePath = join(path, "__quiz__", target);
     
+    if (target === 'flashcards.json') {
+        const result = await readJsonWithSchema(filePath, FlashcardsDictSchema);
+        if (result.status === 'invalid' || result.status === 'not-found') {
+            return {}; 
+        }
+        return result.data;
+        
+    } else if (target === 'quizzes.json') {
+        const result = await readJsonWithSchema(filePath, QuizzesFileSchema);
+        if (result.status === 'invalid' || result.status === 'not-found') {
+            return {}; 
+        }
+        return result.data;
+    }
+    
+    throw new Error("Invalid target, required 'flashcards.json' or 'quizzes.json'");
 }

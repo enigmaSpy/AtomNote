@@ -79,8 +79,7 @@ export async function atomParse(
             const dictEntry = Object.entries(electronsDict).find(([_, meta])=>meta.filename === currentElectron.name);
 
             let electronId: string;
-            let electronMeta;
-
+            let electronMeta;            
             if(dictEntry){
                 electronId = dictEntry[0];
                 electronMeta = dictEntry[1];
@@ -89,9 +88,9 @@ export async function atomParse(
                 electronMeta = {
                     filename: currentElectron.name,
                     tags: [],
-                    covalentAtomsIds: [],
+                    covalentAtomIds: [],
                     createdAt: new Date().toISOString(),
-                    upDatedAt: new Date().toISOString()
+                    updatedAt: new Date().toISOString()
                 };
                 electronsDict[electronId] = electronMeta;
                 isElectronsDirty = true;
