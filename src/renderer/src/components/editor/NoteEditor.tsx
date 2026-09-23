@@ -8,88 +8,73 @@ import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import styles from "./NoteEditor.module.css";
 import { getCurrentFileName } from "@renderer/utils/currentFileName";
+
 /**
  *  Widk notatki, pozwala edytować oraz wyświetlać notatkę
  * 
  * @returns zwraca widok notatki
  */
 export const NoteEditor = () => {
-    const activeElectronId = useWorldlineStore(state=>(state.activeElectronId));
-    const activeAtomId = useWorldlineStore(state=>(state.activeAtomId));
-    const worldlineData = useWorldlineStore(state =>(state.worldlineData));
-    const currentPath = useWorldlineStore(state => state.currentPath);
-
     const [isPreviewMode, setIsPreviewMode] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [content, setContent] = useState<string>("");
-    
-    const activeNames = getCurrentFileName();
-    //const activeAtomName = activeNames.atomName;
-    const activeElectronName = activeNames.electronName;
-    
+
+    const currentPath = useWorldlineStore(state=>state.currentPath);
+    const electronId = useWorldlineStore(state =>state.activeElectronId);
+
+    const currentElectronName = getCurrentFileName().electronName;
     const debounceContent = useDebounce(content, 500);
 
-    const loadedNoteRef = useRef({path: "", file:"", content:""}); 
-    useEffect(() => {
-        if(loadedNoteRef.current.file){
-            loadedNoteRef.current.content = content;
-        }
-    }, [content]);
-    
-    //?Load content from memory
-    useEffect(()=>{
-        if(!activeAtomId || !activeElectronId || !worldlineData || !activeElectronName ||!currentPath){
-                setIsLoading(false)
-                return;
-            }
-        let isCancelled = false;
-        setIsLoading(true);
+    const loadedElectronRef = useRef({
+        path: '',
+        electronName: '',
+        content: ''
+    });
 
-        const targetPath = currentPath;
-        const targetFile = activeElectronName;
-        (async()=>{
-            
+
+    useEffect(()=>{
+        const {path,electronName:name, content:payload} = loadedElectronRef.current;
+        if (path && name && payload !== undefined) {
+            window.api.electron.save(path, name, payload).catch(console.error);
+        }
+    },[debounceContent]);
+
+    useEffect(()=>{
+        if (!currentPath||!currentElectronName)return;        
+        
+        let isCancelled = false;
+        const loadNewElectron=async()=>{
+            setIsLoading(true);
             try {
-                const savedContext = await window.api.electron.read(
-                    targetPath,
-                    targetFile
-                );
+                const targetPath = currentPath;
+                const targetName = currentElectronName;
+
+                const noteContent = await window.api.electron.read(targetPath, targetName);
                 if (!isCancelled) {
-                    setContent(savedContext);
-                    loadedNoteRef.current={
+                    setContent(noteContent);
+                    loadedElectronRef.current ={
                         path: targetPath,
-                        file: targetFile,
-                        content: savedContext
-                    }
+                        electronName: targetName,
+                        content: noteContent
+                    };
                 }
             } catch (error) {
-                if (!isCancelled) {
-                    setContent(`Błąd odczytu notatki: ${(error as Error).message}`);
-                }
-            } finally {
+                console.error("Błąd załadowania elektronu: ", error);
+            }finally{
                 if (!isCancelled) setIsLoading(false);
             }
-        })();
+        }
 
-        return () => {
+        loadNewElectron();
+
+        return ()=>{
             isCancelled = true;
-            const {path: savePath, file:saveFile, content: saveContent} = loadedNoteRef.current;
-            if (savePath && saveFile) {
-                window.api.electron.save(savePath, saveFile, saveContent)
-                    .catch((err) => console.error(`[Flush Save Error]:`, err));
+            const {path:savePath, electronName: saveName, content: savePayload}= loadedElectronRef.current;
+            if(savePath && saveName){
+                window.api.electron.save(savePath, saveName, savePayload);
             }
-        };
-    }, [activeElectronId]);
-    
-    useEffect(() => {
-        const {path, file} = loadedNoteRef.current;
-        if (!file || isLoading) return;
-
-        window.api.electron
-            .save(path, file, debounceContent)
-            .catch(console.error);
-    }, [debounceContent, isLoading]);
-    
+        }
+    },[electronId]);
     if (isLoading) {
         return <div className="p-4">Wczytywanie Elektronu...</div>;
     }
@@ -119,6 +104,7 @@ export const NoteEditor = () => {
                     onChange={
                         (value)=>{
                             setContent(value);
+                            loadedElectronRef.current.content = value;
                         }
                     }
                         
