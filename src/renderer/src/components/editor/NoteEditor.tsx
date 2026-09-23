@@ -92,7 +92,7 @@ export const NoteEditor = () => {
                         
                         //components={}
                     >{/*//TODO : remarkGfm odpala linki, do ogarnięcia + custom components*/} 
-                        {content}
+                        {content.replace(/\n/g, '<br/>')}
                     </Markdown>
                 </div>
             ):(
