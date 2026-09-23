@@ -65,11 +65,11 @@ export const FlashcardsPreview = ({ onClose }) => {
         </button>
       </form>
 
-      <div className={styles.listSection}>
-        <div className={styles.searchWrapper}>
+
+      <div className={styles.searchWrapper}>
           <input className="searchInput" placeholder="Szukaj fiszek..." />
         </div>
-
+      <div className={styles.listSection}>
         <div className={styles.cardsList}>
           {flashcards.map((flashcard) => (
             <div key={flashcard.id} className={styles.flashcardItem}>
