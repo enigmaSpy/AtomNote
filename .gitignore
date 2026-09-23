@@ -19,3 +19,4 @@ coverage/          # Test coverage
 *.AppImage         # Linux builds
 
 docs
+*.todo

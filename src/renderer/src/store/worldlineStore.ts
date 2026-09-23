@@ -1,3 +1,4 @@
+import { getCurrentFileName } from '@renderer/utils/currentFileName';
 import type { ParsedWorldline } from '@shared/domain/types';
 import {create} from 'zustand';
 
@@ -58,9 +59,17 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
                 activeAtomId: activeAtomId === atomId? null: atomId,
             }
         )},
-        selectElectron: (electronId)=> {
-            const {activeElectronId} = get();
-            set({activeElectronId: electronId === activeElectronId? null: electronId})
+        selectElectron: async(electronId)=> {
+            const {activeElectronId,worldlineData} = get();
+            const rootPath = worldlineData?.worldline.rootPath;
+            const {atomName} = getCurrentFileName();
+            if (!rootPath || !atomName) return;
+            const path = await window.api.helpers.getPath(rootPath, atomName);
+            
+            set({
+                activeElectronId: electronId === activeElectronId? null: electronId,
+                currentPath: path
+            });
         },
         clearWorldline: ()=>set({
             worldlineData: null,

@@ -52,14 +52,13 @@ const AtomTreeItem = memo(({atom}:{atom:Atom})=>{
 });
 
 const ElectronTreeItem = memo(({electron}:{electron:ElectronNote})=>{
-    const { selectElectron, setPath } = useWorldlineActions();
+    const { selectElectron } = useWorldlineActions();
     const activeAtomName = getCurrentFileName().atomName;
     const rootPath = useWorldlineStore(state => state.worldlineData)?.worldline.rootPath;
     if(!rootPath || !activeAtomName) return//TODO: dodać obsługę ostrzeżeń
     
     const handleSelect = useCallback(()=>{
         selectElectron(electron.id);
-        setPath(rootPath, activeAtomName);        
     },[electron.id, selectElectron])
     return(
         <li
