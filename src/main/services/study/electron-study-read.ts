@@ -1,9 +1,10 @@
-import { FlashcardsDictSchema, type Flashcard } from "@shared/schemas/flashcard";
-import { QuizzesFileSchema, type QuizQuestion } from "@shared/schemas/quiz";
+import { FlashcardsDictSchema} from "@shared/schemas/flashcard";
+import { QuizzesDictSchema} from "@shared/schemas/quiz";
 import { readJsonWithSchema } from "@shared/utils/json";
+import type { StudyItems, Target } from "./types";
 import { join } from "path";
 
-type Target = 'flashcards.json' | 'quizzes.json'
+
 /**
  * Pobiera fiszki przypisane do konkretnego elektronu
  */
@@ -16,8 +17,8 @@ export async function fetchElectronStudyMaterials(
     
     return {flashcards,quizzes};
 }
-
-async function getStudyData(path: string,electronId:string, target:Target): Promise<Flashcard[]|QuizQuestion[]>{    
+//TODO: normalizacja Tatget->StudyType
+async function getStudyData(path: string,electronId:string, target:Target): Promise<StudyItems>{    
 
     const filePath = join(path, "__quiz__", target);
     if (target === 'flashcards.json') {
@@ -34,7 +35,7 @@ async function getStudyData(path: string,electronId:string, target:Target): Prom
         }
         return result.data![electronId]?.cards ?? [];
     }else if(target === 'quizzes.json'){
-        const result = await readJsonWithSchema(filePath, QuizzesFileSchema);
+        const result = await readJsonWithSchema(filePath, QuizzesDictSchema);
         console.log(filePath);
         if (result.status === 'invalid'){
             console.log("niepoprawny zod");
@@ -60,7 +61,7 @@ export async function getFullStudyData(path: string, target: Target) {
         return result.data;
         
     } else if (target === 'quizzes.json') {
-        const result = await readJsonWithSchema(filePath, QuizzesFileSchema);
+        const result = await readJsonWithSchema(filePath, QuizzesDictSchema);
         if (result.status === 'invalid' || result.status === 'not-found') {
             return {}; 
         }

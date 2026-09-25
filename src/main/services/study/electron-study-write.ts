@@ -1,11 +1,11 @@
 import { FlashcardsDictSchema, type Flashcard, type FlashcardsDict } from "@shared/schemas/flashcard";
-import { QuizzesFileSchema, type QuizQuestion, type QuizzesDict } from "@shared/schemas/quiz";
+import { QuizzesDictSchema, type QuizQuestion, type QuizzesDict } from "@shared/schemas/quiz";
 
 import { getFullStudyData } from "./electron-study-read";
 import { writeJsonWithSchema } from "@shared/utils/json";
 import { join } from "path";
 
-export async function addElectronStudyData(
+export async function writeElectronStudyData(
     path: string,
     electronId: string,
     content: Flashcard[] | QuizQuestion[],
@@ -23,7 +23,7 @@ export async function addElectronStudyData(
         (dataDict as QuizzesDict)[electronId]={
             questions: content as QuizQuestion[]
         }
-        await writeJsonWithSchema(join(path, '__quiz__', fileName), QuizzesFileSchema, dataDict)
+        await writeJsonWithSchema(join(path, '__quiz__', fileName), QuizzesDictSchema, dataDict)
     }else{
         throw new Error(`Odrzucono zapis: Nieznany target "${target}"`);
     }

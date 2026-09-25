@@ -17,6 +17,8 @@ const api: IpcApi = {
   study:{
     read:(path, electronId)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_READ, path, electronId),
     add:(path, electronId, content, target)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_ADD, path, electronId, content, target),
+    delete:(path, electronId, targetId, target)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_DELETE, path, electronId, targetId, target),
+    edit: (path, electronId, targerId, content, target)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_EDIT, path, electronId, targerId, content, target )
   },
   helpers:{
     getPath: (rootPath:string, atomName:string)=>ipcRenderer.invoke(IPC_CHANNELS.HELPERS_GETPATH, rootPath, atomName),
