@@ -155,18 +155,21 @@
   }
 }
 
+.editButtonsWrapper button, .submitButton{
+  
+  color: #ffffff;
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+
 .submitButton {
   align-self: flex-end;
   background-color: var(--accent-default);
-  color: #ffffff;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 1.2rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-
+  
   &:hover {
     background-color: var(--accent-hover);
   }
@@ -195,10 +198,8 @@
 
 .flashcardItem {
   display: flex;
-  align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.85rem 1.1rem;
   background-color: var(--bg-surface-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -208,23 +209,23 @@
     border-color 0.15s ease,
     background-color 0.15s ease;
 
+  position: relative;
+  padding:0 0 .5em 1em;
   &:hover {
     background-color: var(--bg-surface-2);
     border-color: var(--border-strong);
   }
 
-  position: relative;
   span {
-    position: absolute;
-    right: 0;
-    top: 0;
-    padding: 0.4rem 1rem;
+    padding:0.3rem  0.5rem 0.3rem 1.5rem;
+    width: 16ch;
   }
 }
 
 .cardContent {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 0.25rem;
   min-width: 0;
 }
@@ -251,4 +252,21 @@
   background-color: var(--accent-tonal-bg);
   color: var(--accent-default);
   border: 1px solid rgba(0, 0, 0, 0.04);
+}
+.manageWrapper{
+  display: flex;
+  flex-direction: column;
+}
+.buttonsWrapper{
+  display: flex;
+  padding: .5rem 0 0 1em;
+  justify-content: space-between;
+}
+.editButtonsWrapper{
+  align-self: flex-end;
+  display: flex;
+  gap: 1rem;
+  button:first-child{
+    background-color: var(--color-error);
+  }
 }

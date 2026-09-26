@@ -1,24 +1,15 @@
-import type { Flashcard, QuizQuestion } from "@shared/domain/types";
+import type { ContentFlashcard, ContentQuiz, ContentType, Flashcard, QuizQuestion, StudyType } from "@shared/domain/types";
 import { create } from "zustand";
 import { useWorldlineStore } from "./worldlineStore";
 
-type ContentType = 'flashcards' | 'quizzes'
-interface ContentFlashcard {
-    front: string;
-    back: string;
-}
-interface ContentQuiz{
-    id: string;
-    question: string;
-    answers: string[];
-    correctAnswerIndex: number[];
-    mastery: number;
-}
+
+
 interface StudyStoryActions{
     loadStudyData: ()=> Promise<void>;
     clearStudyData: ()=>void;
-    addStudyData: (content:ContentQuiz | ContentFlashcard, target:ContentType)=>void;
-    deleteStudyData: (content:string, target:ContentType)=>void;
+    addStudyData: (content:ContentType, target:StudyType)=>void;
+    deleteStudyData: (targetId:string, target:StudyType)=>void;
+    editStudyData:(content: Partial<ContentType>,targetId:string, target: StudyType)=>void;
 }
 interface StudyStore {
     flashcards: Flashcard[];
@@ -66,58 +57,81 @@ export const useStudyStore = create<StudyStore>((set, get)=>({
                 isLoading: false
             });
         },
-        addStudyData: (content:ContentQuiz | ContentFlashcard, target:ContentType)=>{
+        addStudyData: async(content:ContentType, target:StudyType)=>{
             const {currentPath, activeElectronId} = useWorldlineStore.getState();
-
-            if(target === 'flashcards'){
-                const flashcardContent = content as ContentFlashcard
-                const {flashcards} = get();
-                set({
-                    flashcards: [
-                        ...flashcards,
-                        {
-                            id: crypto.randomUUID(),
-                            front: flashcardContent.front,
-                            back: flashcardContent.back,
-                            mastery: 0
-                        }
-                    ]
-                });
-                const {flashcards: newFlashcards} = get()
-                try {
-                    if (!currentPath) {
-                        throw new Error('Aktualna ścieżka jest pusta/nie istnieje')
-                    }
-                    if(!activeElectronId){
-                        throw new Error('Błąd elektronu, nie ma aktywnego ID')
-                    }
-                    window.api.study.add(currentPath, activeElectronId, newFlashcards, 'flashcards')
-                } catch (error) {
-                    set({error: (error as Error).message})
-                    console.error("Nie można zapisać fiszki: ", error);
-                }
-            }
-            if(target === 'quizzes'){
+            if(!currentPath || !activeElectronId) return
+            let newContent;
+            if(target==='flashcards'){
+                const flashcardContent = content as ContentFlashcard;
+                newContent ={
+                    id: crypto.randomUUID(),
+                    front: flashcardContent.front,
+                    back: flashcardContent.back,
+                    mastery: 0
+                }                 
+            }else{
                 const quizContent = content as ContentQuiz;
-                const {quizzes} = get();
+                newContent ={
+                    id: crypto.randomUUID(),
+                    question: quizContent.question,
+                    answers: quizContent.answers,
+                    correctAnswerIndex: quizContent.correctAnswerIndex,
+                    mastery: 0
+                }                
+            }
+            const prev = get()[target];
+            set({
+                [target]: [...prev, newContent],
+                error: null
+            });
+            const savingResult = await window.api.study.add(currentPath, activeElectronId, newContent, target);
+            if (savingResult.status !== 'ok') {
                 set({
-                    quizzes: [
-                        ...quizzes,
-                        {
-                            id: crypto.randomUUID(),
-                            question: quizContent.question,
-                            answers: quizContent.answers,
-                            correctAnswerIndex: quizContent.correctAnswerIndex,
-                            mastery: 0
-                        }
-                    ]
+                    [target]: prev,
+                    error: savingResult.message
                 })
+            }
+
+        },
+        deleteStudyData: async(targetId, target)=>{
+            const {currentPath, activeElectronId} = useWorldlineStore.getState();
+            if(!currentPath || !activeElectronId) return;
+            const prev = get()[target];
+
+            set({
+                [target]: prev.filter(({id})=>id!==targetId),
+                error: null,
+            })
+            const deleteResult = await window.api.study.delete(currentPath, activeElectronId, targetId, target);
+            if (deleteResult.status !== 'ok') {
+                set({
+                    [target]:prev,
+                    error: deleteResult.message
+                });
+            }
+        },
+        editStudyData: async(content, targetId, target)=> {
+            const {currentPath, activeElectronId} = useWorldlineStore.getState();
+            if(!currentPath || !activeElectronId) return;
+            const prev = get()[target];
+
+            set({
+                [target]: prev.map((item) =>
+                item.id === targetId
+                    ? { ...item, ...content }
+                    : item
+                ),
+                error: null,
+            });
+            const editResult = await window.api.study.edit(currentPath, activeElectronId, targetId, content, target);
+            if(editResult.status !=='ok'){
+                set({
+                    [target]: prev,
+                    error:editResult.message
+                });
             }
             
         },
-        deleteStudyData: ()=>{
-            
-        }
     }
 }));
 export const useStudyActions = ()=> useStudyStore((state)=>state.actions);
