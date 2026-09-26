@@ -12,10 +12,10 @@ export const QuizSchema = z.object({
   questions: z.array(QuizQuestionSchema)
 })
 
-export const QuizzesFileSchema = z.record(
+export const QuizzesDictSchema = z.record(
   z.uuid(),
   QuizSchema
 )
-export type QuizzesDict = z.infer<typeof QuizzesFileSchema>
+export type QuizzesDict = z.infer<typeof QuizzesDictSchema>
 export type QuizQuestion = z.infer<typeof QuizQuestionSchema>
 export type Quiz = z.infer<typeof QuizSchema>

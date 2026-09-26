@@ -82,4 +82,24 @@ export interface QuizQuestion{
     correctAnswerIndex: number[]
     mastery: number
 }
-export type StudyType = 'flashcard' | 'quiz'
+//TODO: Porządek zrobić trzeba
+//study moduł
+export type StudyType = 'flashcards' | 'quizzes'
+export interface ContentFlashcard {
+    front: string;
+    back: string;
+}
+export interface ContentQuiz{
+    question: string;
+    answers: string[];
+    correctAnswerIndex: number[];
+    mastery: number;
+}
+
+export type Status = 
+    |{status: 'ok'}
+    |{status: 'error', message: string}
+
+export type ContentType = 
+    |ContentQuiz 
+    |ContentFlashcard

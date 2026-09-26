@@ -1,5 +1,5 @@
 import { FlashcardsDictSchema } from "@shared/schemas/flashcard";
-import { QuizzesFileSchema } from "@shared/schemas/quiz";
+import { QuizzesDictSchema } from "@shared/schemas/quiz";
 import { join } from "path";
 import { readJsonWithSchema } from "../../../shared/utils/json";
 
@@ -28,7 +28,7 @@ export async function calculateElectronMastery(electronID: string, atomPath: str
     
     const quizzesRes = await readJsonWithSchema(
         join(atomPath, '__quiz__', 'quizzes.json'),
-        QuizzesFileSchema
+        QuizzesDictSchema
     );
 
     const electronQuizzes = quizzesRes.status === 'ok' 
