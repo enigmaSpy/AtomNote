@@ -48,3 +48,32 @@ button{
     border-color: var(--accent-focus-ring);
   }
 }
+
+.textarea, .input {
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface-2);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent-focus-ring);
+    box-shadow: 0 0 0 2px var(--accent-tonal-bg);
+  }
+}
+.textarea{
+  resize: vertical;
+  min-height: 52px;
+  max-height: 50ch;
+}

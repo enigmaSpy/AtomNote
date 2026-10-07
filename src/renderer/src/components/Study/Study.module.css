@@ -128,32 +128,7 @@
   gap: 0.75rem;
 }
 
-.textarea {
-  width: 100%;
-  resize: vertical;
-  min-height: 52px;
-  padding: 0.6rem 0.8rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
-  background-color: var(--bg-surface-2);
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: 0.95rem;
-  box-sizing: border-box;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
 
-  &::placeholder {
-    color: var(--text-tertiary);
-  }
-
-  &:focus {
-    outline: none;
-    border-color: var(--accent-focus-ring);
-    box-shadow: 0 0 0 2px var(--accent-tonal-bg);
-  }
-}
 
 .editButtonsWrapper button, .submitButton{
   
@@ -210,7 +185,7 @@
     background-color 0.15s ease;
 
   position: relative;
-  padding:0 0 .5em 1em;
+  padding:0 0 0 1em;
   &:hover {
     background-color: var(--bg-surface-2);
     border-color: var(--border-strong);
@@ -247,7 +222,6 @@
   flex-shrink: 0;
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.25rem 0.6rem;
   border-radius: var(--radius-md) var(--radius-md) var(--radius-md) var(--radius-full);
   background-color: var(--accent-tonal-bg);
   color: var(--accent-default);
@@ -256,11 +230,29 @@
 .manageWrapper{
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  gap: .8rem;
+  
+  button{
+    width: 100%;
+    transition: background-color 0.15s ease;
+  }
+  button:first-child{
+    background-color: var(--color-error-tonal);
+    border-radius: var(--radius-full) var(--radius-md) var(--radius-md) var(--radius-md);
+    &:hover{
+      background-color: var(--color-error);
+    }
+  }
+  button:last-child{
+    background-color: var(--color-warning-tonal);
+    &:hover{
+      background-color: var(--color-warning);
+    }
+  }
 }
 .buttonsWrapper{
   display: flex;
-  padding: .5rem 0 0 1em;
-  justify-content: space-between;
 }
 .editButtonsWrapper{
   align-self: flex-end;

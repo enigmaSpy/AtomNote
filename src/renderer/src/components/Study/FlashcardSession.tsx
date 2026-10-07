@@ -1,14 +1,16 @@
 import { useStudyStore } from "@renderer/store/studyStore"
 import { useState } from "react";
 import styles from './study.module.css'
+import type { Flashcard } from "@shared/schemas/flashcard";
 export const FlashcardSession = () => {
     const flashcards = useStudyStore(state=>state.flashcards);
     //const isLoading = useStudyStore(state=>state.isLoading);
     //const flashcardsError = useStudyStore(state=>state.error);
-    const [unknowCards,setUnknownCards] = useState([...flashcards]);
+    const [unknownCards,setUnknownCards] = useState([...flashcards]);
     const [isFrontCard, setIsFrontCard] = useState(false);
     const [cardPointer, setCardPointer] = useState(0);
     const [round, setRound]=useState(0);
+    //const [knownIds, setKnownIds] = useState<Set<string>>(new Set());
 
     if (flashcards.length<=0){
         return (
@@ -17,35 +19,46 @@ export const FlashcardSession = () => {
             </div>
         )
     }
-    const clearUnknownCards =(knownIds: string[], unknownCards)=>{
-        
-        const newUnknown = unknownCards.filter(item=> !knownIds.includes(item.id));
-        setUnknownCards(newUnknown)
-        
-    }
+   
     const newStudySession = ()=>{
         setUnknownCards([...flashcards]);
+        setCardPointer(0);
         setRound(0);
     }
-    const flashcardsState = {
-        knownIds: [] as string[],
-        nextCardHandler: function(known:boolean){
-            if(unknowCards.length<=0) return;
-            if(known) this.knownIds.push(unknowCards[cardPointer]!.id)
-            if(cardPointer+1>=unknowCards.length){
-                setCardPointer(0);
-                setRound(prev=>prev+1);
-                clearUnknownCards(this.knownIds, unknowCards)
-            }else{
-                setCardPointer((prev)=>prev+1);
-            }            
+
+        
+    const nextCardHandler=(known:boolean)=>{
+        if(unknownCards.length === 0){
+            //newStudySession()
+            return;
+        }
+        let nextCards = unknownCards;
+        let nextPointer = cardPointer;
+        if(known){
+            nextCards = unknownCards.filter((_, index)=> index !== cardPointer)
+        }else{
+            nextPointer = cardPointer +1;
+        }
+        if(nextPointer >= nextCards.length){
+            if(nextCards.length === 0){
+                newStudySession()
+                return;
+            }
+            setRound(prev => prev + 1);
+            setCardPointer(0);
+        }else{
+            setCardPointer(nextPointer);
+        }
+        if(known){
+            setUnknownCards(nextCards);
         }
     }
     return (
         <div className={styles.studyCover}>
-            Pozostało: {unknowCards.length}
+            <h3>Pointer karty: {cardPointer}</h3>
+            Pozostało: {unknownCards.length}
             <h2>Rudna: {round}</h2>
-            {unknowCards.length<=0?
+            {unknownCards.length === 0?
             (
                 <div>
                     <button onClick={()=>newStudySession()}>Zacznij od nowa!</button>
@@ -56,13 +69,13 @@ export const FlashcardSession = () => {
                     className={styles.flashcard}
                         onClick={()=>setIsFrontCard(prev=>!prev)}
                     >
-                        {isFrontCard? (unknowCards[cardPointer]?.front):(unknowCards[cardPointer]?.back)}
+                        {isFrontCard? (unknownCards[cardPointer]?.front):(unknownCards[cardPointer]?.back)}
                     </div>
                     <div>
-                        <button onClick={()=>flashcardsState.nextCardHandler(false)}>
+                        <button onClick={()=>nextCardHandler(false)}>
                             Nie wiem
                         </button>
-                        <button onClick={()=>flashcardsState.nextCardHandler(true)}>
+                        <button onClick={()=>nextCardHandler(true)}>
                             Wiem
                         </button>
                     </div>

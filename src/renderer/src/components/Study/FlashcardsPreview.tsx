@@ -81,7 +81,7 @@ const cancleEditHandle=()=>{
         <h2 className={styles.formTitle}>Dodaj nową fiszkę</h2>
         <div className={styles.inputsGroup}>
           <textarea 
-            className={styles.textarea} 
+            className='textarea'
             rows={2} 
             placeholder="Przód (pytanie / pojęcie)" 
             ref={textareaRefs.front}
@@ -90,7 +90,7 @@ const cancleEditHandle=()=>{
           />
             
           <textarea
-            className={styles.textarea}
+            className='textarea'
             rows={2}
             placeholder="Tył (odpowiedź / pojęcie)" 
             ref={textareaRefs.back}
