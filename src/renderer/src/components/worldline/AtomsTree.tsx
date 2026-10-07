@@ -1,8 +1,9 @@
-import { useWorldlineActions, useWorldlineStore } from "@renderer/store/worldlineStore"
+import { useWorldlineActions, useWorldlineState, useWorldlineStore } from "@renderer/store/worldlineStore"
 import { getCurrentFileName } from "@renderer/utils/currentFileName";
 import type { Atom, ElectronNote } from "@shared/domain/types"
 import { memo, useCallback } from "react"
 import { Fragment } from "react/jsx-runtime"
+import styles from './Worldline.module.css'
 interface AtomsTreeProps{
     atoms: Atom[];
 }
@@ -14,7 +15,6 @@ interface AtomsTreeProps{
  */
 export const AtomsTree = ({atoms}:AtomsTreeProps) => {
     const activeAtomId = useWorldlineStore((state)=>state.activeAtomId);
-
     return (
         <ul>
             {atoms.map((atom)=>(
@@ -37,16 +37,24 @@ export const AtomsTree = ({atoms}:AtomsTreeProps) => {
 }
 
 const AtomTreeItem = memo(({atom}:{atom:Atom})=>{
+    const setIsCreateAtomOpen = useWorldlineState(state => state.setCreateAtomOpen);
+
     const { selectAtom } = useWorldlineActions();
     const handleSelect = useCallback(
         ()=>selectAtom(atom.id),[atom.id, selectAtom]
         
     )
     return (
-        <li className="cursor-pointer bg-amber-300 text-balance" 
-            onClick={handleSelect}
-        >
-            {atom.name} ({atom.mastery}%)
+        <li className="cursor-pointer bg-amber-300 text-balance">
+            <span onClick={handleSelect} className="">
+                {atom.name} ({atom.mastery}%) 
+            </span>
+            <button 
+                className={styles.newElectronBtn}
+                onClick={()=>setIsCreateAtomOpen(true)}
+                >
+                    +
+            </button>
         </li>
     )
 });

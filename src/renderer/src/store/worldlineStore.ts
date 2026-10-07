@@ -89,3 +89,13 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
 }));
 
 export const useWorldlineActions = ()=> useWorldlineStore((state)=>state.actions);
+
+interface WorldlineState {
+    isCreateAtomOpen: boolean;
+    setCreateAtomOpen: (isOpen: boolean) => void;
+}
+
+export const useWorldlineState = create<WorldlineState>((set)=>({
+    isCreateAtomOpen: false,
+    setCreateAtomOpen: (isOpen)=> set({isCreateAtomOpen: isOpen}),
+}));

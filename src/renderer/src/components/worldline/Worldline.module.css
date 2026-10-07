@@ -31,3 +31,12 @@
   padding: 0;
   border: none;
 }
+.newElectronBtn{
+  
+  background-color: aliceblue;
+}
+
+.createAtomForm{
+  display: flex;
+  flex-direction: column;
+}

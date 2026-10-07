@@ -11,8 +11,9 @@ import clsx from "clsx";
 type Props = {
     collapsed?: boolean;
     className?: string;
+    onOpenCreateAtom?: ()=>void;
 }
-export const WorldlineNav = ({collapsed,className}:Props) => {
+export const WorldlineNav = ({collapsed,className, onOpenCreateAtom}:Props) => {
     const { worldlineData, isLoading, actions } = useWorldlineStore();
     if (isLoading) return <div className="cursor-progress">Pobieranie struktury Atomów...</div>;
 

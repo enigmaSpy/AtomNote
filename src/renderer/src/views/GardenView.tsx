@@ -7,11 +7,13 @@ import { FlashcardSession } from "../components/study/FlashcardSession"
 import { QuizPreview } from "../components/study/QuizPreview"
 import { Modal } from "../components/ui/Modal"
 import styles from './Garden.module.css'
-import { useWorldlineStore } from "@renderer/store/worldlineStore"
+import { useWorldlineState, useWorldlineStore } from "@renderer/store/worldlineStore"
 import { WorldlineGraph } from "@renderer/components/graph/WorldlineGraph"
 import { FlashcardsPreview } from "@renderer/components/study/FlashcardsPreview"
 import clsx from "clsx"
+import { CreateAtomModal } from "@renderer/components/worldline/CreateAtomModal"
 type StudyType = 'flashcards'|'quiz'|'flashcardsPreview'|null;
+
 /**
  * Widok Ogrodu
  * 
@@ -20,7 +22,10 @@ type StudyType = 'flashcards'|'quiz'|'flashcardsPreview'|null;
 export const GardenView = () => {
   const [isStudyOpen, setIsStudyOpen] = useState(false);
   const [studyType, setStudyType] = useState<StudyType>(null);
+
   const activeElectronId = useWorldlineStore(state => state.activeElectronId);
+  const isCreateAtomOpen = useWorldlineState(state => state.isCreateAtomOpen);
+  const setIsCreateAtomOpen = useWorldlineState(state => state.setCreateAtomOpen);
 
   const openStudyModal = (type: Exclude<StudyType, null>)=>{
     setStudyType(type);
@@ -30,6 +35,8 @@ export const GardenView = () => {
     setStudyType(null);
     setIsStudyOpen(false);
   }
+  
+
   //TODO: Przenieść logikę renderowania Grafu do głównego widoku
   return (
       <StudySyncManager>
@@ -37,8 +44,14 @@ export const GardenView = () => {
         {studyType === 'flashcards' && <FlashcardSession />}
         {studyType === 'quiz' && <QuizPreview />}
       </Modal>
+      <Modal onClose={()=>setIsCreateAtomOpen(false)} isOpen={isCreateAtomOpen}>
+        <CreateAtomModal />
+      </Modal>
       <main className={styles.gardenView}>
-          <WorldlineNav collapsed={studyType === 'flashcardsPreview'}/>
+          <WorldlineNav 
+            collapsed={studyType === 'flashcardsPreview'}
+            onOpenCreateAtom={() => setIsCreateAtomOpen(true)}
+          />
           {activeElectronId? (
             <>
                 <NoteEditor/>
