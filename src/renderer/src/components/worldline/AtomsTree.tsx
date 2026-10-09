@@ -1,11 +1,11 @@
 import { useWorldlineActions, useWorldlineState, useWorldlineStore } from "@renderer/store/worldlineStore"
 import { getCurrentFileName } from "@renderer/utils/currentFileName";
-import type { Atom, ElectronNote } from "@shared/domain/types"
+import type { AtomMeta, ElectronMeta } from "@shared/domain/types"
 import { memo, useCallback } from "react"
 import { Fragment } from "react/jsx-runtime"
 import styles from './Worldline.module.css'
 interface AtomsTreeProps{
-    atoms: Atom[];
+    atoms: AtomMeta[];
 }
 /**
  * Zwraca drzewo aotomów 
@@ -13,7 +13,9 @@ interface AtomsTreeProps{
  * @param atoms  atomy z bierzącego wordline
  * @returns 
  */
-export const AtomsTree = ({atoms}:AtomsTreeProps) => {
+export const AtomsTree = () => {
+    const worldline = useWorldlineStore((state)=> state.worldlineData);
+    const atoms = Object.values(worldline?.worldline.atoms ?? {});
     const activeAtomId = useWorldlineStore((state)=>state.activeAtomId);
     return (
         <ul>
@@ -36,7 +38,7 @@ export const AtomsTree = ({atoms}:AtomsTreeProps) => {
     )
 }
 
-const AtomTreeItem = memo(({atom}:{atom:Atom})=>{
+const AtomTreeItem = memo(({atom}:{atom:AtomMeta})=>{
     const setIsCreateAtomOpen = useWorldlineState(state => state.setCreateAtomOpen);
 
     const { selectAtom } = useWorldlineActions();
@@ -47,7 +49,7 @@ const AtomTreeItem = memo(({atom}:{atom:Atom})=>{
     return (
         <li className="cursor-pointer bg-amber-300 text-balance">
             <span onClick={handleSelect} className="">
-                {atom.name} ({atom.mastery}%) 
+                {atom.name}
             </span>
             <button 
                 className={styles.newElectronBtn}
@@ -59,7 +61,7 @@ const AtomTreeItem = memo(({atom}:{atom:Atom})=>{
     )
 });
 
-const ElectronTreeItem = memo(({electron}:{electron:ElectronNote})=>{
+const ElectronTreeItem = memo(({electron}:{electron:ElectronMeta})=>{
     const { selectElectron } = useWorldlineActions();
     const activeAtomName = getCurrentFileName().atomName;
     const rootPath = useWorldlineStore(state => state.worldlineData)?.worldline.rootPath;

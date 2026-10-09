@@ -1,7 +1,6 @@
 import { useStudyStore } from "@renderer/store/studyStore"
 import { useState } from "react";
 import styles from './study.module.css'
-import type { Flashcard } from "@shared/schemas/flashcard";
 export const FlashcardSession = () => {
     const flashcards = useStudyStore(state=>state.flashcards);
     //const isLoading = useStudyStore(state=>state.isLoading);

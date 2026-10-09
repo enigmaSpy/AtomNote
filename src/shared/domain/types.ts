@@ -1,60 +1,92 @@
+type Brand<T, B extends string>= T & {readonly __brand:B};
+export type WorldlineId = Brand<string, 'WorldlineId'>
+export type AtomId = Brand<string, 'AtomId'>
+export type ElectronId = Brand<string, 'ElectronId'>
+export type DomainId = Brand<string, 'DomainId'>
+export type AtomTypeId = Brand<string, 'AtomTypeId'>
 
-export type AtomId = string
-export type ElectronId = string 
-export type WorldlineId = string
 
-export interface ElectronNote{
+export interface Domain{
+    id: DomainId
+    name: string
+}
+export interface AtomType{
+    id: AtomTypeId
+    name: string
+}
+
+export interface AtomMeta{
+    id: AtomId
+    name: string
+    description: string
+    domainId: DomainId
+    typeId: AtomTypeId
+
+    createdAt: string
+    updatedAt: string
+}
+export type AtomDict = Record<AtomId, AtomMeta>
+export interface ElectronMeta{
     id: ElectronId
-    atomId: AtomId
+    ownerAtomId: AtomId
     filename: string
     tags: string[]
-    covalentAtomIds: AtomId[]
     mastery: number
     createdAt: string
     updatedAt: string
 }
-export type ElectronsDict = Record<ElectronId, ElectronNote>
-export interface Atom{
-    id: AtomId
-    name: string
-    description: string
-    tags: string[]
-    mastery: number
-    electrons: ElectronNote[]
-}
+export type ElectronsDict = Record<ElectronId, ElectronMeta>
 
-export type EdgeLayer = 'knowledge' | 'plot'
-export type EdgeKind = 'bond' | 'entanglement' //| 'parent-child' 
+export type NodeRef=
+    |{
+        type:'atom'
+        id: AtomId
+    }
+    |{
+        type:'electron'
+        id: ElectronId
+    }
+
+export type EdgeLayer = 
+    | 'knowledge'
+    | 'plot'
+
+export type EdgeKind =
+    | 'bond'
+    | 'entanglement'
+    | 'reference'
 export interface Edge{
-    from: AtomId | ElectronId
-    to: AtomId | ElectronId
+    from: NodeRef
+    to: NodeRef
     layer: EdgeLayer
-    kind: EdgeKind 
+    kind: EdgeKind
 }
-export interface Domain{
-    id: string
-    name: string
-    tags: string[]
-}
-export interface WorldlineDescriptor{
+export interface Worldline {
     id: WorldlineId
     name: string
     rootPath: string
-    atomCount: number
     domains: Domain[]
-}   
-export interface Worldline extends WorldlineDescriptor{
-    atoms: Atom[]
+    atomTypes: AtomType[]
+    atoms: AtomDict
+    electrons: ElectronsDict
     edges: Edge[]
 }
 
-export type WarningReason = 
-    | 'unexpected-subfolder'     // pod-folder w atomie (zasada dwóch poziomów)
-    | 'schema-invalid'           // JSON istnieje, ale nie przechodzi walidacji Zod
-    | 'orphan-file'              // plik luzem w korzeniu worldlinea
-    | 'unreadable'               // nieczytelny korzeń / plik metadanych
-    | 'unreadable-atom'          // nieczytelny katalog atomu
-    | 'missing-covalent-target'  // kowalencja wskazuje nieistniejący atom
+export interface AtomView{
+    meta: AtomMeta
+    tags: string[]
+    mastery: number
+    ownedElectronIds: ElectronId[]
+    referencedElectronIds: ElectronId[]
+}
+
+export type WarningReason =
+    | 'unexpected-subfolder'
+    | 'schema-invalid'
+    | 'orphan-file'
+    | 'unreadable'
+    | 'unreadable-atom'
+    | 'missing-edge-target'
     | 'unexpected-file'
     | 'write-failed'
 export interface StructuralWarning{
@@ -68,38 +100,30 @@ export interface ParsedWorldline{
     warnings: StructuralWarning[]
 }
 
-export interface Flashcard{
-    id: string;
+export interface FlashcardContent {
     front: string;
     back: string;
+}
+export interface Flashcard extends FlashcardContent{
+    id: string;
     mastery: number;
 }
-
-export interface QuizQuestion{
-    id: string
-    question: string
-    answers: string[]
-    correctAnswerIndex: number[]
-    mastery: number
-}
-//TODO: Porządek zrobić trzeba
-//study moduł
-export type StudyType = 'flashcards' | 'quizzes'
-export interface ContentFlashcard {
-    front: string;
-    back: string;
-}
-export interface ContentQuiz{
+export interface QuizContent{
     question: string;
     answers: string[];
     correctAnswerIndex: number[];
-    mastery: number;
 }
+export interface QuizQuestion extends QuizContent{
+    id: string
+    mastery: number
+}
+
+export type StudyType = 'flashcards' | 'quizzes'
 
 export type Status = 
     |{status: 'ok'}
     |{status: 'error', message: string}
 
 export type ContentType = 
-    |ContentQuiz 
-    |ContentFlashcard
+    |QuizContent
+    |FlashcardContent

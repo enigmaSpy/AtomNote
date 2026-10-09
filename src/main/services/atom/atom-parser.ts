@@ -1,6 +1,6 @@
 //? loadOrAdoptAtomMeta, parsowanie elektronów
-import type { Atom, ElectronNote } from "@shared/domain/types"
-import { AtomMetaSchema, type AtomMeta } from "@shared/schemas/atom"
+import type { AtomId, AtomMeta, AtomTypeId, DomainId } from "@shared/domain/types"
+import { AtomMetaSchema } from "@shared/schemas/atom"
 import { ElectronsDictSchema, type ElectronsDict } from "@shared/schemas/electron"
 import { readJsonWithSchema, writeJson } from "@shared/utils/json"
 import type { WarningCollector } from "@shared/utils/warning"
@@ -22,7 +22,7 @@ export async function atomParse(
     entry: Dirent, 
     rootPath: string, 
     collector: WarningCollector
-): Promise<Atom | null> {
+): Promise<AtomMeta | null> {
     
     const atomPath = join(rootPath, entry.name);
     let currentAtomFiles: Dirent[] = [];
@@ -45,14 +45,21 @@ export async function atomParse(
     );
 
     let atomMeta: AtomMeta;
-    if(atomMetaRes.status === "ok"){
-        atomMeta = atomMetaRes.data;
+    if(atomMetaRes.status === "ok" && atomMetaRes.data !== undefined){
+        atomMeta = {
+            ...atomMetaRes.data,
+            name: entry.name
+        } as unknown as AtomMeta;
     }else{
         atomMeta ={
-            id: randomUUID(),
+            id: randomUUID() as AtomId,
+            name: entry.name,
             description: 'adopted',
-            tags: [],
-            createdAt: new Date().toISOString()
+            domainId: randomUUID() as DomainId,
+            typeId: randomUUID() as AtomTypeId,
+
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         };
         await writeJson(atomMetaPath, atomMeta, collector);
     }

@@ -4,7 +4,7 @@ import { createWarningCollector } from "@shared/utils/warning"
 import type { Dirent } from "node:fs"
 import { readdir } from "node:fs/promises"
 import { basename, join } from "node:path"
-import type { Atom, ParsedWorldline } from '../../../shared/domain/types'
+import type { AtomDict, ParsedWorldline, WorldlineId } from '../../../shared/domain/types'
 import { atomParse } from "../atom/atom-parser"
 /**
  * Parsuje pojedyńczy worldline, czyta metadane worldline
@@ -14,7 +14,7 @@ import { atomParse } from "../atom/atom-parser"
  */
 export async function parseWorldline(rootPath: string): Promise<ParsedWorldline> {
     const collector = createWarningCollector()
-    const atoms: Atom[] = []
+    const atoms: AtomDict = {}
 
     let entries: Dirent[]
     try {
@@ -22,7 +22,16 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
     } catch (error) {
         collector.pushWarning(rootPath, 'unreadable', `Nie można odczytać korzenia: ${(error as Error).message}`)
         return {
-            worldline: { id: basename(rootPath), atomCount: 0, name: basename(rootPath), rootPath, atoms: [], edges: [], domains: [] },
+            worldline: {
+                id: crypto.randomUUID() as WorldlineId,
+                name: basename(rootPath),
+                rootPath,
+                domains: [],
+                atomTypes: [],
+                atoms: {},
+                electrons: {},
+                edges: [],
+            },
             warnings: collector.warnings
         }
     }
@@ -38,6 +47,7 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
         worldlineMeta = worldlineMetaRes.data;
     }else{
         worldlineMeta={
+            id: crypto.randomUUID(),
             description: "",
             createdAt: new Date().toISOString(),
             domains: [],
@@ -54,18 +64,19 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
         }
         const atom = await atomParse(entry, rootPath, collector)
         if (atom) {
-            atoms.push(atom)
+            atoms[atom.id] = atom
         }  
     }
 
     return {
         worldline: {
-            id: basename(rootPath),
+            id: worldlineMeta.id,
             name: basename(rootPath),
             rootPath,
             domains: worldlineMeta.domains,
-            atomCount: atoms.length,
+            atomTypes: [],
             atoms,
+            electrons:  worldlineMeta.el,
             edges: worldlineMeta.edges,            
         },
         warnings: collector.warnings

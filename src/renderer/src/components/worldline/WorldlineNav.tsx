@@ -13,7 +13,7 @@ type Props = {
     className?: string;
     onOpenCreateAtom?: ()=>void;
 }
-export const WorldlineNav = ({collapsed,className, onOpenCreateAtom}:Props) => {
+export const WorldlineNav = ({collapsed,className}:Props) => {
     const { worldlineData, isLoading, actions } = useWorldlineStore();
     if (isLoading) return <div className="cursor-progress">Pobieranie struktury Atomów...</div>;
 
@@ -25,7 +25,7 @@ export const WorldlineNav = ({collapsed,className, onOpenCreateAtom}:Props) => {
             </button>
             <div >
                 {worldlineData?.worldline.atoms && (
-                    <AtomsTree atoms={worldlineData.worldline.atoms} />
+                    <AtomsTree />
                 )}
             </div>    
         </nav>
