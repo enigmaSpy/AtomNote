@@ -1,83 +1,49 @@
+import type { AtomMeta } from "@shared/schemas/atom";
+import type { AtomReference, LinksIndex } from "@shared/schemas/edges";
+import type { AtomId, DomainId, ElectronId } from "@shared/schemas/ids";
+
 type Brand<T, B extends string>= T & {readonly __brand:B};
 export type WorldlineId = Brand<string, 'WorldlineId'>
-export type AtomId = Brand<string, 'AtomId'>
-export type ElectronId = Brand<string, 'ElectronId'>
-export type DomainId = Brand<string, 'DomainId'>
-export type AtomTypeId = Brand<string, 'AtomTypeId'>
 
 
 export interface Domain{
     id: DomainId
     name: string
 }
-export interface AtomType{
-    id: AtomTypeId
-    name: string
-}
 
-export interface AtomMeta{
-    id: AtomId
+export interface AtomView{
     name: string
-    description: string
-    domainId: DomainId
-    typeId: AtomTypeId
+    meta: AtomMeta;
+    tags: Set<string>;
+    mastery: number;
 
-    createdAt: string
-    updatedAt: string
+    electrons: ElectronsViewDict | null;
+    references: AtomReference | null;
+    links: LinksIndex | null;
 }
-export type AtomDict = Record<AtomId, AtomMeta>
-export interface ElectronMeta{
+export type AtomDict = Record<AtomId, AtomView>
+
+
+export interface ElectronView{
     id: ElectronId
     ownerAtomId: AtomId
     filename: string
-    tags: string[]
+    tags: Set<string>;
     mastery: number
     createdAt: string
     updatedAt: string
 }
-export type ElectronsDict = Record<ElectronId, ElectronMeta>
 
-export type NodeRef=
-    |{
-        type:'atom'
-        id: AtomId
-    }
-    |{
-        type:'electron'
-        id: ElectronId
-    }
+export type ElectronsViewDict = Record<ElectronId, ElectronView>
 
-export type EdgeLayer = 
-    | 'knowledge'
-    | 'plot'
 
-export type EdgeKind =
-    | 'bond'
-    | 'entanglement'
-    | 'reference'
-export interface Edge{
-    from: NodeRef
-    to: NodeRef
-    layer: EdgeLayer
-    kind: EdgeKind
-}
 export interface Worldline {
     id: WorldlineId
     name: string
     rootPath: string
     domains: Domain[]
-    atomTypes: AtomType[]
+    
     atoms: AtomDict
-    electrons: ElectronsDict
-    edges: Edge[]
-}
-
-export interface AtomView{
-    meta: AtomMeta
-    tags: string[]
-    mastery: number
-    ownedElectronIds: ElectronId[]
-    referencedElectronIds: ElectronId[]
 }
 
 export type WarningReason =

@@ -6,6 +6,7 @@ import { readdir } from "node:fs/promises"
 import { basename, join } from "node:path"
 import type { AtomDict, ParsedWorldline, WorldlineId } from '../../../shared/domain/types'
 import { atomParse } from "../atom/atom-parser"
+import { randomUUID } from "node:crypto"
 /**
  * Parsuje pojedyńczy worldline, czyta metadane worldline
  * 
@@ -14,7 +15,7 @@ import { atomParse } from "../atom/atom-parser"
  */
 export async function parseWorldline(rootPath: string): Promise<ParsedWorldline> {
     const collector = createWarningCollector()
-    const atoms: AtomDict = {}
+    let atoms: AtomDict={};
 
     let entries: Dirent[]
     try {
@@ -23,14 +24,11 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
         collector.pushWarning(rootPath, 'unreadable', `Nie można odczytać korzenia: ${(error as Error).message}`)
         return {
             worldline: {
-                id: crypto.randomUUID() as WorldlineId,
+                id: randomUUID() as WorldlineId,
                 name: basename(rootPath),
                 rootPath,
                 domains: [],
-                atomTypes: [],
                 atoms: {},
-                electrons: {},
-                edges: [],
             },
             warnings: collector.warnings
         }
@@ -47,7 +45,7 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
         worldlineMeta = worldlineMetaRes.data;
     }else{
         worldlineMeta={
-            id: crypto.randomUUID(),
+            id: basename(rootPath),
             description: "",
             createdAt: new Date().toISOString(),
             domains: [],
@@ -63,8 +61,9 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
             continue;
         }
         const atom = await atomParse(entry, rootPath, collector)
+    
         if (atom) {
-            atoms[atom.id] = atom
+            atoms[atom.meta.id] = atom
         }  
     }
 
@@ -74,10 +73,7 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
             name: basename(rootPath),
             rootPath,
             domains: worldlineMeta.domains,
-            atomTypes: [],
-            atoms,
-            electrons:  worldlineMeta.el,
-            edges: worldlineMeta.edges,            
+            atoms,           
         },
         warnings: collector.warnings
     }

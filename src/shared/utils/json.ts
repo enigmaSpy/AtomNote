@@ -111,7 +111,7 @@ export async function writeJsonWithSchema<T>(
     data: T,
     collector?:WarningCollector
 ):Promise<WriteResult>{
-    const result = schema.safeParse(data);
+    const result = z.safeEncode(schema,data);
     if(!result.success){
         collector?.pushWarning(
             filePath,
