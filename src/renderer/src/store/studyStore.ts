@@ -1,4 +1,4 @@
-import type { ContentFlashcard, ContentQuiz, ContentType, Flashcard, QuizQuestion, StudyType } from "@shared/domain/types";
+import type { FlashcardContent, QuizContent, ContentType, Flashcard, QuizQuestion, StudyType } from "@shared/domain/types";
 import { create } from "zustand";
 import { useWorldlineStore } from "./worldlineStore";
 
@@ -62,7 +62,7 @@ export const useStudyStore = create<StudyStore>((set, get)=>({
             if(!currentPath || !activeElectronId) return
             let newContent;
             if(target==='flashcards'){
-                const flashcardContent = content as ContentFlashcard;
+                const flashcardContent = content as FlashcardContent;
                 newContent ={
                     id: crypto.randomUUID(),
                     front: flashcardContent.front,
@@ -70,7 +70,7 @@ export const useStudyStore = create<StudyStore>((set, get)=>({
                     mastery: 0
                 }                 
             }else{
-                const quizContent = content as ContentQuiz;
+                const quizContent = content as QuizContent;
                 newContent ={
                     id: crypto.randomUUID(),
                     question: quizContent.question,

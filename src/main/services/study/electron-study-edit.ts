@@ -1,4 +1,4 @@
-import type { ContentFlashcard, ContentType, Status, StudyType } from "@shared/domain/types";
+import type { FlashcardContent, ContentType, Status, StudyType } from "@shared/domain/types";
 import { writeJsonWithSchema } from "@shared/utils/json";
 import { join } from "path";
 import { getFullStudyData } from "./electron-study-read";
@@ -12,7 +12,7 @@ export async function editStudyData(path: string, electronId: string, targerId:s
 
     if(target === 'flashcards'){
         const flashcardsDict = dataDict as FlashcardsDict;
-        const flashcardContent = content as Partial<ContentFlashcard>;
+        const flashcardContent = content as Partial<FlashcardContent>;
 
         if (!flashcardsDict[electronId]) return {status: 'error', message: 'Fiszka nie istnieje (1)'};
         const searchIndex = flashcardsDict[electronId].cards.findIndex(({id})=>id===targerId);
