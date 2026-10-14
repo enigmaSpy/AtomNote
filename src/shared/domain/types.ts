@@ -17,9 +17,9 @@ export interface AtomView{
     tags: Set<string>;
     mastery: number;
 
-    electrons: ElectronsViewDict | null;
-    references: AtomReference | null;
-    links: LinksIndex | null;
+    electrons: ElectronsViewDict;
+    references: AtomReference;
+    links: LinksIndex;
 }
 export type AtomDict = Record<AtomId, AtomView>
 
