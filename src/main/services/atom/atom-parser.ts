@@ -4,11 +4,11 @@ import { AtomMetaSchema, type AtomMeta } from "@shared/schemas/atom"
 import { ElectronsDictSchema, type ElectronMeta, type ElectronsMetaDict } from "@shared/schemas/electron"
 import { readJsonWithSchema, writeJsonWithSchema } from "@shared/utils/json"
 import type { WarningCollector } from "@shared/utils/warning"
-import { randomUUID } from "node:crypto"
+import { randomUUID } from "crypto"
 import type { Dirent } from "node:fs"
 import { readdir } from "node:fs/promises"
 import { basename, join } from "node:path"
-import type { AtomId, DomainId, ElectronId } from "@shared/schemas/ids"
+import type { AtomId, ElectronId } from "@shared/schemas/ids"
 
 /**
  * Parsuje pojedyńczy atom, czyta metadane, skanuje elektrony, adoptuje brakujące wpisy
@@ -37,7 +37,7 @@ export async function atomParse(
         return null;
     }
 
-    const atomMetaPath = join(atomPath, '.atom_data', 'atom.json')
+    const atomMetaPath = join(atomPath, '.atom_data', 'atom.json');
     const atomMetaRes = await readJsonWithSchema(
         atomMetaPath,
         AtomMetaSchema,
@@ -51,7 +51,7 @@ export async function atomParse(
         atomMeta ={
             id: randomUUID() as AtomId,
             description: 'adopted',
-            domainId: randomUUID() as DomainId,
+            domainId: null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
@@ -62,14 +62,24 @@ export async function atomParse(
     const electronsPath = join(atomPath, '.atom_data', 'electrons.json');
     const electronsRes = await readJsonWithSchema(electronsPath, ElectronsDictSchema, collector);
     
-    let isElectronsDirty = electronsRes.status !== 'ok';
+    let isElectronsDirty = false;
     const electronsDict: ElectronsMetaDict =
         electronsRes.status === 'ok' && electronsRes.data !== undefined
             ? electronsRes.data
             : {};
+    
+    if(electronsRes.status === 'not-found'){
+        isElectronsDirty = true;
+    }
+    const electronIdByFilename = new Map(
+        Object.entries(electronsDict).map(
+        ([id, meta])=> [meta.filename, id as ElectronId]
+        )
+    );
 
     let electronsViewDict: ElectronsViewDict = {};
     const tagsSet = new Set<string>();
+
     for(const currentElectron of currentAtomFiles){
         const isReserved = currentElectron.name.startsWith('.')||currentElectron.name.startsWith('__');
         if(currentElectron.isDirectory() && !isReserved){
@@ -79,41 +89,59 @@ export async function atomParse(
                 `Podfolder ${currentElectron.name} w ${entry.name} jest ignorowany`);
             continue;
         }
-        
-        if(currentElectron.isFile()&&!isReserved){
-            const dictEntry = Object.entries(electronsDict).find(([_, meta])=>meta.filename === currentElectron.name);
+        if(!currentElectron.isFile()) continue;
 
-            let electronId: string;
-            let electronMeta:ElectronMeta;
-            let electronView: ElectronView;
-            if(dictEntry){
-                electronId = dictEntry[0];
-                electronMeta = dictEntry[1];
-                electronView = {
-                    id: dictEntry[0] as ElectronId,
-                    ownerAtomId: currentAtomId,
-                    ...electronMeta
-                }
+        const ext = currentElectron.name.split('.').pop()?.toLowerCase();
+
+        if (ext !== 'md' && ext !== 'txt') {
+            collector.pushWarning(
+                join(atomPath, currentElectron.name),
+                'unexpected-file',
+                `Plik "${currentElectron.name}" ma nieobsługiwane rozszerzenie .${ext} i został zignorowany.`
+            );
+            continue;
+        }
+        let electronId: ElectronId;
+        let electronMeta:ElectronMeta;
+        const existingElectronId = electronIdByFilename.get(currentElectron.name);
+
+        if(existingElectronId){
+            const existingMeta = electronsDict[existingElectronId];
+            if(existingMeta){
+                electronId = existingElectronId;
+                electronMeta = existingMeta;
             }else{
-                electronId = randomUUID();
+                electronId = randomUUID() as ElectronId;
+
                 electronMeta = {
-                    filename: basename(currentElectron.name),
+                    filename: currentElectron.name,
                     tags: new Set<string>(),
                     mastery: 0,
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
                 };
-                electronView={
-                    ...electronMeta,
-                    id: electronId as ElectronId,
-                    ownerAtomId: currentAtomId,
-                }
+                electronsDict[electronId] = electronMeta;
                 isElectronsDirty = true;
             }
-            electronMeta.tags.forEach(tag => tagsSet.add(tag));
-            electronsViewDict[electronId] = electronView;
+        }else{
+            electronId = randomUUID() as ElectronId;
+            electronMeta = {
+                filename: currentElectron.name,
+                tags: new Set<string>(),
+                mastery: 0,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
             electronsDict[electronId] = electronMeta;
+            
+            isElectronsDirty = true;
         }
+        electronsViewDict[electronId] ={
+                ...electronMeta,
+                id: electronId,
+                ownerAtomId: currentAtomId
+            } 
     }
 
     if (isElectronsDirty){
@@ -129,7 +157,10 @@ export async function atomParse(
         name: basename(entry.name),
         mastery: Number(atomMastery.toFixed(2)),
         electrons: electronsViewDict,
-        references: null, //TODO: dodać obsługe w późniejszej wersji
-        links: null //TODO: dodać obsługe w późniejszej wersji
+        references: {
+            referencedAtoms: [],
+            referencedElectrons: {}
+        }, //TODO: dodać obsługe w późniejszej wersji
+        links: {} //TODO: dodać obsługe w późniejszej wersji
     }
 }

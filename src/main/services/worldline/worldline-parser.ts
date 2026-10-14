@@ -1,12 +1,11 @@
 import { WorldlineMetaSchema } from "@shared/schemas/worldline"
-import { readJsonWithSchema, writeJson } from "@shared/utils/json"
+import { readJsonWithSchema, writeJson, writeJsonWithSchema } from "@shared/utils/json"
 import { createWarningCollector } from "@shared/utils/warning"
 import type { Dirent } from "node:fs"
 import { readdir } from "node:fs/promises"
 import { basename, join } from "node:path"
 import type { AtomDict, ParsedWorldline, WorldlineId } from '../../../shared/domain/types'
 import { atomParse } from "../atom/atom-parser"
-import { randomUUID } from "node:crypto"
 /**
  * Parsuje pojedyńczy worldline, czyta metadane worldline
  * 
@@ -24,7 +23,7 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
         collector.pushWarning(rootPath, 'unreadable', `Nie można odczytać korzenia: ${(error as Error).message}`)
         return {
             worldline: {
-                id: randomUUID() as WorldlineId,
+                id: basename(rootPath) as WorldlineId,
                 name: basename(rootPath),
                 rootPath,
                 domains: [],
@@ -38,22 +37,23 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
         worldlinePath,
         WorldlineMetaSchema,
         collector
-    )
+    );
     
     let worldlineMeta;
     if (worldlineMetaRes.status === 'ok') {
         worldlineMeta = worldlineMetaRes.data;
-    }else{
-        worldlineMeta={
-            id: basename(rootPath),
-            description: "",
-            createdAt: new Date().toISOString(),
+    }else if(worldlineMetaRes.status === 'not-found'){
+        worldlineMeta = {
             domains: [],
-            edges: [],
+            settings: {}
+        };
+    
+        await writeJsonWithSchema(worldlinePath, WorldlineMetaSchema, worldlineMeta, collector);
+    }else{
+        worldlineMeta = {
+            domains: [],
             settings: {}
         }
-    
-        await writeJson(worldlinePath, worldlineMeta, collector);
     }
 
     for (const entry of entries) {
@@ -69,7 +69,7 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
 
     return {
         worldline: {
-            id: worldlineMeta.id,
+            id: basename(rootPath) as WorldlineId,
             name: basename(rootPath),
             rootPath,
             domains: worldlineMeta.domains,
