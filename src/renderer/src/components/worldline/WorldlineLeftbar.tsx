@@ -13,7 +13,7 @@ type Props = {
     className?: string;
     onOpenCreateAtom?: ()=>void;
 }
-export const WorldlineNav = ({collapsed,className}:Props) => {
+export const WorldlineLeftBar = ({collapsed,className}:Props) => {
     const { worldlineData, isLoading, actions } = useWorldlineStore();
     if (isLoading) return <div className="cursor-progress">Pobieranie struktury Atomów...</div>;
 

@@ -1,17 +1,16 @@
 import { useState } from "react"
 import { NoteMeta } from "../components/editor/NoteMeta"
 import { NoteEditor } from "../components/editor/NoteEditor"
-import { WorldlineNav } from "../components/worldline/WorldlineNav"
+import { WorldlineLeftBar} from "../components/worldline/WorldlineLeftbar"
 import { StudySyncManager } from "../components/providers/StudySyncManager"
-import { FlashcardSession } from "../components/study/FlashcardSession"
-import { QuizPreview } from "../components/study/QuizPreview"
 import { Modal } from "../components/ui/Modal"
 import styles from './Garden.module.css'
 import { useWorldlineState, useWorldlineStore } from "@renderer/store/worldlineStore"
 import { WorldlineGraph } from "@renderer/components/graph/WorldlineGraph"
-import { FlashcardsPreview } from "@renderer/components/study/FlashcardsPreview"
-import clsx from "clsx"
 import { CreateAtomModal } from "@renderer/components/worldline/CreateAtomModal"
+import { FlashcardSession } from "@renderer/components/Study/FlashcardSession"
+import { QuizPreview } from "@renderer/components/Study/QuizPreview"
+import { FlashcardsPreview } from "@renderer/components/Study/FlashcardsPreview"
 type StudyType = 'flashcards'|'quiz'|'flashcardsPreview'|null;
 
 /**
@@ -48,7 +47,7 @@ export const GardenView = () => {
         <CreateAtomModal />
       </Modal>
       <main className={styles.gardenView}>
-          <WorldlineNav 
+          <WorldlineLeftBar 
             collapsed={studyType === 'flashcardsPreview'}
             onOpenCreateAtom={() => setIsCreateAtomOpen(true)}
           />

@@ -1,10 +1,10 @@
-import { getCurrentFileName } from '@renderer/utils/currentFileName';
 import type { ParsedWorldline } from '@shared/domain/types';
+import type { AtomId, ElectronId } from '@shared/schemas/ids';
 import {create} from 'zustand';
 
 interface WorldlineStoreActions{
     loadWorldline: (rootPath: string)=> Promise<void>;
-    selectElectron: (electronId: string | null)=>void;
+    selectElectron: (atomId: AtomId ,electronId: ElectronId | null)=>void;
     selectAtom: (atomId: string | null)=>void;
     clearWorldline: ()=>void;
     setPath: (rootPath: string, atomName:string)=>Promise<void>
@@ -59,12 +59,13 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
                 activeAtomId: activeAtomId === atomId? null: atomId,
             }
         )},
-        selectElectron: async(electronId)=> {
+        selectElectron: async(atomId,electronId)=> {
             const {activeElectronId,worldlineData} = get();
             const rootPath = worldlineData?.worldline.rootPath;
-            const {atomName} = getCurrentFileName();
-            if (!rootPath || !atomName) return;
-            const path = await window.api.helpers.getPath(rootPath, atomName);
+            const atom = worldlineData?.worldline.atoms[atomId];
+
+            if (!rootPath || !atom) return;
+            const path = await window.api.helpers.getPath(rootPath, atom.name);
             
             set({
                 activeElectronId: electronId === activeElectronId? null: electronId,
