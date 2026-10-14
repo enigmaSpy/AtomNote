@@ -125,7 +125,3 @@ export async function writeJsonWithSchema<T>(
     if(!success) return {status:"write-failed"}
     return {status: 'ok'}
 }
-
-export async function updateJson(){
-
-}
