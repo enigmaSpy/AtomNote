@@ -17,8 +17,8 @@ export async function calculateElectronMastery(electronID: string, atomPath: str
         FlashcardsDictSchema
     );
 
-    const electronFlashcards = flashcardsRes.status === 'ok' 
-        ? flashcardsRes.data[electronID] 
+    const electronFlashcards = flashcardsRes.status === 'ok'
+        ? flashcardsRes.data?.[electronID]
         : undefined;
 
     if (electronFlashcards && electronFlashcards.cards.length > 0) {
@@ -31,8 +31,8 @@ export async function calculateElectronMastery(electronID: string, atomPath: str
         QuizzesDictSchema
     );
 
-    const electronQuizzes = quizzesRes.status === 'ok' 
-        ? quizzesRes.data[electronID] 
+    const electronQuizzes = quizzesRes.status === 'ok'
+        ? quizzesRes.data?.[electronID]
         : undefined;
 
     if (electronQuizzes && electronQuizzes.questions.length > 0) {

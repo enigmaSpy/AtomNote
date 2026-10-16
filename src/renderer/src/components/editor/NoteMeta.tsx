@@ -16,7 +16,7 @@ export const  NoteMeta = ({onOpenStudy}:NoteMetaProps) => {
     const fileName = getCurrentFileName().electronName;
     return (
         <div className={styles.noteMeta}>
-            <h3>{fileName}</h3>
+            <h3>{fileName?.replace(/\.[^/.]+$/, "")}</h3>
             <div>
                 <button onClick={()=>onOpenStudy('flashcardsPreview')}>
                     {flashcards[0]? "Edytuj Fiszki":"Stwórz Fiszki"}
