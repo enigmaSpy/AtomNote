@@ -14,6 +14,7 @@ import type { AtomId } from "@shared/schemas/ids";
 export const AtomsTree = () => {
     const worldline = useWorldlineStore((state)=> state.worldlineData);
     const activeAtomId = useWorldlineStore((state)=>state.activeAtomId);
+    const setIsCreateAtomOpen = useWorldlineState(state => state.setCreateAtomOpen);
 
     const atoms = Object.values(worldline?.worldline.atoms??{})
     console.log({
@@ -44,12 +45,19 @@ export const AtomsTree = () => {
                     )}
                 </Fragment>
             ))}
+            <li>
+                <button 
+                    className={styles.newElectronBtn}
+                    onClick={()=>setIsCreateAtomOpen(true)}
+                >
+                    + Dodaj Atom
+                </button>
+            </li>
         </ul>
     )
 }
 
 const AtomTreeItem = memo(({atom}:{atom:AtomView})=>{
-    const setIsCreateAtomOpen = useWorldlineState(state => state.setCreateAtomOpen);
 
     const { selectAtom } = useWorldlineActions();
     const handleSelect = useCallback(
@@ -63,7 +71,6 @@ const AtomTreeItem = memo(({atom}:{atom:AtomView})=>{
             </span>
             <button 
                 className={styles.newElectronBtn}
-                onClick={()=>setIsCreateAtomOpen(true)}
             >
                 +
             </button>
@@ -79,7 +86,7 @@ const ElectronTreeItem = memo(({ electron }: { electron: ElectronView }) => {
 
     return (
         <li onClick={handleSelect} className="cursor-pointer truncate flex-1">
-            {electron.filename}
+            {electron.filename.replace(/\.[^/.]+$/, "")}
         </li>
     );
 });
@@ -105,7 +112,7 @@ const ReferencenAtomTreeItem = ({ atomId }: { atomId: AtomId }) => {
                         onClick={() => handleSelect(electron)}
                         className="cursor-pointer truncate flex-1"
                     >
-                        {electron.filename}/{referencedAtoms[atomId]?.name}
+                        {electron.filename.replace(/\.[^/.]+$/, "")}/{referencedAtoms[atomId]?.name}
                     </li>
                 ))}
             </ul>

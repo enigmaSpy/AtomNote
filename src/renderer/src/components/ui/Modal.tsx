@@ -12,6 +12,7 @@ export const Modal = ({isOpen, onClose, children}) => {
             dialog.close();
         }
     },[isOpen])
+    if(!isOpen) return null;
   return (
     <dialog
         className={styles.modal}

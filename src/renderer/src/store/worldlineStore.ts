@@ -1,4 +1,4 @@
-import type { ParsedWorldline } from '@shared/domain/types';
+import type { AtomView, ParsedWorldline } from '@shared/domain/types';
 import type { AtomId, ElectronId } from '@shared/schemas/ids';
 import {create} from 'zustand';
 
@@ -8,6 +8,8 @@ interface WorldlineStoreActions{
     selectAtom: (atomId: string | null)=>void;
     clearWorldline: ()=>void;
     setPath: (rootPath: string, atomName:string)=>Promise<void>
+
+    addAtom: (newAtomId: AtomId, newAtomData:AtomView)=>void
 }
 interface WorldlineStore{
     worldlineData: ParsedWorldline | null;
@@ -79,6 +81,22 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             isLoading: false,
             error: null,
             currentPath: null
+        }),
+        addAtom: (newAtomId, newAtomData) => set((state) =>{
+            if(!state.worldlineData) return state;
+
+            return {
+                worldlineData:{
+                    ...state.worldlineData,
+                    worldline:{
+                        ...state.worldlineData.worldline,
+                        atoms:{
+                            ...state.worldlineData.worldline.atoms,
+                            [newAtomId]:newAtomData
+                        }
+                    }
+                }
+            };
         }),
         setPath:async (rootPath, atomName)=>{
             const path = await window.api.helpers.getPath(rootPath, atomName);
