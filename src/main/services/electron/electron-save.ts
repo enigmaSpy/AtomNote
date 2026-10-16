@@ -1,4 +1,4 @@
-import { writeFileApp } from "@shared/utils/file";
+import { writeContentFile } from "@shared/utils/file";
 
 export async function saveElectron(
     path:string,
@@ -6,7 +6,7 @@ export async function saveElectron(
     context: string
 ): Promise<void> {
     try {
-        await writeFileApp(context, path, filename);
+        await writeContentFile(context, path, filename);
     } catch (error) {
         console.error(`Zapis ${filename} nieudany:`, error);
         throw new Error(`Błąd zapisu pliku: ${(error as Error).message}`); 

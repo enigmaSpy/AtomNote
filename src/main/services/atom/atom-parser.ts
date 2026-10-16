@@ -1,5 +1,5 @@
 //? loadOrAdoptAtomMeta, parsowanie elektronów
-import type { AtomView , ElectronsViewDict, ElectronView } from "@shared/domain/types"
+import type { AtomView , ElectronsViewDict } from "@shared/domain/types"
 import { AtomMetaSchema, type AtomMeta } from "@shared/schemas/atom"
 import { ElectronsDictSchema, type ElectronMeta, type ElectronsMetaDict } from "@shared/schemas/electron"
 import { readJsonWithSchema, writeJsonWithSchema } from "@shared/utils/json"

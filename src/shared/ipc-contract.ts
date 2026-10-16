@@ -1,4 +1,5 @@
 import type { ContentType, ParsedWorldline, Status, StudyType } from "./domain/types";
+import type { AtomMeta } from "./schemas/atom";
 import type { Flashcard } from "./schemas/flashcard";
 import type { QuizQuestion } from "./schemas/quiz";
 //TODO ustalić typ returnów
@@ -9,6 +10,9 @@ export interface IpcApi{
     electron:{
         read(path:string, filename:string):Promise<string>,
         save(path:string, filename:string, content: string): Promise<void>,
+    },
+    atom:{
+        create(rootPath: string,name: string, content: Omit<AtomMeta, 'id'|'createdAt'|'updatedAt'>):Promise<Status<AtomMeta>>
     },
     study:{
         read(path:string, electronId:string);
@@ -26,6 +30,8 @@ export const IPC_CHANNELS = {
 
     ELECTRON_READ: 'electron:read',
     ELECTRON_SAVE:'electron:save',
+
+    ATOM_CREATE: 'atom:create',
 
     STUDY_READ:'study:read',
     STUDY_ADD: 'study:add',

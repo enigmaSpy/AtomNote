@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-contract'
 import type { IpcApi } from '../shared/ipc-contract'
+import type { AtomMeta } from '@shared/schemas/atom'
 
 const api: IpcApi = {
   worldline: {
@@ -11,9 +12,9 @@ const api: IpcApi = {
     read: (path:string, filename:string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_READ, path, filename),
     save: (path:string, filename:string, content: string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_SAVE, path, filename, content)
   },
-  //atom:{
-    //create()
-  //},
+  atom:{
+    create:(rootPath: string,name: string, content: Omit<AtomMeta, 'id'|'createdAt'|'updatedAt'>)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_CREATE, rootPath, name, content)
+  },
   study:{
     read:(path, electronId)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_READ, path, electronId),
     add:(path, electronId, content, target)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_ADD, path, electronId, content, target),

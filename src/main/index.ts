@@ -6,6 +6,7 @@ import icon from '../../resources/icon.png?asset'
 import { registerElectronIpc } from './ipc/electron.ipc'
 import { registerStudyIpc } from './ipc/study.ipc'
 import { registerHelpersIpc } from './ipc/helpers.ipc'
+import { registerAtomIpc } from './ipc/atom.ipc'
 
 function createWindow(): void {
   // Create the browser window.
@@ -61,6 +62,7 @@ app.whenReady().then(() => {
   registerStudyIpc();
   registerWorldlineIpc();
   registerElectronIpc();
+  registerAtomIpc();
   registerHelpersIpc();
   createWindow();
 
