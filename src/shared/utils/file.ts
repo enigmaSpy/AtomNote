@@ -6,13 +6,12 @@ export function readFileApp(...segments:string[]):Promise<string>{
     return readFile(filePath, {encoding:'utf-8'});
 }
 
-export async function writeFileApp(context: string,...segments:string[]):Promise<void>{
+export async function writeContentFile(context: string,...segments:string[]):Promise<void>{
     
     const filePath = join(...segments);
     await mkdir(dirname(filePath), {recursive:true})
     await writeFile(filePath, context, {encoding: 'utf-8'});
 }
-
 
 export const deleteFileApp = async (...segments:string[])=>{
     const filePath = join(...segments);

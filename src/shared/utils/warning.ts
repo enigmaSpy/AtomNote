@@ -18,3 +18,4 @@ export const createWarningCollector = ()=>{
 }
 
 export const isEnoent =(err: unknown):boolean=> (err as NodeJS.ErrnoException).code === 'ENOENT';
+export const isEexist =(err :unknown):boolean=> (err as NodeJS.ErrnoException).code === 'EEXIST';

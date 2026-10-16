@@ -86,10 +86,10 @@ export interface QuizQuestion extends QuizContent{
 
 export type StudyType = 'flashcards' | 'quizzes'
 
-export type Status = 
-    |{status: 'ok'}
-    |{status: 'error', message: string}
 
+export type Status<T=void> =
+    |(T extends void?{status:'ok'}:{status: 'ok', data:T})
+    |{status: 'error', message: string}
 export type ContentType = 
     |QuizContent
     |FlashcardContent

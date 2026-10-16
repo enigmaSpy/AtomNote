@@ -37,10 +37,6 @@ export async function readJsonWithSchema<T>(
     try {
         rawText = await readFile(filePath, 'utf8')
     } catch (error) {
-        if(isEnoent(error)){
-            console.error(`not found: ${(error as Error).message}`);
-            return {status: 'not-found'} 
-        }
         collector?.pushWarning(
             filePath,
             'unreadable',
