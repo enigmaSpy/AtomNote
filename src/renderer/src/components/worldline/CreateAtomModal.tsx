@@ -56,13 +56,13 @@ export const CreateAtomModal = () => {
     
     return (
         <form className={styles.createAtomForm}>
-            <div>{writeResponse&&(<span>Błąd zapisu: {writeResponse}</span>)}</div>
+            <div className="errorInfo">{writeResponse&&(<span >Błąd zapisu: {writeResponse}</span>)}</div>
             <input type="text" placeholder="Nazwa" className="input" value={atomName} onChange={(e)=>setAtomName(e.target.value)} ref={inputRef}/>
             <input placeholder="Domena" list="domains" className="input" value={atomDomain??""} onChange={(e)=>setAtomDomain(e.target.value)} />
 
             <datalist id="domains">
-                {domains&& domains.map(({name})=>(
-                    <option>{name}</option>
+                {domains&& domains.map((domain)=>(
+                    <option key={domain.id}>{domain.name}</option>
                 ))}//TODO: dodanie nowej domeny
             </datalist>
             

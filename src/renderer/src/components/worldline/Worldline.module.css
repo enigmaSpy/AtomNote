@@ -32,11 +32,22 @@
   border: none;
 }
 .newElectronBtn{
-  
   background-color: aliceblue;
 }
 
 .createAtomForm{
   display: flex;
   flex-direction: column;
+  justify-content: right;
+  align-items: end;
+  gap: .2em;
+
+  input, textarea{
+    width: 30ch;
+  }
+
+  button{
+    background: var(--accent-default);
+    width: fit-content;
+  }
 }

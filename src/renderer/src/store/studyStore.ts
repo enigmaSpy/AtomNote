@@ -4,7 +4,7 @@ import { useWorldlineStore } from "./worldlineStore";
 
 
 
-interface StudyStoryActions{
+interface StudyStoreActions{
     loadStudyData: ()=> Promise<void>;
     clearStudyData: ()=>void;
     addStudyData: (content:ContentType, target:StudyType)=>void;
@@ -17,7 +17,7 @@ interface StudyStore {
     isLoading: boolean;
     error: string|null;
 
-    actions: StudyStoryActions;
+    actions: StudyStoreActions;
 }
 export const useStudyStore = create<StudyStore>((set, get)=>({
     flashcards: [],

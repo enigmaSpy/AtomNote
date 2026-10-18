@@ -77,3 +77,13 @@ button{
   min-height: 52px;
   max-height: 50ch;
 }
+
+.errorInfo{
+  background: var(--color-error-tonal);
+  color: var(--color-error);
+  border-radius: var(--radius-sm);
+  padding: 5px;
+  display: block;
+  margin: 2px 0;
+  transition: all 1s ease-in;
+}
