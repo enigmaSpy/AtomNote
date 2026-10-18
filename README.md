@@ -1,12 +1,36 @@
-Design and implementation of the modular knowledge management environment "AtomNote" using graph visualization and code reference mechanisms
-## version 0.1
+Design and implementation of the modular knowledge management environment "AtomNote" using graph visualization
+## version 0.2
 
-- [x] Electron + React + TypeScript + Vite; `contextIsolation`, sandbox.
-- [x] Typy: `Library`, `Atom`, `Electron`, `Tag`, `Domain`, `Edge`, `Bond`, `Entanglement`.
-- [x] Schematy `worldline.json`, `atom.json`, `electrons.json`.
-- [x] Parser katalogu → model. Twarda reguła: dwa poziomy fizyczne, zero rekurencji.
-- [ ] Silnik tagów: jeden mechanizm dla domen, molekuł i kategorii.
-- [ ] Domena jako zapisany filtr. Przełącznik domen w UI.
-- [x] Panel ostrzeżeń strukturalnych.
-- [x] IPC: bezpieczny odczyt/zapis metadanych + whitelist ścieżek.
-- [x] Prosty edytor MDX (Tryb Tworzenia, auto-save).
+- [x] Structure Parser (0.1v) 
+- [x] Simple MD editor (0.1v)
+
+- Worldline:
+    - [ ] Create
+    - [x] Read
+    - [ ] Update
+    - [ ] Delete
+- Atom:
+    - [x] Create
+    - [x] Read
+    - [ ] Update
+    - [ ] Delete
+- Electron:
+    - [ ] Create
+    - [x] Read
+    - [ ] Update
+    - [ ] Delete
+- Study Section:
+    - Flashcards:
+        - [x] Create
+        - [x] Read
+        - [x] Update
+        - [x] Delete
+        - [ ] Study Session
+    - Quizzes:
+        - [ ] Create
+        - [ ] Read
+        - [ ] Update
+        - [ ] Delete
+        - [ ] Study Session
+- [ ] WorldlieGraph
+- [ ] AtomGraph
