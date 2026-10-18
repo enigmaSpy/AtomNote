@@ -13,7 +13,8 @@ const api: IpcApi = {
     save: (path:string, filename:string, content: string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_SAVE, path, filename, content)
   },
   atom:{
-    create:(rootPath: string,name: string, content: Omit<AtomMeta, 'id'|'createdAt'|'updatedAt'>)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_CREATE, rootPath, name, content)
+    create: (rootPath: string, name: string, content: Omit<AtomMeta, 'id'|'createdAt'|'updatedAt'>)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_CREATE, rootPath, name, content),
+    delete: (rootPath: string, name: string)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_DELETE, rootPath, name)
   },
   study:{
     read:(path, electronId)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_READ, path, electronId),
