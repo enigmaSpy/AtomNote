@@ -9,7 +9,7 @@ type ContextMenuPayload ={
 } 
 
 interface UIStoreActions{
-    setCreateAtomOpen: (isOpen: boolean)=>void;
+    setIsCreateAtomOpen: (isOpen: boolean)=>void;
     openContextMenu: (x: number, y: number, targetId: string, targetType: 'atom' | 'electron')=>void;
     closeContextMenu: () => void;
 }
@@ -31,7 +31,7 @@ export const useUIStore = create<UIState>((set)=>({
     },
     isCreateAtomOpen: false,
     actions:{
-        setCreateAtomOpen:(isOpen)=> set({isCreateAtomOpen: isOpen}),
+        setIsCreateAtomOpen:(isOpen)=> set({isCreateAtomOpen: isOpen}),
         openContextMenu:(x,y,targetId, targetType)=>set({
             contextMenu: {isOpen: true, x, y, targetId, targetType}
         }),

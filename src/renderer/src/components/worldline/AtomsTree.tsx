@@ -1,9 +1,10 @@
-import { useWorldlineActions, useWorldlineState, useWorldlineStore } from "@renderer/store/worldlineStore";
-import { memo, useCallback } from "react";
-import { Fragment } from "react/jsx-runtime";
-import styles from './Worldline.module.css';
+import { useUIActions } from "@renderer/store/uiStore";
+import { useWorldlineActions, useWorldlineStore } from "@renderer/store/worldlineStore";
 import type { AtomView, ElectronView } from "@shared/domain/types";
 import type { AtomId } from "@shared/schemas/ids";
+import { memo, useCallback, useState } from "react";
+import { Fragment } from "react/jsx-runtime";
+import styles from './Worldline.module.css';
 
 /**
  * Zwraca drzewo aotomów 
@@ -14,7 +15,7 @@ import type { AtomId } from "@shared/schemas/ids";
 export const AtomsTree = () => {
     const worldline = useWorldlineStore((state)=> state.worldlineData);
     const activeAtomId = useWorldlineStore((state)=>state.activeAtomId);
-    const setIsCreateAtomOpen = useWorldlineState(state => state.setCreateAtomOpen);
+    const {setIsCreateAtomOpen} = useUIActions();
 
     const atoms = Object.values(worldline?.worldline.atoms??{})
     console.log({
@@ -22,48 +23,57 @@ export const AtomsTree = () => {
     activeAtomId,
 });
     return (
-        <ul>
-            {atoms.map((atom)=>(
-                <Fragment key={atom.meta.id}>
-                    <AtomTreeItem atom={atom}/>
-
-                    {atom.meta.id === activeAtomId&&(
-                        <ul className="p-4">
-                            {Object.values(atom.electrons ?? {}).map((electron)=>(
-                                <ElectronTreeItem 
-                                    key={electron.id}  
-                                    electron={electron}
-                                    />
-                            ))}
-                            {Object.values(atom.references?.referencedAtoms ?? []).map((atomId) => (
-                                <ReferencenAtomTreeItem
-                                    atomId={atomId}
-                                    key={atomId}
-                                />
-                            ))}
-                        </ul>
-                    )}
-                </Fragment>
-            ))}
-            <li>
-                <button 
-                    className={styles.newElectronBtn}
-                    onClick={()=>setIsCreateAtomOpen(true)}
-                >
-                    + Dodaj Atom
-                </button>
-            </li>
-        </ul>
+        <div>
+            <button 
+                        className={styles.newElectronBtn}
+                        onClick={()=>setIsCreateAtomOpen(true)}
+                    >
+                        + Dodaj Atom
+            </button>
+            <ul>
+                {atoms.map((atom)=>(
+                    <Fragment key={atom.meta.id}>
+                        <AtomWrapper atom={atom}/>
+                    </Fragment>
+                ))}
+            </ul>
+        </div>
     )
 }
+const AtomWrapper = ({ atom }: { atom: AtomView }) => {
+    const [isOpen, setIsOpen] = useState(false);
 
-const AtomTreeItem = memo(({atom}:{atom:AtomView})=>{
-
-    const { selectAtom } = useWorldlineActions();
+    return (
+        <>
+            <li onClick={()=>setIsOpen(prev=>!prev)}>
+                <Atom atom={atom}/>
+            </li>
+            {isOpen&&(<ul className="p-4">
+                {Object.values(atom.electrons ?? {}).length === 0 ? (
+                    <li className={styles.emptyElectron}>Brak elektronów</li>
+                ) : (
+                    Object.values(atom.electrons ?? {}).map(electron => (
+                        <Electrons key={electron.id} electron={electron} />
+                    ))
+                )}
+                {atom.references?.referencedAtoms.map((atomId) => (
+                    <ReferencedAtom
+                        atomId={atomId}
+                        key={atomId}
+                    />
+                ))}
+            </ul>)}
+        </>
+    )
+}
+const Atom = memo(({atom}:{atom:AtomView})=>{
+    const { selectAtom, deleteAtom } = useWorldlineActions();
     const handleSelect = useCallback(
         ()=>selectAtom(atom.meta.id),[atom.meta.id, selectAtom]
-        
     )
+    const handleDelete = useCallback(() => {
+        deleteAtom(atom.name, atom.meta.id);
+    }, [atom.name, atom.meta.id, deleteAtom]);
     return (
         <li className="cursor-pointer bg-amber-300 text-balance">
             <span onClick={handleSelect} className="">
@@ -74,11 +84,12 @@ const AtomTreeItem = memo(({atom}:{atom:AtomView})=>{
             >
                 +
             </button>
+            <button onClick={handleDelete}>Usuń</button>
         </li>
     )
 });
 
-const ElectronTreeItem = memo(({ electron }: { electron: ElectronView }) => {
+const Electrons = memo(({ electron }: { electron: ElectronView }) => {
     const { selectElectron } = useWorldlineActions();
     const handleSelect = useCallback(() => {
         selectElectron(electron.ownerAtomId, electron.id);
@@ -91,17 +102,18 @@ const ElectronTreeItem = memo(({ electron }: { electron: ElectronView }) => {
     );
 });
 
-const ReferencenAtomTreeItem = ({ atomId }: { atomId: AtomId }) => {
+const ReferencedAtom = ({ atomId }: { atomId: AtomId }) => {
     const { selectElectron } = useWorldlineActions();
-    const referencedAtoms = useWorldlineStore(state => state.worldlineData)?.worldline.atoms ?? {};
+    const referencedAtom = useWorldlineStore(
+        state => state.worldlineData?.worldline.atoms?.[atomId]
+    );
+    if (!referencedAtom) return null;
     
     const handleSelect = useCallback((electron: ElectronView) => {
         selectElectron(electron.ownerAtomId, electron.id);
     }, [selectElectron]);
 
-    if (!referencedAtoms[atomId]) return null;
-
-    const referencedElectrons = referencedAtoms[atomId].electrons ?? {};
+    const referencedElectrons = referencedAtom.electrons ?? {};
 
     return (
         <li>
@@ -112,7 +124,7 @@ const ReferencenAtomTreeItem = ({ atomId }: { atomId: AtomId }) => {
                         onClick={() => handleSelect(electron)}
                         className="cursor-pointer truncate flex-1"
                     >
-                        {electron.filename.replace(/\.[^/.]+$/, "")}/{referencedAtoms[atomId]?.name}
+                        {electron.filename.replace(/\.[^/.]+$/, "")}/{referencedAtom?.name}
                     </li>
                 ))}
             </ul>

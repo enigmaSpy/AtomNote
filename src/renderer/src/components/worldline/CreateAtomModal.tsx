@@ -27,7 +27,7 @@ export const CreateAtomModal = () => {
             description: atomDescription,
             domainId: atomDomain as DomainId
         }
-        const response = await window.api.atom.create(rootPath,atomName.trim(), atomContent);
+        const response = await window.api.atom.create(rootPath,atomName.trim(), atomContent);//TODO: Przenieść do Store
         if (response.status === 'error') {
             setWriteResponse(response.message);
             inputRef.current?.focus();

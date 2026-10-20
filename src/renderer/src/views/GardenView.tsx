@@ -5,12 +5,14 @@ import { WorldlineLeftBar} from "../components/worldline/WorldlineLeftbar"
 import { StudySyncManager } from "../components/providers/StudySyncManager"
 import { Modal } from "../components/ui/Modal"
 import styles from './Garden.module.css'
-import { useWorldlineState, useWorldlineStore } from "@renderer/store/worldlineStore"
+import { useWorldlineStore } from "@renderer/store/worldlineStore"
 import { WorldlineGraph } from "@renderer/components/graph/WorldlineGraph"
 import { CreateAtomModal } from "@renderer/components/worldline/CreateAtomModal"
-import { FlashcardSession } from "@renderer/components/Study/FlashcardSession"
-import { QuizPreview } from "@renderer/components/Study/QuizPreview"
-import { FlashcardsPreview } from "@renderer/components/Study/FlashcardsPreview"
+
+import { useUIActions, useUIStore } from "@renderer/store/uiStore"
+import { FlashcardSession } from "@renderer/components/study/FlashcardSession"
+import { QuizPreview } from "@renderer/components/study/QuizPreview"
+import { FlashcardsPreview } from "@renderer/components/study/FlashcardsPreview"
 type StudyType = 'flashcards'|'quiz'|'flashcardsPreview'|null;
 
 /**
@@ -23,8 +25,8 @@ export const GardenView = () => {
   const [studyType, setStudyType] = useState<StudyType>(null);
 
   const activeElectronId = useWorldlineStore(state => state.activeElectronId);
-  const isCreateAtomOpen = useWorldlineState(state => state.isCreateAtomOpen);
-  const setIsCreateAtomOpen = useWorldlineState(state => state.setCreateAtomOpen);
+  const isCreateAtomOpen = useUIStore(state => state.isCreateAtomOpen);
+  const {setIsCreateAtomOpen} = useUIActions();
 
   const openStudyModal = (type: Exclude<StudyType, null>)=>{
     setStudyType(type);

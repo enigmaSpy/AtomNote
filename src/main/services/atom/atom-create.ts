@@ -25,7 +25,7 @@ export  async function createAtom(rootPath:string, name: string, atomPayload:Ato
         return { status: 'error', message: (error as Error).message};
     }
     const writeResult = await writeJsonWithSchema(
-        join(rootPath, name, 'atom.json'),
+        join(rootPath, name,'.atom_data', 'atom.json'),
         AtomMetaSchema,
         atomContent
     );
