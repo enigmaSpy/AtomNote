@@ -13,7 +13,8 @@ export interface IpcApi{
     },
     atom:{
         create(rootPath: string,name: string, content: Omit<AtomMeta, 'id'|'createdAt'|'updatedAt'>):Promise<Status<AtomMeta>>;
-        delete(rootPath: string, name: string):Promise<Status>
+        delete(rootPath: string, name: string):Promise<Status>;
+        rename(rootPath: string, oldAtomName: string, newAtomName: string):Promise<Status>
     },
     study:{
         read(path:string, electronId:string);
@@ -34,6 +35,7 @@ export const IPC_CHANNELS = {
 
     ATOM_CREATE: 'atom:create',
     ATOM_DELETE: 'atom:delete',
+    ATOM_RENAME: 'atom:rename',
 
     STUDY_READ:'study:read',
     STUDY_ADD: 'study:add',

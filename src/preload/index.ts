@@ -14,7 +14,8 @@ const api: IpcApi = {
   },
   atom:{
     create: (rootPath: string, name: string, content: Omit<AtomMeta, 'id'|'createdAt'|'updatedAt'>)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_CREATE, rootPath, name, content),
-    delete: (rootPath: string, name: string)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_DELETE, rootPath, name)
+    delete: (rootPath: string, name: string)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_DELETE, rootPath, name),
+    rename: (rootPath: string, oldAtomName: string, newAtomName: string)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_RENAME, rootPath, oldAtomName, newAtomName)
   },
   study:{
     read:(path, electronId)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_READ, path, electronId),
