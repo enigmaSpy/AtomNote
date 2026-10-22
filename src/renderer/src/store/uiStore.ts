@@ -1,45 +1,48 @@
+import type { AtomId, ElectronId } from "@shared/schemas/ids";
 import { create } from "zustand";
 
-type ContextMenuPayload ={
-    isOpen: boolean;
+export type ContextMenuTarget =
+    | {
+        type: "atom";
+        atomId: AtomId;
+    }
+    | {
+        type: "electron";
+        atomId: AtomId;
+        electronId: ElectronId;
+    };
+
+export interface ContextMenuState {
     x: number;
     y: number;
-    targetId: string | null;
-    targetType: 'atom' | 'electron' | null;
-} 
-
+    target: ContextMenuTarget;
+}
 interface UIStoreActions{
     setIsCreateAtomOpen: (isOpen: boolean)=>void;
-    openContextMenu: (x: number, y: number, targetId: string, targetType: 'atom' | 'electron')=>void;
+    openContextMenu: (payload: Omit<ContextMenuState, 'isOpen'>) => void;
     closeContextMenu: () => void;
 }
 
 interface UIState{
-    contextMenu: ContextMenuPayload;
+    contextMenu: ContextMenuState|null;
 
     isCreateAtomOpen: boolean;
     actions: UIStoreActions;
 }
 
 export const useUIStore = create<UIState>((set)=>({
-    contextMenu: {
-        isOpen: false,
-        x: 0,
-        y: 0,
-        targetId: null,
-        targetType: null
-    },
+    contextMenu: null,
     isCreateAtomOpen: false,
-    actions:{
-        setIsCreateAtomOpen:(isOpen)=> set({isCreateAtomOpen: isOpen}),
-        openContextMenu:(x,y,targetId, targetType)=>set({
-            contextMenu: {isOpen: true, x, y, targetId, targetType}
-        }),
-        closeContextMenu:()=>set({
-            contextMenu:{
-                isOpen: false, x: 0, y:0,targetId: null, targetType:null
-            }
-        })
+
+    actions: {
+        setIsCreateAtomOpen: (isOpen) =>
+            set({ isCreateAtomOpen: isOpen }),
+
+        openContextMenu: (payload) =>
+            set({ contextMenu: payload }),
+
+        closeContextMenu: () =>
+            set({ contextMenu: null })
     }
 }));
 

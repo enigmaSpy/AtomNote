@@ -55,3 +55,10 @@
 .emptyElectron{
   color: var(--text-tertiary);
 }
+
+.contextMenu{
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  background: var(--accent-default);
+}

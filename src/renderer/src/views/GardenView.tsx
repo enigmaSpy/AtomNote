@@ -13,6 +13,7 @@ import { useUIActions, useUIStore } from "@renderer/store/uiStore"
 import { FlashcardSession } from "@renderer/components/study/FlashcardSession"
 import { QuizPreview } from "@renderer/components/study/QuizPreview"
 import { FlashcardsPreview } from "@renderer/components/study/FlashcardsPreview"
+import { GlobalContextMenu } from "@renderer/components/worldline/GlobalContextMenu"
 type StudyType = 'flashcards'|'quiz'|'flashcardsPreview'|null;
 
 /**
@@ -41,6 +42,7 @@ export const GardenView = () => {
   //TODO: Przenieść logikę renderowania Grafu do głównego widoku
   return (
       <StudySyncManager>
+      <GlobalContextMenu/>
       <Modal onClose={closeStudyModal} isOpen={isStudyOpen&&studyType!='flashcardsPreview'}>
         {studyType === 'flashcards' && <FlashcardSession />}
         {studyType === 'quiz' && <QuizPreview />}
