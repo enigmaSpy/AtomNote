@@ -18,22 +18,28 @@ export interface ContextMenuState {
     target: ContextMenuTarget;
 }
 interface UIStoreActions{
+    //Atom Modal
     setIsCreateAtomOpen: (isOpen: boolean)=>void;
+
+    //GlobalContextMenu
     openContextMenu: (payload: Omit<ContextMenuState, 'isOpen'>) => void;
     closeContextMenu: () => void;
+
+    //target edycji
+    setEditingAtomId: (atomId: AtomId|null)=>void;
 }
 
 interface UIState{
     contextMenu: ContextMenuState|null;
-
     isCreateAtomOpen: boolean;
+    editingAtomId: AtomId|null;
     actions: UIStoreActions;
 }
 
 export const useUIStore = create<UIState>((set)=>({
     contextMenu: null,
     isCreateAtomOpen: false,
-
+    editingAtomId: null,
     actions: {
         setIsCreateAtomOpen: (isOpen) =>
             set({ isCreateAtomOpen: isOpen }),
@@ -42,7 +48,9 @@ export const useUIStore = create<UIState>((set)=>({
             set({ contextMenu: payload }),
 
         closeContextMenu: () =>
-            set({ contextMenu: null })
+            set({ contextMenu: null }),
+
+        setEditingAtomId: (atomId) => set({editingAtomId: atomId}),
     }
 }));
 

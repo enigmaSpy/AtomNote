@@ -11,7 +11,7 @@ interface WorldlineStoreActions{
     setPath: (rootPath: string, atomName:string)=>Promise<void>
 
     createAtom: (atomContent:Omit<AtomMeta, 'id'|'createdAt'|'updatedAt'>, atomName:string)=>void;
-    deleteAtom: (atomName: string, atomId: AtomId)=>void;
+    deleteAtom: ( atomId: AtomId)=>void;
     renameAtom: (atomId:AtomId, newAtomName: string)=>void;
 }
 interface WorldlineStore{
@@ -124,9 +124,11 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
                 };
             })
         },
-        deleteAtom:async(atomName, atomId)=> {
+        deleteAtom:async(atomId)=> {
             const {worldlineData} = get();
-            const rootPath = worldlineData?.worldline.rootPath;
+            if (!worldlineData?.worldline.atoms[atomId]) return;
+            const rootPath = worldlineData.worldline.rootPath;
+            const atomName = worldlineData.worldline.atoms[atomId].name;
             if(!rootPath) return;
             const deleteStatus = await window.api.atom.delete(rootPath, atomName);
 
@@ -174,6 +176,7 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             const rootPath = worldlineData?.worldline.rootPath;
             const oldAtomName = worldlineData?.worldline.atoms[atomId]?.name;
             if (!rootPath || !oldAtomName) return;
+            
             const renameStatus = await window.api.atom.rename(rootPath, oldAtomName, newAtomName);
             if(renameStatus.status === 'error'){
                 set({error: renameStatus.message});
