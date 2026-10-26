@@ -27,12 +27,17 @@ interface UIStoreActions{
 
     //target edycji
     setEditingAtomId: (atomId: AtomId|null)=>void;
+    setEditingElectronRef: (electronRef: ElectronRef | null)=>void;
 }
-
+type ElectronRef = {
+    atomId: AtomId,
+    electronId: ElectronId
+}
 interface UIState{
     contextMenu: ContextMenuState|null;
     isCreateAtomOpen: boolean;
     editingAtomId: AtomId|null;
+    editingElectron: ElectronRef | null;
     actions: UIStoreActions;
 }
 
@@ -40,6 +45,7 @@ export const useUIStore = create<UIState>((set)=>({
     contextMenu: null,
     isCreateAtomOpen: false,
     editingAtomId: null,
+    editingElectron: null,
     actions: {
         setIsCreateAtomOpen: (isOpen) =>
             set({ isCreateAtomOpen: isOpen }),
@@ -47,10 +53,14 @@ export const useUIStore = create<UIState>((set)=>({
         openContextMenu: (payload) =>
             set({ contextMenu: payload }),
 
-        closeContextMenu: () =>
-            set({ contextMenu: null }),
+        closeContextMenu: () =>{
+
+            set({ contextMenu: null });
+        },
+            
 
         setEditingAtomId: (atomId) => set({editingAtomId: atomId}),
+        setEditingElectronRef: (electronRef)=> set({editingElectron: electronRef}),
     }
 }));
 
