@@ -6,17 +6,17 @@ import type { DomainId } from "@shared/schemas/ids";
 export const CreateAtomModal = () => {
     const domains = useWorldlineStore(state=> state.worldlineData)?.worldline.domains;
     const worldlineData = useWorldlineStore(state => state.worldlineData)?.worldline;
-    const createError = useWorldlineStore(state=> state.error)
-    const {createAtom} = useWorldlineActions()
+    const {createAtom} = useWorldlineActions();
 
     const rootPath = worldlineData?.rootPath;
     const [atomName, setAtomName] = useState("");
     const [atomDomain, setAtomDomain] = useState<string|null>(null);
     const [atomDescription, setAtomDescription] = useState("");
+    const [createError, setCreateError] = useState<string|null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     if(!worldlineData || rootPath === undefined) return null;
-    const handleCreate=((e)=>{
+    const handleCreate=(async(e)=>{
         e.preventDefault();
         if(!atomName.trim()){
             inputRef.current?.focus();
@@ -26,17 +26,23 @@ export const CreateAtomModal = () => {
             description: atomDescription,
             domainId: atomDomain as DomainId
         }
-        createAtom(atomContent, atomName);
-        setAtomName('');
-        setAtomDescription('');
-        setAtomDomain(null);
+        const createResult = await createAtom(atomContent, atomName.trim());
+        if (createResult.status === 'error') {
+            setCreateError(createResult.message);            
+        }else{
+            setCreateError(null);
+            setAtomName('');
+            setAtomDescription('');
+            setAtomDomain(null);
+        }
+        
     });
     
     return (
-        <form className={styles.createAtomForm}>
+        <form className={styles.createAtomForm} onSubmit={handleCreate}>
             <div className="errorInfo">{createError&&(<span >Błąd zapisu: {createError}</span>)}</div>
-            <input type="text" placeholder="Nazwa" className="input" value={atomName} onChange={(e)=>setAtomName(e.target.value.trim())} ref={inputRef}/>
-            <input placeholder="Domena" list="domains" className="input" value={atomDomain??""} onChange={(e)=>setAtomDomain(e.target.value.trim())} />
+            <input type="text" placeholder="Nazwa" className="input" value={atomName} onChange={(e)=>setAtomName(e.target.value)} ref={inputRef}/>
+            <input placeholder="Domena" list="domains" className="input" value={atomDomain??""} onChange={(e)=>setAtomDomain(e.target.value)} />
 
             <datalist id="domains">
                 {domains&& domains.map((domain)=>(
@@ -44,8 +50,8 @@ export const CreateAtomModal = () => {
                 ))}//TODO: dodanie nowej domeny
             </datalist>
             
-            <textarea placeholder="Opis" className='textarea'  value={atomDescription} onChange={(e)=>setAtomDescription(e.target.value.trim())}/>
-            <button onClick={(e)=>handleCreate(e)}>Zapisz</button>
+            <textarea placeholder="Opis" className='textarea'  value={atomDescription} onChange={(e)=>setAtomDescription(e.target.value)}/>
+            <button type="submit">Zapisz</button>
         </form>
     )
 }
