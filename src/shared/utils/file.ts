@@ -1,6 +1,8 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
+
+
 export function readFileApp(...segments:string[]):Promise<string>{
     const filePath = join(...segments);
     return readFile(filePath, {encoding:'utf-8'});

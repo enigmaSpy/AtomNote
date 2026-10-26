@@ -11,14 +11,6 @@ export type WriteResult =
     | { status: 'ok' }
     | { status: 'invalid' }
     | { status: 'write-failed' };
-export async function readJson(path:string, collector:WarningCollector){
-    try {
-        const data = await readFile(path, 'utf-8');
-        return JSON.parse(data)
-    } catch (error) {
-        collector.pushWarning(path, 'unreadable', `Nie można odczytać pliku: ${(error as Error).message}`)
-    }
-}
 /**
  * Bezpieczne odczytanie pliku JSON i walidacja ze schematem Zoda
  * 
@@ -79,7 +71,7 @@ export async function readJsonWithSchema<T>(
  * @param data 
  * @param collector 
  */
-export async function writeJson<T>(
+async function writeJson<T>(
     filePath: string,
     data: T,
     collector?: WarningCollector
