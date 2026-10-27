@@ -15,7 +15,7 @@ Design and implementation of the modular knowledge management environment "AtomN
     - [ ] Update
     - [ ] Delete
 - Electron:
-    - [ ] Create
+    - [X] Create
     - [x] Read
     - [ ] Update
     - [ ] Delete

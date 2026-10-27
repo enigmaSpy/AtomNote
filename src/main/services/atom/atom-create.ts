@@ -1,5 +1,6 @@
 import type { Status } from "@shared/domain/types";
 import { AtomMetaSchema, type AtomMeta } from "@shared/schemas/atom";
+import { ElectronsDictSchema } from "@shared/schemas/electron";
 import type { AtomId } from "@shared/schemas/ids";
 import { writeJsonWithSchema } from "@shared/utils/json";
 import { isEexist } from "@shared/utils/warning";
@@ -24,10 +25,16 @@ export  async function createAtom(rootPath:string, name: string, atomPayload:Ato
         }
         return { status: 'error', message: (error as Error).message};
     }
+    const atomMetaPath = join(rootPath, name,'.atom_data');
     const writeResult = await writeJsonWithSchema(
-        join(rootPath, name,'.atom_data', 'atom.json'),
+        join(atomMetaPath, 'atom.json'),
         AtomMetaSchema,
         atomContent
+    );
+    await writeJsonWithSchema(
+        join(atomMetaPath, "electrons.json"),
+        ElectronsDictSchema,
+        {}
     );
     if(writeResult.status !== 'ok'){
         return {status: "error", message:writeResult.status}

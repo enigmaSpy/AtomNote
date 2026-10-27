@@ -21,7 +21,7 @@ export async function createElectron(rootPath:string, atomName:string, electronN
     const now = new Date().toISOString();
 
     const electronMeta: ElectronMeta={
-        filename: electronName,
+        filename: electronFilename,
         tags: new Set<string>(),
         mastery: 0,
         createdAt: now,
