@@ -1,0 +1,18 @@
+.atomItem{
+    display: flex;
+    justify-content:space-between;
+    align-items: center;
+}
+.atomItem:hover .operationWrapper{
+    display: block;
+}
+.atomBtn{
+    background-color: aqua;
+    max-width: 50%;
+}
+.operationWrapper{
+
+    background-color: aquamarine;
+    max-width: 50%;
+    /*display: none;*/
+}

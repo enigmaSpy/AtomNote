@@ -87,3 +87,31 @@ button{
   margin: 2px 0;
   transition: all 1s ease-in;
 }
+
+  
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: 24px; /* rozmiar ikony*/
+    cursor: pointer;
+    transition: stroke 1s ease-in;
+  }
+  .icon-btn svg { display: block; }
+  .ic-dot {
+    fill: currentColor;
+    stroke: none;
+  }
+  .ic-badge {
+    stroke: var(--text-secondary);
+  } 
+   .icon-btn:hover .ic-badge {
+    stroke: var(--accent-default);
+  } 
+  .icon-btn:hover  .ic-entangle{
+    color: var(--accent-default);
+  } 
