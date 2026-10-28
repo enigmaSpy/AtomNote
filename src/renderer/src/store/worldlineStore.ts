@@ -17,7 +17,10 @@ interface WorldlineStoreActions{
     deleteAtom: (atomId: AtomId)=>Promise<ActionStatus>;
     renameAtom: (atomId:AtomId, newAtomName: string)=>Promise<ActionStatus>;
 
-    createElectron: (atomId: AtomId, electronName: string)=>Promise<ActionStatus>
+    createElectron: (atomId: AtomId, electronName: string)=>Promise<ActionStatus>;
+    //deleteElectron: ()=>void;
+    renameElectron: (atomId: AtomId, electronId: ElectronId, newElectronName:string)=>Promise<ActionStatus>
+
     clearError: ()=>void;
 }
 interface WorldlineStore{
@@ -99,7 +102,7 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             
             const createStatus = await window.api.atom.create(rootPath, atomName, atomContent);
             if(createStatus.status === 'error'){
-                return {status: "error", message: createStatus.message}
+                return createStatus;
             }
             const newAtomData = {
                 name: atomName,
@@ -133,14 +136,20 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
         },
         deleteAtom:async(atomId)=> {
             const {worldlineData} = get();
-            if (!worldlineData?.worldline.atoms[atomId]) return {status:'error', message:"Błąd - Wybrany Id atomu jest niepoprawne"};;
+            if (!worldlineData?.worldline.atoms[atomId]) return {
+                status:'error', 
+                message:"Błąd - Wybrany Id atomu jest niepoprawne"
+            };
             const rootPath = worldlineData.worldline.rootPath;
             const atomName = worldlineData.worldline.atoms[atomId].name;
-            if (!rootPath) return {status:'error', message:"Brak ścieżki głównek"};
+            if (!rootPath) return {
+                status:'error', 
+                message:"Brak ścieżki głównek"
+            };
             const deleteStatus = await window.api.atom.delete(rootPath, atomName);
 
-            if(deleteStatus.status !== 'ok'){
-                return{status:'error', message:deleteStatus.message}
+            if(deleteStatus.status === 'error'){
+                return deleteStatus;
             }else{
                 set((state)=>{
                     if(!state.worldlineData) return state;
@@ -179,11 +188,14 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             const { worldlineData } = get();
             const rootPath = worldlineData?.worldline.rootPath;
             const oldAtomName = worldlineData?.worldline.atoms[atomId]?.name;
-            if (!rootPath || !oldAtomName) return {status:'error', message:"Brak ścieżki głównek lub Atom już nie istnieje"};
+            if (!rootPath || !oldAtomName) return {
+                status:'error', 
+                message:"Brak ścieżki głównek lub Atom już nie istnieje"
+            };
             
             const renameStatus = await window.api.atom.rename(rootPath, oldAtomName, newAtomName);
             if(renameStatus.status === 'error'){
-                return {status: "error", message:renameStatus.message}
+                return renameStatus;
             }else{
                 set((state)=>{
                     if(!state.worldlineData) return state;
@@ -216,10 +228,13 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             const rootPath = worldlineData?.worldline.rootPath;
             const atomName = worldlineData?.worldline.atoms[atomId]?.name;
 
-            if (!rootPath || !atomName) return {status:'error', message:"Brak ścieżki głównek/rodzica"};
+            if (!rootPath || !atomName) return {
+                status:'error', 
+                message:"Brak ścieżki głównek/rodzica"
+            };
             const createResult = await window.api.electron.create(rootPath, atomName, electronName);
             if(createResult.status === 'error'){
-                return {status: 'error', message: createResult.message}
+                return createResult;
             }else{
                 set((state)=>{
                     if(!state.worldlineData) return state;
@@ -234,6 +249,8 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
                         id: electronId,
                         ownerAtomId: atomId
                     }
+                    const currentAtom = state.worldlineData.worldline.atoms[atomId];
+                    if (!currentAtom) return state;
                     return{
                         worldlineData:{
                             ...state.worldlineData,
@@ -242,10 +259,58 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
                                 atoms:{
                                     ...state.worldlineData.worldline.atoms,
                                     [atomId]:{
-                                        ...state.worldlineData.worldline.atoms[atomId],
+                                        ...currentAtom,
                                         electrons:{
-                                            ...state.worldlineData.worldline.atoms[atomId]?.electrons,
+                                            ...currentAtom.electrons,
                                             [electronId]:newElectron
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            return {status: 'ok'}
+        },
+        //deleteElectron: ()=>{},
+        renameElectron: async(atomId, electronId, newElectronName)=>{
+            const {worldlineData} = get();
+            const rootPath = worldlineData?.worldline.rootPath;
+            if(!rootPath) return {
+                status: "error", message: 'brak aktywnej ścieżki'
+            };
+            const atom = worldlineData.worldline.atoms[atomId];
+            if(!atom) return {
+                status: "error", 
+                message: "Atom zawierający Elektron nie istnieje"
+            }
+            const renameResult = await window.api.electron.rename(rootPath, atom.name, electronId, newElectronName);
+            if(renameResult.status === 'error'){
+                return renameResult;
+            }else{
+                set((state)=>{
+                    if(!state.worldlineData) return state;
+                    const currentAtom = state.worldlineData.worldline.atoms[atomId];
+                    const currentElectron = currentAtom?.electrons[electronId];
+                    if (!currentAtom || !currentElectron) {
+                        return state;
+                    }
+                    return {
+                        worldlineData:{
+                            ...state.worldlineData,
+                            worldline:{
+                                ...state.worldlineData.worldline,
+                                atoms:{
+                                    ...state.worldlineData.worldline.atoms,
+                                    [atomId]:{
+                                        ...currentAtom,
+                                        electrons:{
+                                            ...currentAtom.electrons,
+                                            [electronId]: {
+                                                ...currentElectron,
+                                                filename: renameResult.data
+                                            }
                                         }
                                     }
                                 }
@@ -256,7 +321,6 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             }
             return {status: 'ok'}
         },
-
         clearError:()=>set({error:null}),
         setPath:async (rootPath, atomName)=>{
             const path = await window.api.helpers.getPath(rootPath, atomName);
