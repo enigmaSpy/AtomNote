@@ -10,13 +10,15 @@ export const AtomContextMenu = ({atomId}:Props) => {
     const atom = useWorldlineStore(state => state.worldlineData?.worldline.atoms[atomId]);
 
     const {deleteAtom} = useWorldlineActions()
-    const {setEditingAtomId} = useUIActions()
+    const {setEditingAtomId, closeContextMenu} = useUIActions()
     if (!atom) return null
 
     const handleRename =()=>{
+        closeContextMenu();
         setEditingAtomId(atom.meta.id)        
     }
     const handleDelete =()=>{
+        closeContextMenu();
         deleteAtom(atomId);
     }
     return (

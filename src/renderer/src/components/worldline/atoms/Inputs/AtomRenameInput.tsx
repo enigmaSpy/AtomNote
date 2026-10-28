@@ -1,17 +1,16 @@
 import { useWorldlineActions } from "@renderer/store/worldlineStore";
 import { useEffect, useRef, useState } from "react";
 import { validateFileName } from "@shared/utils/fileName";
-import { useUIActions, useUIStore } from "@renderer/store/uiStore";
+import { useUIActions } from "@renderer/store/uiStore";
 
 
 export const AtomRenameInput = ({atom}) => {
     const { renameAtom } = useWorldlineActions();
     const [atomError, setAtomError] = useState<string|null>(null);
     const [newAtomName, setNewAtomName] = useState(atom.name);
-    const {closeContextMenu, setEditingAtomId} = useUIActions();
+    const {setEditingAtomId} = useUIActions();
     const validationStatus = validateFileName(newAtomName);
     const renameInputRef = useRef<HTMLInputElement>(null);
-    const isEditing = useUIStore(state=>state.editingAtomId === atom.meta.id);
     
     const handleKeyDown =async(e:React.KeyboardEvent)=>{
         if(e.key === "Enter"){
@@ -32,11 +31,10 @@ export const AtomRenameInput = ({atom}) => {
     }
     useEffect(()=>{
         if (!renameInputRef.current) return;
-        closeContextMenu();
         renameInputRef.current.focus();
         renameInputRef.current.select();
-    }, [isEditing,closeContextMenu]);
-  return (
+    }, []);
+    return (
     <>
         {atomError}
         {!validationStatus.valid?validationStatus.reason:""}
