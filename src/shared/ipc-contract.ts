@@ -2,21 +2,23 @@ import type { ContentType, ParsedWorldline, Status, StudyType } from "./domain/t
 import type { AtomMeta } from "./schemas/atom";
 import type { ElectronsMetaDict } from "./schemas/electron";
 import type { Flashcard } from "./schemas/flashcard";
+import type { ElectronId } from "./schemas/ids";
 import type { QuizQuestion } from "./schemas/quiz";
 //TODO ustalić typ returnów
 export interface IpcApi{
     worldline:{
         parse(rootPath: string):Promise<ParsedWorldline>
     },
-    electron:{
-        read(path:string, filename:string):Promise<string>,
-        save(path:string, filename:string, content: string): Promise<void>,
-        create(rootPath: string, atomName: string, electronName: string):Promise<Status<ElectronsMetaDict>>
-    },
     atom:{
         create(rootPath: string,name: string, content: Omit<AtomMeta, 'id'|'createdAt'|'updatedAt'>):Promise<Status<AtomMeta>>;
         delete(rootPath: string, name: string):Promise<Status>;
         rename(rootPath: string, oldAtomName: string, newAtomName: string):Promise<Status>
+    },
+    electron:{
+        read(path:string, filename:string):Promise<string>,
+        save(path:string, filename:string, content: string): Promise<void>,
+        create(rootPath: string, atomName: string, electronName: string):Promise<Status<ElectronsMetaDict>>,
+        rename(rootPath: string,atomName: string,electronId: ElectronId,newElectronName: string):Promise<Status<string>>,
     },
     study:{
         read(path:string, electronId:string);
@@ -32,13 +34,14 @@ export interface IpcApi{
 export const IPC_CHANNELS = {
     WORLDLINE_PARSE: 'worldline:parse',
 
-    ELECTRON_READ: 'electron:read',
-    ELECTRON_SAVE: 'electron:save',
-    ELECTRON_CREATE: 'electron:create',
-
     ATOM_CREATE: 'atom:create',
     ATOM_DELETE: 'atom:delete',
     ATOM_RENAME: 'atom:rename',
+
+    ELECTRON_READ: 'electron:read',
+    ELECTRON_SAVE: 'electron:save',
+    ELECTRON_CREATE: 'electron:create',
+    ELECTRON_RENAME: 'electron:rename',
 
     STUDY_READ:'study:read',
     STUDY_ADD: 'study:add',

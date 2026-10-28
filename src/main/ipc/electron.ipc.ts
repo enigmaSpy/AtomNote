@@ -1,5 +1,6 @@
 import { createElectron } from "@main/services/electron/electron-create";
 import { readElectron } from "@main/services/electron/electron-read";
+import { renameElectron } from "@main/services/electron/electron-rename";
 import { saveElectron } from "@main/services/electron/electron-save";
 import { IPC_CHANNELS } from "@shared/ipc-contract";
 import { ipcMain } from "electron";
@@ -14,4 +15,7 @@ export function registerElectronIpc():void{
     ipcMain.handle(IPC_CHANNELS.ELECTRON_CREATE, async(_event, rootPath, atomName, electronName)=>{
         return createElectron(rootPath, atomName, electronName);
     });
+    ipcMain.handle(IPC_CHANNELS.ELECTRON_RENAME, async(_event, rootPath, atomName, electronId, newElectronName)=>{
+        return renameElectron(rootPath, atomName, electronId, newElectronName)
+    })
 }
