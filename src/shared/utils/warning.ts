@@ -20,4 +20,6 @@ export const createWarningCollector = ()=>{
 export const isEnoent =(err: unknown):boolean=> (err as NodeJS.ErrnoException).code === 'ENOENT';
 export const isEexist =(err :unknown):boolean=> (err as NodeJS.ErrnoException).code === 'EEXIST';
 export const isEnotEmpty = (err: unknown):boolean => (err as NodeJS.ErrnoException).code === 'ENOTEMPTY'; 
-export const notPermitted = (err: unknown):boolean => (err as NodeJS.ErrnoException).code === 'EPERM';
+export const isEperm = (err: unknown):boolean => (err as NodeJS.ErrnoException).code === 'EPERM';
+export const isEacces  = (err: unknown):boolean => (err as NodeJS.ErrnoException).code === 'EACCES';
+export const isEbusy = (err: unknown):boolean => (err as NodeJS.ErrnoException).code === 'EBUSY';

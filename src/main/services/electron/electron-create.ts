@@ -2,7 +2,7 @@ import type { Status } from "@shared/domain/types";
 import { ElectronsDictSchema, type ElectronMeta, type ElectronsMetaDict } from "@shared/schemas/electron";
 import type { ElectronId } from "@shared/schemas/ids";
 import { readJsonWithSchema, writeJsonWithSchema } from "@shared/utils/json";
-import { isEexist, isEnotEmpty, notPermitted } from "@shared/utils/warning";
+import { isEexist, isEnotEmpty, isEperm } from "@shared/utils/warning";
 import { randomUUID } from "crypto";
 import { writeFile } from "fs/promises";
 import { join } from "path";
@@ -38,7 +38,7 @@ export async function createElectron(rootPath:string, atomName:string, electronN
     }catch(error){
         if(isEexist(error) || isEnotEmpty(error)){
             return {status:'error', message: 'Elektron już istnieje'}
-        }else if(notPermitted(error)) return {status: 'error', message: 'OS nie pozwolił wykonać tej operacji'}
+        }else if(isEperm(error)) return {status: 'error', message: 'OS nie pozwolił wykonać tej operacji'}
         return {status:'error', message: (error as Error).message}
     }
     
