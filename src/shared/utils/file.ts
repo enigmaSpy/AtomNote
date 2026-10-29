@@ -1,7 +1,7 @@
 import type { Status } from "@shared/domain/types";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { isEexist, isEnotEmpty, notPermitted } from "./warning";
+import { isEexist, isEnotEmpty, isEperm } from "./warning";
 
 
 
@@ -25,7 +25,7 @@ export async function renameFile(rootPath: string,oldName: string,newName: strin
         if (isEexist(error) || isEnotEmpty(error)) {
             return {status: 'error',message: `${target} już istnieje`};
         }
-        if (notPermitted(error)) {
+        if (isEperm(error)) {
             return {status: 'error',message: 'OS nie pozwolił wykonać tej operacji'};
         }
         return {status: 'error',message: (error as Error).message};
