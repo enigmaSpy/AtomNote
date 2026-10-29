@@ -3,7 +3,7 @@ import { DomainIdSchema } from './ids'
 
 
 export const WorldlineMetaSchema = z.object({
-  domains: z.array(DomainIdSchema).default([]),
+  domains: z.record(DomainIdSchema, z.object({ name: z.string() })).default({}),
 
   settings: z
         .record(z.string(), z.unknown())

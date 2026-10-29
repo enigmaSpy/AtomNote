@@ -6,10 +6,10 @@ type Brand<T, B extends string>= T & {readonly __brand:B};
 export type WorldlineId = Brand<string, 'WorldlineId'>
 
 
-export interface Domain{
-    id: DomainId
-    name: string
+export interface Domain {
+    name: string;
 }
+export type DomainsDict = Record<DomainId, Domain>;
 
 export interface AtomView{
     name: string
@@ -41,8 +41,7 @@ export interface Worldline {
     id: WorldlineId
     name: string
     rootPath: string
-    domains: Domain[]
-    
+    domains: DomainsDict
     atoms: AtomDict
 }
 
@@ -55,6 +54,7 @@ export type WarningReason =
     | 'missing-edge-target'
     | 'unexpected-file'
     | 'write-failed'
+    | 'unexpected-domain-id'
 export interface StructuralWarning{
     path: string
     reason: WarningReason

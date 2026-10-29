@@ -1,4 +1,4 @@
-import { WorldlineMetaSchema } from "@shared/schemas/worldline"
+import { WorldlineMetaSchema, type WorldlineMeta } from "@shared/schemas/worldline"
 import { readJsonWithSchema, writeJsonWithSchema } from "@shared/utils/json"
 import { createWarningCollector } from "@shared/utils/warning"
 import type { Dirent } from "node:fs"
@@ -6,6 +6,7 @@ import { readdir } from "node:fs/promises"
 import { basename, join } from "node:path"
 import type { AtomDict, ParsedWorldline, WorldlineId } from '../../../shared/domain/types'
 import { atomParse } from "../atom/atom-parser"
+
 /**
  * Parsuje pojedyńczy worldline, czyta metadane worldline
  * 
@@ -26,36 +27,37 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
                 id: basename(rootPath) as WorldlineId,
                 name: basename(rootPath),
                 rootPath,
-                domains: [],
+                domains: {},
                 atoms: {},
             },
             warnings: collector.warnings
         }
     }
-    const worldlinePath = join(rootPath, '.worldline_data', 'worldline.json')
+    const worldlineMetaPath = join(rootPath, '.worldline_data', 'worldline.json')
     const worldlineMetaRes = await readJsonWithSchema(
-        worldlinePath,
+        worldlineMetaPath,
         WorldlineMetaSchema,
         collector
     );
-    
-    let worldlineMeta;
-    if (worldlineMetaRes.status === 'ok') {
+    let isWorldlineDirty = false;
+    let worldlineMeta:WorldlineMeta;
+    if (worldlineMetaRes.status === 'ok' && worldlineMetaRes.data) {
         worldlineMeta = worldlineMetaRes.data;
     }else if(worldlineMetaRes.status === 'not-found'){
         worldlineMeta = {
-            domains: [],
+            domains: {},
             settings: {}
         };
     
-        await writeJsonWithSchema(worldlinePath, WorldlineMetaSchema, worldlineMeta, collector);
+        isWorldlineDirty = true;
     }else{
         worldlineMeta = {
-            domains: [],
+            domains: {},
             settings: {}
         }
     }
-
+    const worldlineDomains = worldlineMeta.domains;
+    
     for (const entry of entries) {
         if (!entry.isDirectory() || entry.name.startsWith('.') || entry.name.startsWith('__')) {
             continue;
@@ -63,10 +65,22 @@ export async function parseWorldline(rootPath: string): Promise<ParsedWorldline>
         const atom = await atomParse(entry, rootPath, collector)
     
         if (atom) {
+            const atomDomainId = atom.meta.domainId;
+            if(atomDomainId!==null){
+                if(!worldlineDomains[atomDomainId]){
+                    isWorldlineDirty = true;
+                    collector.pushWarning(rootPath, 'unexpected-domain-id', `Zaadoptowano nieznaną domenę z atomu "${entry.name}"`);
+                    worldlineMeta.domains[atomDomainId]={name: 'Adopted domain'}
+                }
+            }
+
             atoms[atom.meta.id] = atom
         }  
     }
 
+    if(isWorldlineDirty){
+        await writeJsonWithSchema(worldlineMetaPath, WorldlineMetaSchema, worldlineMeta, collector);
+    }
     return {
         worldline: {
             id: basename(rootPath) as WorldlineId,

@@ -39,11 +39,13 @@ WORLDLINE/
     - [x] Read
     - [ ] Update
     - [x] Delete
+    - [ ] Domain system
 - Electron:
     - [X] Create
     - [x] Read
-    - [ ] Update
-    - [ ] Delete
+    - [x] Update
+    - [x] Delete
+    - [ ] Tag system
 - Study Section:
     - Flashcards:
         - [x] Create
@@ -57,5 +59,7 @@ WORLDLINE/
         - [ ] Update
         - [ ] Delete
         - [ ] Study Session
+- [ ] Linsk
+- [ ] References
 - [ ] WorldlieGraph
 - [ ] AtomGraph
