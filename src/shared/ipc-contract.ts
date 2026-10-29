@@ -19,6 +19,7 @@ export interface IpcApi{
         save(path:string, filename:string, content: string): Promise<void>,
         create(rootPath: string, atomName: string, electronName: string):Promise<Status<ElectronsMetaDict>>,
         rename(rootPath: string,atomName: string,electronId: ElectronId,newElectronName: string):Promise<Status<string>>,
+        delete(rootPath: string, atomName:string, electronId:ElectronId):Promise<Status>,
     },
     study:{
         read(path:string, electronId:string);
@@ -42,6 +43,7 @@ export const IPC_CHANNELS = {
     ELECTRON_SAVE: 'electron:save',
     ELECTRON_CREATE: 'electron:create',
     ELECTRON_RENAME: 'electron:rename',
+    ELECTRON_DELETE: 'electron:delete',
 
     STUDY_READ:'study:read',
     STUDY_ADD: 'study:add',

@@ -1,4 +1,5 @@
 import { createElectron } from "@main/services/electron/electron-create";
+import { deleteElectron } from "@main/services/electron/electron-delete";
 import { readElectron } from "@main/services/electron/electron-read";
 import { renameElectron } from "@main/services/electron/electron-rename";
 import { saveElectron } from "@main/services/electron/electron-save";
@@ -16,6 +17,9 @@ export function registerElectronIpc():void{
         return createElectron(rootPath, atomName, electronName);
     });
     ipcMain.handle(IPC_CHANNELS.ELECTRON_RENAME, async(_event, rootPath, atomName, electronId, newElectronName)=>{
-        return renameElectron(rootPath, atomName, electronId, newElectronName)
+        return renameElectron(rootPath, atomName, electronId, newElectronName);
+    });
+    ipcMain.handle(IPC_CHANNELS.ELECTRON_DELETE, async(_event, rootPath, atomName, electronId)=>{
+        return deleteElectron(rootPath, atomName, electronId);
     })
 }
