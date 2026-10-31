@@ -2,11 +2,14 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-contract'
 import type { IpcApi } from '../shared/ipc-contract'
 import type { AtomMeta } from '@shared/schemas/atom'
+import type { AtomCreatePayload } from '@main/services/atom/atom-create'
 
 const api: IpcApi = {
   worldline: {
-    parse: (rootPath) => ipcRenderer.invoke(IPC_CHANNELS.WORLDLINE_PARSE, rootPath)
+    parse: (rootPath) => ipcRenderer.invoke(IPC_CHANNELS.WORLDLINE_PARSE, rootPath),
     //create()
+
+    addDomain: (rootPath, domainName) => ipcRenderer.invoke(IPC_CHANNELS.WORDLINE_ADDDOMAIN, rootPath, domainName),
   },
   electron:{
     read: (path:string, filename:string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_READ, path, filename),
@@ -16,7 +19,7 @@ const api: IpcApi = {
     delete: (rootPath, atomName, electronId) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_DELETE, rootPath, atomName, electronId),
   },
   atom:{
-    create: (rootPath: string, name: string, content: Omit<AtomMeta, 'id'|'createdAt'|'updatedAt'>)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_CREATE, rootPath, name, content),
+    create: (rootPath: string, name: string, domainName:string|null, content: AtomCreatePayload)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_CREATE, rootPath, name, domainName, content),
     delete: (rootPath: string, name: string)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_DELETE, rootPath, name),
     rename: (rootPath: string, oldAtomName: string, newAtomName: string)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_RENAME, rootPath, oldAtomName, newAtomName)
   },
