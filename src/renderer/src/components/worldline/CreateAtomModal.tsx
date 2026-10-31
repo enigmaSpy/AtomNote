@@ -2,38 +2,41 @@ import { useWorldlineActions, useWorldlineStore } from "@renderer/store/worldlin
 import styles from './Worldline.module.css'
 import { useRef, useState } from "react";
 import type { AtomMeta } from "@shared/schemas/atom";
-import type { DomainId } from "@shared/schemas/ids";
+import { validateFileName } from "@shared/utils/fileName";
 export const CreateAtomModal = () => {
     const domains = useWorldlineStore(state=> state.worldlineData)?.worldline.domains;
-    const worldlineData = useWorldlineStore(state => state.worldlineData)?.worldline;
     const {createAtom} = useWorldlineActions();
 
-    const rootPath = worldlineData?.rootPath;
     const [atomName, setAtomName] = useState("");
-    const [atomDomain, setAtomDomain] = useState<string|null>(null);
+    const [atomDomain, setAtomDomain] = useState<string>("");
     const [atomDescription, setAtomDescription] = useState("");
     const [createError, setCreateError] = useState<string|null>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const atomNameRef = useRef<HTMLInputElement>(null);
+    const atomDomainRef = useRef<HTMLInputElement>(null);
 
-    if(!worldlineData || rootPath === undefined) return null;
+    const validationStatus = validateFileName(atomName);
     const handleCreate=(async(e)=>{
         e.preventDefault();
+        if(!atomDomainRef.current) return;
         if(!atomName.trim()){
-            inputRef.current?.focus();
+            atomNameRef.current?.focus();
             return;
         }
-        const atomContent:Omit<AtomMeta, 'id'|'createdAt'|'updatedAt'> = {
-            description: atomDescription,
-            domainId: atomDomain as DomainId
+        if(!validationStatus.valid){
+            atomDomainRef.current?.focus();
+            return;
         }
-        const createResult = await createAtom(atomContent, atomName.trim());
+        const atomContent:Omit<AtomMeta, 'id'|'domainId'|'createdAt'|'updatedAt'> = {
+            description: atomDescription,
+        }
+        const createResult = await createAtom(atomContent, atomName.trim(), atomDomain);
         if (createResult.status === 'error') {
             setCreateError(createResult.message);            
         }else{
             setCreateError(null);
             setAtomName('');
             setAtomDescription('');
-            setAtomDomain(null);
+            setAtomDomain("");
         }
         
     });
@@ -41,13 +44,16 @@ export const CreateAtomModal = () => {
     return (
         <form className={styles.createAtomForm} onSubmit={handleCreate}>
             <div className="errorInfo">{createError&&(<span >Błąd zapisu: {createError}</span>)}</div>
-            <input type="text" placeholder="Nazwa" className="input" value={atomName} onChange={(e)=>setAtomName(e.target.value)} ref={inputRef}/>
-            <input placeholder="Domena" list="domains" className="input" value={atomDomain??""} onChange={(e)=>setAtomDomain(e.target.value)} />
+            {!validationStatus.valid && atomName.length>0?validationStatus.reason:""}
+            <input type="text" placeholder="Nazwa" className="input" value={atomName} onChange={(e)=>setAtomName(e.target.value)} ref={atomNameRef}/>
+            <input placeholder="Domena" list="domains" className="input" value={atomDomain} onChange={(e)=>setAtomDomain(e.target.value)} ref={atomDomainRef}/>
 
             <datalist id="domains">
-                {domains&& domains.map((domain)=>(
-                    <option key={domain.id}>{domain.name}</option>
-                ))}//TODO: dodanie nowej domeny
+                {
+                    domains && Object.entries(domains).map(([id, domain])=>(
+                        <option key={id} value={domain.name}/>
+                    ))
+                }
             </datalist>
             
             <textarea placeholder="Opis" className='textarea'  value={atomDescription} onChange={(e)=>setAtomDescription(e.target.value)}/>

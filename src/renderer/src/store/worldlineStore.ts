@@ -1,19 +1,20 @@
-import type { ElectronView, ParsedWorldline } from '@shared/domain/types';
+import type { AtomView, DomainsDict, ElectronView, ParsedWorldline } from '@shared/domain/types';
 import type { AtomMeta } from '@shared/schemas/atom';
-import type { AtomId, ElectronId } from '@shared/schemas/ids';
+import type { AtomId, DomainId, ElectronId } from '@shared/schemas/ids';
 import { create } from 'zustand';
 
-export type ActionStatus = 
-    | { status: 'ok' }
+export type ActionStatus<T = void> = 
+    | (T extends void? { status: 'ok' } : { status: 'ok', data: T})
     | { status: 'error'; message: string };
+type CreateAtomOutput = {
+    atomMeta: AtomMeta
+    domain: DomainsDict | null
+}
 interface WorldlineStoreActions{
     loadWorldline: (rootPath: string)=> Promise<void>;
-    selectElectron: (atomId: AtomId ,electronId: ElectronId | null)=>void;
-    selectAtom: (atomId: AtomId | null)=>void;
-    clearWorldline: ()=>void;
-    setPath: (rootPath: string, atomName:string)=>Promise<void>
+    addDomain: (domainName: string)=>Promise<ActionStatus>;
 
-    createAtom: (atomContent:Omit<AtomMeta, 'id'|'createdAt'|'updatedAt'>, atomName:string)=>Promise<ActionStatus>;
+    createAtom: (atomContent:Omit<AtomMeta, 'id'|'domainId'|'createdAt'|'updatedAt'>, atomName:string, domainName: string|null)=>Promise<ActionStatus>;
     deleteAtom: (atomId: AtomId)=>Promise<ActionStatus>;
     renameAtom: (atomId:AtomId, newAtomName: string)=>Promise<ActionStatus>;
 
@@ -21,6 +22,10 @@ interface WorldlineStoreActions{
     deleteElectron: (atomId: AtomId, electronId: ElectronId)=>Promise<ActionStatus>;
     renameElectron: (atomId: AtomId, electronId: ElectronId, newElectronName:string)=>Promise<ActionStatus>
 
+    selectAtom: (atomId: AtomId | null)=>void;
+    selectElectron: (atomId: AtomId ,electronId: ElectronId | null)=>void;
+    clearWorldline: ()=>void;
+    setPath: (rootPath: string, atomName:string)=>Promise<void>
     clearError: ()=>void;
 }
 interface WorldlineStore{
@@ -66,7 +71,33 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
                 set({isLoading:false})
             }
         },
-
+        addDomain:async(domainName)=>{
+            const {worldlineData} = get();
+            const rootPath = worldlineData?.worldline.rootPath
+            if(!rootPath) return{
+                status: 'error',
+                message: 'Brak ścieżki głównek'
+            }
+            const addingResult = await window.api.worldline.addDomain(rootPath, domainName);
+            if(addingResult.status === 'error') return addingResult;
+            const domainId = Object.keys(addingResult.data)[0] as DomainId;
+            set((state)=>{
+                if(!state.worldlineData) return state;
+                return {
+                    worldlineData:{
+                        ...state.worldlineData,
+                        worldline: {
+                            ...state.worldlineData.worldline,
+                            domains:{
+                                ...state.worldlineData.worldline.domains,
+                                ...addingResult.data
+                            }
+                        }
+                    }
+                }
+            })
+            return {status: 'ok', data: domainId}
+        },
         selectAtom: (atomId)=> {
             const {activeAtomId} = get();
             set({
@@ -96,17 +127,22 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             currentPath: null
         }),
         
-        createAtom: async(atomContent, atomName) => {
+        createAtom: async(atomContent, atomName, domainName) => {
             const rootPath = get().worldlineData?.worldline.rootPath;
             if (!rootPath) return {status:'error', message:"Brak ścieżki głównek"};
             
-            const createStatus = await window.api.atom.create(rootPath, atomName, atomContent);
+            const createStatus = await window.api.atom.create(rootPath, atomName, domainName, atomContent);
             if(createStatus.status === 'error'){
                 return createStatus;
             }
-            const newAtomData = {
+            if(!('data' in createStatus)){
+                return {status:'error', message:"Nieprawidłowa odpowiedź podczas tworzenia atomu"};
+            }
+            const {atomMeta, domain}:CreateAtomOutput = createStatus.data;
+            
+            const newAtomData:AtomView = {
                 name: atomName,
-                meta: createStatus.data,
+                meta: atomMeta,
                 tags: new Set<string>(),
                 mastery: 0,
                 electrons: {},
@@ -117,16 +153,21 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
                 links: {}
             }
             set((state) =>{
-                if(!state.worldlineData) return state;
+                if(!state.worldlineData) return state;   
+                if(state.worldlineData.worldline.rootPath !== rootPath) return state;             
                 return {
                     error: null,
                     worldlineData:{
                         ...state.worldlineData,
                         worldline:{
                             ...state.worldlineData.worldline,
+                            domains:{
+                                ...state.worldlineData.worldline.domains,
+                                ...domain
+                            },
                             atoms:{
                                 ...state.worldlineData.worldline.atoms,
-                                [createStatus.data.id]:newAtomData
+                                [atomMeta.id]:newAtomData
                             }
                         }
                     }
@@ -153,6 +194,7 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             }else{
                 set((state)=>{
                     if(!state.worldlineData) return state;
+                    if(state.worldlineData.worldline.rootPath !== rootPath) return state;             
                     const {[atomId]:_,...rest}=state.worldlineData.worldline.atoms;
                     if(state.activeAtomId === atomId){
                         return {
@@ -199,6 +241,7 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             }else{
                 set((state)=>{
                     if(!state.worldlineData) return state;
+                    if(state.worldlineData.worldline.rootPath !== rootPath) return state;             
                     const atom = state.worldlineData.worldline.atoms[atomId];
                     if (!atom) return state;
                     const updatedAtom = {
@@ -238,6 +281,7 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             }else{
                 set((state)=>{
                     if(!state.worldlineData) return state;
+                    if(state.worldlineData.worldline.rootPath !== rootPath) return state;             
                     const atom = state.worldlineData.worldline.atoms[atomId];
                     if(!atom) return state;
                     const entry = Object.entries(createResult.data).at(0);
@@ -295,6 +339,7 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             }else{
                 set((state)=>{
                     if(!state.worldlineData) return state;
+                    if(state.worldlineData.worldline.rootPath !== rootPath) return state;             
                     const currentAtom = state.worldlineData?.worldline.atoms[atomId];
                     if(!currentAtom) return state;
                     
@@ -335,6 +380,7 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
             }else{
                 set((state)=>{
                     if(!state.worldlineData) return state;
+                    if(state.worldlineData.worldline.rootPath !== rootPath) return state;
                     const currentAtom = state.worldlineData.worldline.atoms[atomId];
                     const currentElectron = currentAtom?.electrons[electronId];
                     if (!currentAtom || !currentElectron) {
