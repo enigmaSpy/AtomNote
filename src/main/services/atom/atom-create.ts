@@ -7,7 +7,7 @@ import { isEexist } from "@shared/utils/warning";
 import { randomUUID } from "node:crypto";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import { addDomain } from "../worldline/wordline-domain-add";
+import { assignDomain } from "../worldline/wordline-domain-add";
 
 export type AtomCreatePayload = Omit<AtomMeta, 'id'|'domainId'|'createdAt'|'updatedAt'>
 export type CreateAtomOutput = {
@@ -37,7 +37,7 @@ export  async function createAtom(rootPath:string, name: string, domainName:stri
     let domainId: DomainId|null;
     let domainData: DomainsDict | null = null;
     if(domainName && domainName.trim().length > 0){
-        const domainResult = await addDomain(rootPath, domainName);
+        const domainResult = await assignDomain(rootPath, domainName);
         if(domainResult.status === 'ok'){
             domainId = Object.keys(domainResult.data)[0] as DomainId;
             atomContent.domainId = domainId;

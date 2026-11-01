@@ -5,7 +5,7 @@ import { readJsonWithSchema, writeJsonWithSchema } from "@shared/utils/json";
 import { randomUUID } from "crypto";
 import { join } from "path";
 
-export async function addDomain(rootPath:string, domainName: string):Promise<Status<DomainsDict>>{
+export async function assignDomain(rootPath:string, domainName: string):Promise<Status<DomainsDict>>{
     const worldlineMetaPath = join(rootPath, '.worldline_data', 'worldline.json');
     const readResult = await readJsonWithSchema(
         worldlineMetaPath,

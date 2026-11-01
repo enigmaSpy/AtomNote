@@ -78,7 +78,7 @@ export const useWorldlineStore = create<WorldlineStore>((set, get)=>({
                 status: 'error',
                 message: 'Brak ścieżki głównek'
             }
-            const addingResult = await window.api.worldline.addDomain(rootPath, domainName);
+            const addingResult = await window.api.worldline.assignDomain(rootPath, domainName);
             if(addingResult.status === 'error') return addingResult;
             const domainId = Object.keys(addingResult.data)[0] as DomainId;
             set((state)=>{

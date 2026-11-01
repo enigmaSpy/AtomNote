@@ -1,16 +1,14 @@
 import type { AtomCreatePayload, CreateAtomOutput } from "@main/services/atom/atom-create";
 import type { ContentType, DomainsDict, ParsedWorldline, Status, StudyType } from "./domain/types";
-import type { AtomMeta } from "./schemas/atom";
 import type { ElectronsMetaDict } from "./schemas/electron";
 import type { Flashcard } from "./schemas/flashcard";
 import type { ElectronId } from "./schemas/ids";
 import type { QuizQuestion } from "./schemas/quiz";
-//TODO ustalić typ returnów
 
 export interface IpcApi{
     worldline:{
         parse(rootPath: string):Promise<ParsedWorldline>
-        addDomain(rootPath: string, domainName: string):Promise<Status<DomainsDict>>
+        assignDomain(rootPath: string, domainName: string):Promise<Status<DomainsDict>>
     },
     atom:{
         create(rootPath: string,name: string, domainName: string|null, content: AtomCreatePayload):Promise<Status<CreateAtomOutput>>;
@@ -37,7 +35,7 @@ export interface IpcApi{
 
 export const IPC_CHANNELS = {
     WORLDLINE_PARSE: 'worldline:parse',
-    WORDLINE_ADDDOMAIN: 'worldline:addDomain',
+    WORDLINE_ASSIGNDOMAIN: 'worldline:assignDomain',
 
     ATOM_CREATE: 'atom:create',
     ATOM_DELETE: 'atom:delete',

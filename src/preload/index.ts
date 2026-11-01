@@ -1,7 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-contract'
 import type { IpcApi } from '../shared/ipc-contract'
-import type { AtomMeta } from '@shared/schemas/atom'
 import type { AtomCreatePayload } from '@main/services/atom/atom-create'
 
 const api: IpcApi = {
@@ -9,7 +8,7 @@ const api: IpcApi = {
     parse: (rootPath) => ipcRenderer.invoke(IPC_CHANNELS.WORLDLINE_PARSE, rootPath),
     //create()
 
-    addDomain: (rootPath, domainName) => ipcRenderer.invoke(IPC_CHANNELS.WORDLINE_ADDDOMAIN, rootPath, domainName),
+    assignDomain: (rootPath, domainName) => ipcRenderer.invoke(IPC_CHANNELS.WORDLINE_ASSIGNDOMAIN, rootPath, domainName),
   },
   electron:{
     read: (path:string, filename:string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_READ, path, filename),
