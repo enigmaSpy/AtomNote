@@ -9,9 +9,11 @@ import { join } from "path";
  * Pobiera fiszki przypisane do konkretnego elektronu
  */
 export async function fetchElectronStudyMaterials(
-    path: string,
+    rootPath: string,
+    atomName: string,
     electronId: string,
 ) {
+    const path = join(rootPath, atomName)
     const flashcards = await getStudyData(path, electronId, 'flashcards.json');
     const quizzes = await getStudyData(path, electronId, 'quizzes.json');
     

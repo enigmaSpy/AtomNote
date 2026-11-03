@@ -6,8 +6,9 @@ import { join } from "path";
 import { QuizzesDictSchema, type QuizQuestion, type QuizzesDict } from "@shared/schemas/quiz";
 import type { Status } from "@shared/domain/types";
 //TODO: Normalizacja
-export async function addElectronStudyData(path:string, electronId:string, content:StudyItem, target:'flashcards' | 'quizzes'):Promise<Status>{
+export async function addElectronStudyData(rootPath: string, atomName: string, electronId:string, content:StudyItem, target:'flashcards' | 'quizzes'):Promise<Status>{
     const fileName = target==='flashcards'? 'flashcards.json' : 'quizzes.json';
+    const path = join(rootPath, atomName)
     const dataDict = await getFullStudyData(path, fileName);
     const filePath = join(path, '__quiz__', 'flashcards.json');
 

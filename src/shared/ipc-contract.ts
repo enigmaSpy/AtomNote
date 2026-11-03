@@ -16,17 +16,17 @@ export interface IpcApi{
         rename(rootPath: string, oldAtomName: string, newAtomName: string):Promise<Status>
     },
     electron:{
-        read(path:string, filename:string):Promise<string>,
-        save(path:string, filename:string, content: string): Promise<void>,
+        read(rootPath: string, atomName: string, filename:string):Promise<string>,
+        save(rootPath: string, atomName: string, filename:string, content: string): Promise<void>,
         create(rootPath: string, atomName: string, electronName: string):Promise<Status<ElectronsMetaDict>>,
         rename(rootPath: string,atomName: string,electronId: ElectronId,newElectronName: string):Promise<Status<string>>,
         delete(rootPath: string, atomName:string, electronId:ElectronId):Promise<Status>,
     },
     study:{
-        read(path:string, electronId:string);
-        add(path: string,electronId: string,content: Flashcard|QuizQuestion,target: StudyType):Promise<Status>;
-        delete(path: string, electronId:string, targetId: string, target: StudyType):Promise<Status>;
-        edit(path: string, electronId: string, targerId:string, content: Partial<ContentType>, target: StudyType):Promise<Status>
+        read(rootPath:string, atomName:string, electronId:string);
+        add(rootPath:string, atomName:string,electronId: string,content: Flashcard|QuizQuestion,target: StudyType):Promise<Status>;
+        delete(rootPath:string, atomName:string, electronId:string, targetId: string, target: StudyType):Promise<Status>;
+        edit(rootPath:string, atomName:string, electronId: string, targerId:string, content: Partial<ContentType>, target: StudyType):Promise<Status>
         },
     helpers:{
         getPath(rootPath:string,atomName:string):Promise<string>;

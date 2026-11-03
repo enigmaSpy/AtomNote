@@ -11,8 +11,8 @@ const api: IpcApi = {
     assignDomain: (rootPath, domainName) => ipcRenderer.invoke(IPC_CHANNELS.WORDLINE_ASSIGNDOMAIN, rootPath, domainName),
   },
   electron:{
-    read: (path:string, filename:string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_READ, path, filename),
-    save: (path:string, filename:string, content: string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_SAVE, path, filename, content),
+    read: (rootPath:string, atomName:string, filename:string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_READ,  rootPath, atomName, filename),
+    save: (rootPath:string, atomName:string, filename:string, content: string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_SAVE,  rootPath, atomName, filename, content),
     create: (rootPath:string, atomName:string, electronName:string) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_CREATE, rootPath, atomName, electronName),
     rename: (rootPath,atomName, electronId, newElectronName) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_RENAME, rootPath, atomName, electronId, newElectronName),
     delete: (rootPath, atomName, electronId) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_DELETE, rootPath, atomName, electronId),
@@ -23,10 +23,10 @@ const api: IpcApi = {
     rename: (rootPath: string, oldAtomName: string, newAtomName: string)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_RENAME, rootPath, oldAtomName, newAtomName)
   },
   study:{
-    read:(path, electronId)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_READ, path, electronId),
-    add:(path, electronId, content, target)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_ADD, path, electronId, content, target),
-    delete:(path, electronId, targetId, target)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_DELETE, path, electronId, targetId, target),
-    edit: (path, electronId, targerId, content, target)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_EDIT, path, electronId, targerId, content, target )
+    read:(rootPath, atomName, electronId)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_READ, rootPath, atomName, electronId),
+    add:(rootPath, atomName, electronId, content, target)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_ADD, rootPath, atomName, electronId, content, target),
+    delete:(rootPath, atomName, electronId, targetId, target)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_DELETE, rootPath, atomName, electronId, targetId, target),
+    edit: (rootPath, atomName, electronId, targerId, content, target)=>ipcRenderer.invoke(IPC_CHANNELS.STUDY_EDIT, rootPath, atomName, electronId, targerId, content, target )
   },
   helpers:{
     getPath: (rootPath:string, atomName:string)=>ipcRenderer.invoke(IPC_CHANNELS.HELPERS_GETPATH, rootPath, atomName),

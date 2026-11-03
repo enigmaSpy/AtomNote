@@ -5,11 +5,11 @@ import { getFullStudyData } from "./electron-study-read";
 import { FlashcardsDictSchema, type FlashcardsDict } from "@shared/schemas/flashcard";
 import { QuizzesDictSchema, type QuizQuestion, type QuizzesDict } from "@shared/schemas/quiz";
 
-export async function editStudyData(path: string, electronId: string, targerId:string, content: Partial<ContentType>, target: StudyType):Promise<Status>{
+export async function editStudyData(rootPath: string, atomName: string, electronId: string, targerId:string, content: Partial<ContentType>, target: StudyType):Promise<Status>{
     const fileName = target === 'flashcards'? 'flashcards.json':'quizzes.json';
+    const path = join(rootPath, atomName)
     const filePath = join(path, '__quiz__', fileName);
     const dataDict = await getFullStudyData(path, fileName);
-
     if(target === 'flashcards'){
         const flashcardsDict = dataDict as FlashcardsDict;
         const flashcardContent = content as Partial<FlashcardContent>;
@@ -26,7 +26,7 @@ export async function editStudyData(path: string, electronId: string, targerId:s
             back: flashcardContent.back ?? card.front,
         };
 
-        const savingResult = await writeJsonWithSchema(filePath, FlashcardsDictSchema, flashcardsDict);
+        const savingResult = await writeJsonWithSchema(path, FlashcardsDictSchema, flashcardsDict);
         if(savingResult.status !== 'ok'){
             return {status: 'error', message: `${savingResult.status}`};
         }

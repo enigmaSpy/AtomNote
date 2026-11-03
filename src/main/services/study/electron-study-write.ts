@@ -6,11 +6,13 @@ import { writeJsonWithSchema } from "@shared/utils/json";
 import { join } from "path";
 
 export async function writeElectronStudyData(
-    path: string,
+    rootPath: string, 
+    atomName: string,
     electronId: string,
     content: Flashcard[] | QuizQuestion[],
     target: 'flashcards' | 'quizzes'
 ):Promise<void>{
+    const path = join(rootPath, atomName)
     const fileName = target === 'flashcards' ? 'flashcards.json' : 'quizzes.json';
     const dataDict = await getFullStudyData(path, fileName);
     if (!dataDict) return;

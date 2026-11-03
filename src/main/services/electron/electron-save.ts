@@ -1,12 +1,13 @@
 import { writeContentFile } from "@shared/utils/file";
 
 export async function saveElectron(
-    path:string,
+    rootPath: string,
+    atomName: string,
     filename: string, 
-    context: string
+    content: string
 ): Promise<void> {
     try {
-        await writeContentFile(context, path, filename);
+        await writeContentFile(content, rootPath, atomName, filename);
     } catch (error) {
         console.error(`Zapis ${filename} nieudany:`, error);
         throw new Error(`Błąd zapisu pliku: ${(error as Error).message}`); 

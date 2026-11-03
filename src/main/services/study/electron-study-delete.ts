@@ -6,7 +6,8 @@ import { QuizzesDictSchema, type QuizzesDict } from "@shared/schemas/quiz";
 import type { Status, StudyType } from "@shared/domain/types";
 
 
-export async function deleteElectronStudy(path: string, electronId:string, targetId: string, target: StudyType):Promise<Status>{
+export async function deleteElectronStudy(rootPath: string, atomName: string, electronId:string, targetId: string, target: StudyType):Promise<Status>{
+    const path = join(rootPath, atomName)
     const fileName = target === 'flashcards' ? 'flashcards.json' : 'quizzes.json';
     const dataDict = await getFullStudyData(path, fileName);
     const filePath = join(path, '__quiz__', fileName);
