@@ -1,6 +1,7 @@
 import type { AtomMeta } from "@shared/schemas/atom";
 import type { AtomReference, LinksIndex } from "@shared/schemas/edges";
 import type { AtomId, DomainId, ElectronId } from "@shared/schemas/ids";
+import type { ErrorCode } from "@shared/utils/errors";
 
 type Brand<T, B extends string>= T & {readonly __brand:B};
 export type WorldlineId = Brand<string, 'WorldlineId'>
@@ -66,30 +67,9 @@ export interface ParsedWorldline{
     warnings: StructuralWarning[]
 }
 
-export interface FlashcardContent {
-    front: string;
-    back: string;
-}
-export interface Flashcard extends FlashcardContent{
-    id: string;
-    mastery: number;
-}
-export interface QuizContent{
-    question: string;
-    answers: string[];
-    correctAnswerIndex: number[];
-}
-export interface QuizQuestion extends QuizContent{
-    id: string
-    mastery: number
-}
 
-export type StudyType = 'flashcards' | 'quizzes'
 
 
 export type Status<T=void> =
     |(T extends void?{status:'ok'}:{status: 'ok', data:T})
-    |{status: 'error', message: string}
-export type ContentType = 
-    |QuizContent
-    |FlashcardContent
+    |{status: 'error',code: ErrorCode, details: string}
