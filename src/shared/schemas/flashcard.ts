@@ -1,7 +1,8 @@
 import z from "zod";
+import { ElectronIdSchema, FlashcardIdSchema } from "./ids";
 
 export const FlashcardSchema = z.object({
-  id: z.uuid(),
+  id: FlashcardIdSchema,
   front: z.string(),
   back: z.string(),
   mastery: z.number().min(0).max(1).default(0)
@@ -12,7 +13,7 @@ export const FlashcardSetSchema = z.object({
 })
 
 export const FlashcardsDictSchema = z.record(
-  z.uuid(),
+  ElectronIdSchema,
   FlashcardSetSchema
 )
 export type FlashcardsDict = z.infer<typeof FlashcardsDictSchema>;

@@ -1,9 +1,10 @@
 import type { AtomCreatePayload, CreateAtomOutput } from "@main/services/atom/atom-create";
-import type { ContentType, DomainsDict, ParsedWorldline, Status, StudyType } from "./domain/types";
+import type { DomainsDict, ParsedWorldline, Status } from "./domain/types";
 import type { ElectronsMetaDict } from "./schemas/electron";
 import type { Flashcard } from "./schemas/flashcard";
-import type { ElectronId } from "./schemas/ids";
+import type { ElectronId, FlashcardId, QuizId } from "./schemas/ids";
 import type { QuizQuestion } from "./schemas/quiz";
+import type { StudyItemEntry, StudyItemEntryEdit, StudyItemsPacket, StudyType } from "./domain/study";
 
 export interface IpcApi{
     worldline:{
@@ -23,10 +24,10 @@ export interface IpcApi{
         delete(rootPath: string, atomName:string, electronId:ElectronId):Promise<Status>,
     },
     study:{
-        read(rootPath:string, atomName:string, electronId:string);
-        add(rootPath:string, atomName:string,electronId: string,content: Flashcard|QuizQuestion,target: StudyType):Promise<Status>;
-        delete(rootPath:string, atomName:string, electronId:string, targetId: string, target: StudyType):Promise<Status>;
-        edit(rootPath:string, atomName:string, electronId: string, targerId:string, content: Partial<ContentType>, target: StudyType):Promise<Status>
+        read(rootPath:string, atomName:string, electronId:string): Promise<Status<StudyItemsPacket>>;
+        add(rootPath:string, atomName:string,electronId: string,payload: StudyItemEntry):Promise<Status<Flashcard|QuizQuestion>>;
+        delete(rootPath: string, atomName: string, electronId:string, targetId: FlashcardId | QuizId, target: StudyType):Promise<Status>;
+        edit(rootPath:string, atomName:string, electronId: string, targetId:string, payload: StudyItemEntryEdit):Promise<Status>
         },
     helpers:{
         getPath(rootPath:string,atomName:string):Promise<string>;

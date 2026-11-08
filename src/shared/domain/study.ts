@@ -22,4 +22,4 @@ export type StudyItemEntry =
 
 export type StudyItemEntryEdit=
     | { kind: 'flashcards'; content:  Partial<Omit<Flashcard, 'id'>>}
-    | { kind: 'quizzes';    content: Partial<Omit<QuizQuestion, 'id'>>};
+    | { kind: 'quizzes';    content: Partial<Omit<QuizQuestion, 'id'>>}

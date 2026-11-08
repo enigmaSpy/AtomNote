@@ -21,7 +21,7 @@ WORLDLINE/
 |---|---|
 | `.worldline_data/` | Worldline metadata (hidden) |
 | `.atom_data/` | Atom metadata (hidden) |
-| `__quiz__/` | Quizzes && flashcards |
+| `__study__/` | Quizzes && flashcards |
 | `__cache__/` | Artefacts (imgs, PDF) |
 | `*.md` | Electrons (note contet) |
 ## version 0.2

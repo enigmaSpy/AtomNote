@@ -1,7 +1,8 @@
 import {z} from 'zod'
+import { ElectronIdSchema, QuizIdSchema } from './ids'
 
 export const QuizQuestionSchema = z.object({
-  id: z.uuid(),
+  id: QuizIdSchema,
   question: z.string(),
   answers: z.array(z.string()).min(2),
   correctAnswerIndex: z.array(z.number().int().min(0)).min(1),
@@ -13,7 +14,7 @@ export const QuizSchema = z.object({
 })
 
 export const QuizzesDictSchema = z.record(
-  z.uuid(),
+  ElectronIdSchema,
   QuizSchema
 )
 export type QuizzesDict = z.infer<typeof QuizzesDictSchema>

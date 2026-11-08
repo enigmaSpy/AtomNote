@@ -68,8 +68,6 @@ export interface ParsedWorldline{
 }
 
 
-
-
 export type Status<T=void> =
     |(T extends void?{status:'ok'}:{status: 'ok', data:T})
-    |{status: 'error',code: ErrorCode, details: string}
+    |{status: 'error',code: ErrorCode, details?: string}
