@@ -1,7 +1,7 @@
+import { readJsonWithSchema, writeJsonWithSchema } from "@main/utils/json";
 import type { Status } from "@shared/domain/types";
 import { ElectronsDictSchema, type ElectronMeta, type ElectronsMetaDict } from "@shared/schemas/electron";
 import type { ElectronId } from "@shared/schemas/ids";
-import { readJsonWithSchema, writeJsonWithSchema } from "@shared/utils/json";
 import { isEexist, isEnotEmpty, isEperm } from "@shared/utils/warning";
 import { randomUUID } from "crypto";
 import { writeFile } from "fs/promises";
@@ -13,7 +13,7 @@ export async function createElectron(rootPath:string, atomName:string, electronN
 
     const atomPath = join(rootPath, atomName);
 
-    const electronFilename = `${electronName}.md`;
+    const electronFilename = `${electronName.trim()}.md`;
     const electronPath = join(atomPath, electronFilename);
 
     const electronMetaPath = join(atomPath, '.atom_data', 'electrons.json');
@@ -29,17 +29,39 @@ export async function createElectron(rootPath:string, atomName:string, electronN
     }
     
     const readResult = await readJsonWithSchema(electronMetaPath, ElectronsDictSchema);
-    if(readResult.status !== 'ok'){
-        return {status: 'error', message:readResult.status}
+    if(readResult.status === 'not-found'){
+        return {
+            status: 'error', 
+            code: 'ERR_ELECTRON_META_NOT_FOUND',
+            details: `${electronMetaPath}`
+        }
+    }else if(readResult.status === 'invalid'){
+        return {
+            status: 'error', 
+            code: 'ERR_ELECTRON_META_INVALID',
+            details: `${electronMetaPath}`
+        }
     }
     
     try{
         await writeFile(electronPath,"", {flag:"wx"});
     }catch(error){
         if(isEexist(error) || isEnotEmpty(error)){
-            return {status:'error', message: 'Elektron już istnieje'}
-        }else if(isEperm(error)) return {status: 'error', message: 'OS nie pozwolił wykonać tej operacji'}
-        return {status:'error', message: (error as Error).message}
+            return {
+                status:'error', 
+                code: 'ERR_ELECTRON_ALREADY_EXISTS',
+                details: `${electronFilename} exist in ${rootPath}`
+            }
+        }else if(isEperm(error)) return {
+            status: 'error', 
+            code: 'ERR_PERMISSION_DENIED',
+            details: `operation denied on ${electronFilename}`
+        }
+        return {
+            status:'error', 
+            code: 'ERR_UNKNOWN',
+            details: (error as Error).message
+        }
     }
     
     const updatedElectrons:ElectronsMetaDict = {
@@ -48,7 +70,11 @@ export async function createElectron(rootPath:string, atomName:string, electronN
     }
     const writeResult = await writeJsonWithSchema(electronMetaPath, ElectronsDictSchema, updatedElectrons);
     if(writeResult.status !== 'ok'){
-        return {status: 'error', message:readResult.status}
+        return {
+            status: 'error', 
+            code: 'ERR_ELECTRON_WRITE_FAILED',
+            details: 'failed to create electron meta'
+        }
     }
     return {status: 'ok', data: {[electronId]: electronMeta}}
 }

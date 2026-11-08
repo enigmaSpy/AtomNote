@@ -1,8 +1,8 @@
+import { readJsonWithSchema, writeJsonWithSchema } from "@main/utils/json";
 import type { Status } from "@shared/domain/types";
 import { ElectronsDictSchema } from "@shared/schemas/electron";
 import type { ElectronId } from "@shared/schemas/ids";
-import { readJsonWithSchema, writeJsonWithSchema } from "@shared/utils/json";
-import { isEacces, isEbusy, isEnoent, isEperm  } from "@shared/utils/warning";
+import { isEacces, isEbusy, isEnoent, isEperm } from "@shared/utils/warning";
 import { rm } from "fs/promises";
 import { join } from "path";
 
@@ -13,29 +13,39 @@ export async function deleteElectron(rootPath: string, atomName:string, electron
         electronMetaPath,
         ElectronsDictSchema
     );
-    if(readResult.status !== 'ok') return {
-        status: 'error',
-        message: readResult.status
+    if(readResult.status === 'not-found'){
+        return {
+            status: 'error', 
+            code: 'ERR_ELECTRON_META_NOT_FOUND',
+            details: `${electronMetaPath}`
+        }
+    }else if(readResult.status === 'invalid'){
+        return {
+            status: 'error', 
+            code: 'ERR_ELECTRON_META_INVALID',
+            details: `${electronMetaPath}`
+        }
     }
-    if(!readResult.data) return {
-        status: 'error',
-        message: 'Bral elektronów do usunięcia'
-    }
-    const {[electronId]: targetElectron, ...updatedElectrons} = readResult.data;
+    if(!readResult.data) return {status: 'ok'}
+    const targetElectron = readResult.data[electronId];
     if (!targetElectron) {
         return {
             status: 'error',
-            message: 'Elektron nie istnieje w metadanych'
+            code: 'ERR_ELECTRON_META_NOT_FOUND',
+            details: `electron not exists in electrons.json - ${electronMetaPath}`
         };
     }
+    const updatedElectrons = {...readResult.data};
+    delete updatedElectrons[electronId];
     const writeResult = await writeJsonWithSchema(
         electronMetaPath,
         ElectronsDictSchema,
         updatedElectrons
     );
-    if(writeResult.status !== 'ok') return {
+    if(writeResult.status === 'write-failed') return {
         status: 'error',
-        message: `Nie udało się usunąć Elektronu: ${writeResult.status}`
+        code: 'ERR_ELECTRON_DELETE_FAILED',
+        details: `Cannot delete electron | ID: ${electronId}`
     }
     try {        
         const filename = targetElectron.filename;
@@ -45,27 +55,32 @@ export async function deleteElectron(rootPath: string, atomName:string, electron
         if (isEnoent(error)) {
             status = {
                 status: 'error',
-                message: "Elektron nie istnieje"
+                code: 'ERR_ELECTRON_NOT_FOUND',
+                details: `${atomPath} - ${electronId}`
             };
         } else if (isEperm(error)) {
             status = {
                 status: 'error',
-                message: "OS nie pozwala na wykonanie operacji"
+                code: 'ERR_PERMISSION_DENIED',
+                details: 'operation denied'
             };
         } else if (isEbusy(error)) {
             status = {
                 status: 'error',
-                message: 'Plik jest aktualnie otwarty i nie może zostać usunięty'
+                code: 'ERR_FILE_BUSY',
+                details: 'current file is open'
             };
         } else if (isEacces(error)) {
             status = {
                 status: 'error',
-                message: 'Brak uprawnień do katalogu nadrzędnego'
+                code:'ERR_ELECTRON_PARENT_ACCESS_DENIED',
+                details: `${atomPath}`
             };
         } else {
             status = {
                 status: 'error',
-                message: (error as Error).message
+                code: 'ERR_UNKNOWN',
+                details: (error as Error).message
             };
         }
         const rollbackResult = await writeJsonWithSchema(
@@ -76,7 +91,8 @@ export async function deleteElectron(rootPath: string, atomName:string, electron
         if(rollbackResult.status !== "ok"){
             status = {
                 status: 'error',
-                message:"Metadane został wyczyszczone, ale plik nie został usunięty. Uruchom ponownie AtomNote"
+                code: 'ERR_WRITE_FAILED',
+                details: `${atomPath} - ${rollbackResult.status}`
             }
         }
         return status;

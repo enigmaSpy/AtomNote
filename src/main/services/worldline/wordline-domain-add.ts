@@ -1,7 +1,7 @@
+import { readJsonWithSchema, writeJsonWithSchema } from "@main/utils/json";
 import type { DomainsDict, Status } from "@shared/domain/types";
 import type { DomainId } from "@shared/schemas/ids";
 import { WorldlineMetaSchema } from "@shared/schemas/worldline";
-import { readJsonWithSchema, writeJsonWithSchema } from "@shared/utils/json";
 import { randomUUID } from "crypto";
 import { join } from "path";
 
@@ -11,21 +11,30 @@ export async function assignDomain(rootPath:string, domainName: string):Promise<
         worldlineMetaPath,
         WorldlineMetaSchema
     );
-    if(readResult.status !== 'ok'){
+    if(readResult.status === 'not-found'){
         return {
             status: 'error',
-            message: readResult.status
+            code: 'ERR_WORLDLINE_NOT_FOUND',
+            details: `${rootPath}`
+        }
+    }else if(readResult.status === 'invalid'){
+        return{
+            status: 'error',
+            code: 'ERR_WORLDLINE_INVALID',
+            details: `${rootPath}`
         }
     }
     if(!readResult.data) return{
             status: 'error',
-            message: 'Błąd odczytania metadanych Worldline'
+            code: 'ERR_READ_FAILED',
+            details: `${rootPath} - ${domainName}`
     }
     const clearName = domainName.trim();
     if (!clearName) {
         return {
             status: 'error',
-            message: 'Nazwa domeny nie może być pusta'
+            code: 'ERR_INVALID_NAME',
+            details: `${domainName}`
         };
     }
     const domains = readResult.data.domains;
@@ -57,7 +66,8 @@ export async function assignDomain(rootPath:string, domainName: string):Promise<
     if(writeResult.status !== 'ok'){
         return {
             status: 'error',
-            message: writeResult.status
+            code: 'ERR_WORLDLINE_WRITE_FAILED',
+            details: `${rootPath} - ${domainName}`
         }
     }
     return {status: 'ok', data: {[domainId]: {name: clearName}}}

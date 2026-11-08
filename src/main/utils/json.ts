@@ -4,7 +4,7 @@ import { dirname } from "node:path";
 import z from "zod"
 
 export type ReadResult<T>=
-    | {status: 'ok'; data?: T}
+    | {status: 'ok'; data: T}
     | {status: 'not-found'}
     | {status: `invalid`}
 export type WriteResult =
@@ -29,6 +29,9 @@ export async function readJsonWithSchema<T>(
     try {
         rawText = await readFile(filePath, 'utf8')
     } catch (error) {
+        if (isEnoent(error)) {
+            return { status: 'not-found' };
+        }
         collector?.pushWarning(
             filePath,
             'unreadable',
@@ -80,6 +83,7 @@ async function writeJson<T>(
         await mkdir(dirname(filePath), {recursive: true});
         const jsonString = JSON.stringify(data);
         const tmp = `${filePath}.${process.pid}.tmp`;
+        
         await writeFile(tmp, jsonString, 'utf8');
         await rename(tmp, filePath);
         return true;

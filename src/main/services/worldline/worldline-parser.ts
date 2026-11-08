@@ -1,5 +1,5 @@
+import { readJsonWithSchema, writeJsonWithSchema } from "@main/utils/json"
 import { WorldlineMetaSchema, type WorldlineMeta } from "@shared/schemas/worldline"
-import { readJsonWithSchema, writeJsonWithSchema } from "@shared/utils/json"
 import { createWarningCollector } from "@shared/utils/warning"
 import type { Dirent } from "node:fs"
 import { readdir } from "node:fs/promises"

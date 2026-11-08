@@ -1,8 +1,8 @@
+import { writeJsonWithSchema } from "@main/utils/json";
 import type { DomainsDict, Status } from "@shared/domain/types";
 import { AtomMetaSchema, type AtomMeta } from "@shared/schemas/atom";
 import { ElectronsDictSchema } from "@shared/schemas/electron";
 import type { AtomId, DomainId } from "@shared/schemas/ids";
-import { writeJsonWithSchema } from "@shared/utils/json";
 import { isEexist } from "@shared/utils/warning";
 import { randomUUID } from "node:crypto";
 import { mkdir } from "node:fs/promises";
@@ -29,9 +29,17 @@ export  async function createAtom(rootPath:string, name: string, domainName:stri
         await mkdir(join(rootPath, name),{recursive:false});
     } catch (error) {
         if(isEexist(error)){
-            return { status: 'error', message: "Atom już istnieje" };
+            return { 
+                status: 'error', 
+                code: 'ERR_ATOM_ALREADY_EXISTS',
+                details: `${name} - ${rootPath}`
+            };
         }
-        return { status: 'error', message: (error as Error).message};
+        return { 
+            status: 'error', 
+            code: 'ERR_ATOM_INVALID',
+            details: `${(error as Error).message} - ${rootPath}: ${name}`
+        };
     }
 
     let domainId: DomainId|null;
@@ -51,22 +59,39 @@ export  async function createAtom(rootPath:string, name: string, domainName:stri
         AtomMetaSchema,
         atomContent
     );
-    if(atomWriteResult.status !== 'ok'){
-        return {status: "error", message:atomWriteResult.status}
+    if(atomWriteResult.status === 'write-failed'){
+        return {
+            status: "error", 
+            code: 'ERR_ATOM_META_WRITE_FAILED',
+            details: `${name} - ${rootPath}`
+        }
+    }else if(atomWriteResult.status === 'invalid'){
+        return {
+            status: "error", 
+            code: 'ERR_ATOM_META_INVALID',
+            details: `${name} - ${rootPath}`
+        }
     }
     const electronsWriteResult = await writeJsonWithSchema(
         join(atomMetaPath, "electrons.json"),
         ElectronsDictSchema,
         {}
     );
-    if (electronsWriteResult.status !== 'ok') {
+    if (electronsWriteResult.status === 'write-failed') {
+        return {
+            status: "error", 
+            code: 'ERR_ELECTRON_META_WRITE_FAILED',
+            details: `${name} - ${rootPath}`
+        };
+    }else if(electronsWriteResult.status === 'invalid'){
+        return {
+            status: "error", 
+            code: 'ERR_ELECTRON_META_INVALID',
+            details: `${name} - ${rootPath}`
+        }
+    }
     return {
-        status: 'error',
-        message: electronsWriteResult.status
-    };
-}
-    return {
-            status: "ok", 
+        status: "ok", 
             data:{
             atomMeta: atomContent,
             domain: domainData

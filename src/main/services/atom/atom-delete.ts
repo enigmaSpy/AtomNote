@@ -4,14 +4,14 @@ import { rm } from "node:fs/promises";
 import { join } from "node:path";
 
 export async function deleteAtom(rootPath: string, name: string):Promise<Status>{
-
+    const path =join(rootPath, name)
     try {
-        await rm(join(rootPath, name), {recursive: true})
+        await rm(path, {recursive: true})
     } catch (error) {
         if(isEnoent(error)){
-            return {status: 'error', message: 'Błędna ścieżka Atomu'}
+            return {status: 'error',code: 'ERR_PATH_NOT_FOUND' ,details: `${path} - delete Atom failed`}
         }
-        return {status: 'error', message: (error as Error).message}
+        return {status: 'error',code: 'ERR_ATOM_INVALID' ,details: (error as Error).message}
     }
     return {status: 'ok'}
 }

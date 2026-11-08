@@ -1,4 +1,4 @@
-import { writeContentFile } from "@shared/utils/file";
+import { writeContentFile } from "@main/utils/file";
 
 export async function saveElectron(
     rootPath: string,

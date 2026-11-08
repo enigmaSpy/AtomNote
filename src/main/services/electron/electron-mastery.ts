@@ -1,7 +1,7 @@
 import { FlashcardsDictSchema } from "@shared/schemas/flashcard";
 import { QuizzesDictSchema } from "@shared/schemas/quiz";
 import { join } from "path";
-import { readJsonWithSchema } from "../../../shared/utils/json";
+import { readJsonWithSchema } from "../../utils/json";
 
 /**
  * Funkcja oblicza mastery elektronu
@@ -13,7 +13,7 @@ import { readJsonWithSchema } from "../../../shared/utils/json";
 export async function calculateElectronMastery(electronID: string, atomPath: string):Promise<number>{
     const mastery:Array<number>=[];
     const flashcardsRes = await readJsonWithSchema(
-        join(atomPath, '__quiz__', 'flashcards.json'),
+        join(atomPath, '__study__', 'flashcards.json'),
         FlashcardsDictSchema
     );
 
@@ -27,7 +27,7 @@ export async function calculateElectronMastery(electronID: string, atomPath: str
     }
     
     const quizzesRes = await readJsonWithSchema(
-        join(atomPath, '__quiz__', 'quizzes.json'),
+        join(atomPath, '__study__', 'quizzes.json'),
         QuizzesDictSchema
     );
 

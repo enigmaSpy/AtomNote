@@ -1,14 +1,14 @@
 //? loadOrAdoptAtomMeta, parsowanie elektronów
-import type { AtomView , ElectronsViewDict } from "@shared/domain/types"
+import { readJsonWithSchema, writeJsonWithSchema } from "@main/utils/json"
+import type { AtomView, ElectronsViewDict } from "@shared/domain/types"
 import { AtomMetaSchema, type AtomMeta } from "@shared/schemas/atom"
 import { ElectronsDictSchema, type ElectronMeta, type ElectronsMetaDict } from "@shared/schemas/electron"
-import { readJsonWithSchema, writeJsonWithSchema } from "@shared/utils/json"
+import type { AtomId, ElectronId } from "@shared/schemas/ids"
 import type { WarningCollector } from "@shared/utils/warning"
 import { randomUUID } from "crypto"
 import type { Dirent } from "node:fs"
 import { readdir } from "node:fs/promises"
 import { basename, join } from "node:path"
-import type { AtomId, ElectronId } from "@shared/schemas/ids"
 
 /**
  * Parsuje pojedyńczy atom, czyta metadane, skanuje elektrony, adoptuje brakujące wpisy

@@ -1,7 +1,8 @@
-import { FlashcardsDictSchema} from "@shared/schemas/flashcard";
-import { QuizzesDictSchema} from "@shared/schemas/quiz";
-import { readJsonWithSchema } from "@shared/utils/json";
-import type { StudyItems, Target } from "./types";
+import { readJsonWithSchema } from "@main/utils/json";
+import type { StudyItemsPacket, StudyType } from "@shared/domain/study";
+import type { Status } from "@shared/domain/types";
+import { FlashcardsDictSchema, type FlashcardsDict } from "@shared/schemas/flashcard";
+import { QuizzesDictSchema, type QuizzesDict } from "@shared/schemas/quiz";
 import { join } from "path";
 
 
@@ -12,63 +13,52 @@ export async function fetchElectronStudyMaterials(
     rootPath: string,
     atomName: string,
     electronId: string,
-) {
-    const path = join(rootPath, atomName)
-    const flashcards = await getStudyData(path, electronId, 'flashcards.json');
-    const quizzes = await getStudyData(path, electronId, 'quizzes.json');
-    
-    return {flashcards,quizzes};
-}
-//TODO: normalizacja Tatget->StudyType
-async function getStudyData(path: string,electronId:string, target:Target): Promise<StudyItems>{    
+): Promise<Status<StudyItemsPacket>> {
+    const atomPath = join(rootPath, atomName);
 
-    const filePath = join(path, "__quiz__", target);
-    if (target === 'flashcards.json') {
-        const result = await readJsonWithSchema(filePath, FlashcardsDictSchema);
-        console.log(filePath);
-        
-        if (result.status === 'invalid'){
-            console.log("niepoprawny zod");
-            console.log(filePath);
-            return []
-        };
-        if (result.status==='not-found') {
-            return []
+    const [flashcardsRes, quizzesRes] = await Promise.all([
+        getFullStudyData(atomPath, 'flashcards'),
+        getFullStudyData(atomPath, 'quizzes')
+    ]);
+
+    if (flashcardsRes.status === 'error') return flashcardsRes;
+    if (quizzesRes.status === 'error') return quizzesRes;
+    
+    return {
+        status: 'ok',
+        data: {
+            flashcards: flashcardsRes.data[electronId]?.cards ?? [],
+            quizzes: quizzesRes.data[electronId]?.questions ?? []
         }
-        return result.data![electronId]?.cards ?? [];
-    }else if(target === 'quizzes.json'){
-        const result = await readJsonWithSchema(filePath, QuizzesDictSchema);
-        console.log(filePath);
-        if (result.status === 'invalid'){
-            console.log("niepoprawny zod");
-            console.log(filePath);
-            return []
-        };
-        if (result.status==='not-found') {
-            return []
-        }        
-        return result.data![electronId]?.questions ?? [];
-    }
-    throw new Error("Invalid target, required 'flashcard.json' or 'quizzes.json'");
+    };
 }
 
-export async function getFullStudyData(path: string, target: Target) {
-    const filePath = join(path, "__quiz__", target);
-    
-    if (target === 'flashcards.json') {
-        const result = await readJsonWithSchema(filePath, FlashcardsDictSchema);
-        if (result.status === 'invalid' || result.status === 'not-found') {
-            return {}; 
+export async function getFullStudyData<T extends StudyType>(
+    atomPath: string, 
+    target: T
+):Promise<Status<T extends 'flashcards' ? FlashcardsDict : QuizzesDict>>
+export async function getFullStudyData(atomPath: string, target: StudyType):Promise<Status<FlashcardsDict|QuizzesDict>> {
+        const filename = `${target}.json`
+        const filePath = join(atomPath, "__study__", filename);
+        const schema = target === 'flashcards' ? FlashcardsDictSchema : QuizzesDictSchema;
+        const result = await readJsonWithSchema<FlashcardsDict|QuizzesDict>(filePath, schema);
+        if (result.status === 'invalid') {
+            return {
+                status:'error', 
+                code: 'ERR_FLASHCARD_INVALID', 
+                details: `${filePath} - cannot read file`
+            }; 
+        }else if(result.status === 'not-found'){
+            return {status: 'ok', data:{}}; 
         }
-        return result.data;
-        
-    } else if (target === 'quizzes.json') {
-        const result = await readJsonWithSchema(filePath, QuizzesDictSchema);
-        if (result.status === 'invalid' || result.status === 'not-found') {
-            return {}; 
+        if(target==='flashcards'){
+            return {
+                status: 'ok',
+                data: result.data as FlashcardsDict
+            };
         }
-        return result.data;
+        return {
+            status: 'ok',
+            data: result.data as QuizzesDict
+        };
     }
-    
-    throw new Error("Invalid target, required 'flashcards.json' or 'quizzes.json'");
-}

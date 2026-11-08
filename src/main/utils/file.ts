@@ -17,17 +17,29 @@ export async function writeContentFile(context: string,...segments:string[]):Pro
     await writeFile(filePath, context, {encoding: 'utf-8'});
 }
 
-export async function renameFile(rootPath: string,oldName: string,newName: string,target: string):Promise<Status>{
+export async function renameFile(rootPath: string,oldName: string,newName: string):Promise<Status>{
     try {
         await rename(join(rootPath, oldName),join(rootPath, newName));
         return { status: 'ok' };
     } catch (error) {
         if (isEexist(error) || isEnotEmpty(error)) {
-            return {status: 'error',message: `${target} już istnieje`};
+            return {
+                status: 'error',
+                code: 'ERR_ALREADY_EXISTS',
+                details: `${newName} exists`
+            };
         }
         if (isEperm(error)) {
-            return {status: 'error',message: 'OS nie pozwolił wykonać tej operacji'};
+            return {
+                status: 'error',
+                code:'ERR_PERMISSION_DENIED',
+                details: `${oldName}`
+            };
         }
-        return {status: 'error',message: (error as Error).message};
+        return {
+            status: 'error',
+            code:'ERR_UNKNOWN',
+            details: (error as Error).message
+        };
     }
 };

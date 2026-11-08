@@ -1,8 +1,8 @@
+import { renameFile } from "@main/utils/file";
+import { readJsonWithSchema, writeJsonWithSchema } from "@main/utils/json";
 import type { Status } from "@shared/domain/types";
 import { ElectronsDictSchema, type ElectronsMetaDict } from "@shared/schemas/electron";
 import type { ElectronId } from "@shared/schemas/ids";
-import { renameFile } from "@shared/utils/file";
-import { readJsonWithSchema, writeJsonWithSchema } from "@shared/utils/json";
 import { join } from "path";
 
 export async function renameElectron(
@@ -19,22 +19,30 @@ export async function renameElectron(
         ElectronsDictSchema
     );
 
-    if (readResult.status !== 'ok') {
+    if(readResult.status === 'not-found'){
         return {
-            status: 'error',
-            message: readResult.status
-        };
+            status: 'error', 
+            code: 'ERR_ELECTRON_META_NOT_FOUND',
+            details: `${electronMetaPath}`
+        }
+    }else if(readResult.status === 'invalid'){
+        return {
+            status: 'error', 
+            code: 'ERR_ELECTRON_META_INVALID',
+            details: `${electronMetaPath}`
+        }
     }
     if(!readResult.data) return {
         status:'error', 
-        message: 'nie udało się pobrać electron.json'
+        code: 'ERR_ELECTRON_READ_FAILED',
     }
     const electronMeta = readResult.data[electronId];
 
     if (!electronMeta) {
         return {
             status: 'error',
-            message: 'Nie znaleziono elektronu w electrons.json'
+            code: 'ERR_ELECTRON_META_NOT_FOUND',
+            details: `${atomPath}- ${electronId}`
         };
     }
 
@@ -46,7 +54,7 @@ export async function renameElectron(
         return { status: 'ok', data: newElectronFileName};
     }
 
-    const renameResult = await renameFile(atomPath, oldElectronFileName,newElectronFileName,'Electron');
+    const renameResult = await renameFile(atomPath, oldElectronFileName,newElectronFileName);
 
     if (renameResult.status !== 'ok') {
         return renameResult;
@@ -72,19 +80,15 @@ export async function renameElectron(
         const rollbackResult = await renameFile(
             atomPath,
             oldElectronFileName,
-            newElectronFileName,
-            'Electron'
+            newElectronFileName
         );
 
         if (rollbackResult.status !== 'ok') {
-            return {
-                status: 'error',
-                message: `Nie zapisano metadata i nie udało się przywrócić nazwy pliku: ${rollbackResult.message}`
-            };
+            return rollbackResult
         }
         return {
             status: 'error',
-            message: writeResult.status
+            code: 'ERR_ELECTRON_RENAME_FAILED'
         };
     }
     return { status: 'ok', data: newElectronFileName };

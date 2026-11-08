@@ -1,41 +1,72 @@
-import { writeJsonWithSchema } from "@shared/utils/json";
-import type { StudyItem } from "./types";
+import { writeJsonWithSchema } from "@main/utils/json";
 import { getFullStudyData } from "./electron-study-read";
-import { FlashcardsDictSchema, type Flashcard, type FlashcardsDict } from "@shared/schemas/flashcard";
+import { FlashcardsDictSchema, type Flashcard } from "@shared/schemas/flashcard";
 import { join } from "path";
-import { QuizzesDictSchema, type QuizQuestion, type QuizzesDict } from "@shared/schemas/quiz";
+import { QuizzesDictSchema, type QuizQuestion } from "@shared/schemas/quiz";
 import type { Status } from "@shared/domain/types";
-//TODO: Normalizacja
-export async function addElectronStudyData(rootPath: string, atomName: string, electronId:string, content:StudyItem, target:'flashcards' | 'quizzes'):Promise<Status>{
-    const fileName = target==='flashcards'? 'flashcards.json' : 'quizzes.json';
-    const path = join(rootPath, atomName)
-    const dataDict = await getFullStudyData(path, fileName);
-    const filePath = join(path, '__quiz__', 'flashcards.json');
+import { randomUUID } from "crypto";
+import type { FlashcardId, QuizId } from "@shared/schemas/ids";
+import type { StudyItemEntry } from "@shared/domain/study";
 
-    if (target === 'flashcards') {
+export async function addElectronStudyData(rootPath: string, atomName: string, electronId:string, payload:StudyItemEntry):Promise<Status<Flashcard|QuizQuestion>>{
+    const fileName = payload.kind==='flashcards'? 'flashcards.json' : 'quizzes.json';
+    const atomPath = join(rootPath, atomName)
+
+    const studyResult = await getFullStudyData(atomPath, payload.kind);
+    if(studyResult.status === 'error') return studyResult;
+
+    const atomStudyPath = join(atomPath, '__study__', fileName);
+    const newId = randomUUID();
+    if (payload.kind === 'flashcards') {
         
-        const flashcardsDict = dataDict as FlashcardsDict;
-        const contentToAdd = content as Flashcard;
-
-        if (!flashcardsDict[electronId]) return {status: 'ok'};
-        flashcardsDict[electronId].cards.push(contentToAdd);
-
-        const savingResult = await writeJsonWithSchema(filePath, FlashcardsDictSchema, flashcardsDict);
-        if(savingResult.status !== 'ok'){
-            return {status: 'error', message: `${savingResult.status}`};
+        const flashcardDict = studyResult.data;
+        const contentToAdd:Flashcard = {
+            id: newId as FlashcardId,
+            mastery: 0,
+            ...payload.content
         }
-    }else{
+        flashcardDict[electronId] ??= {cards:[]};
+        flashcardDict[electronId].cards.push(contentToAdd);
         
-        const quizzesDict = dataDict as QuizzesDict;
-        const contentToAdd = content as QuizQuestion;
-
-        if (!quizzesDict[electronId]) return {status: 'ok'};
+        const savingResult = await writeJsonWithSchema(atomStudyPath, FlashcardsDictSchema, flashcardDict);
+        if(savingResult.status ==='invalid'){
+            return {
+                status:'error', 
+                code: 'ERR_FLASHCARD_INVALID',
+                details: `${savingResult.status} - ${atomStudyPath}`
+            }
+        }else if(savingResult.status === 'write-failed'){
+            return {
+                status: 'error',
+                code: 'ERR_FLASHCARD_WRITE_FAILED',
+                details: `${savingResult.status} - ${atomStudyPath}`
+            }
+        }
+        return {status: 'ok', data: contentToAdd}
+    }else{
+        const quizzesDict = studyResult.data;
+        const contentToAdd: QuizQuestion={
+            id: newId as QuizId,
+            mastery: 0,
+            ...payload.content 
+        }
+        quizzesDict[electronId] ??= {questions: []}; 
         quizzesDict[electronId].questions.push(contentToAdd);
 
-        const savingResult = await writeJsonWithSchema(filePath, QuizzesDictSchema, quizzesDict);
-        if(savingResult.status !== 'ok'){
-            return {status: 'error', message: `${savingResult.status}`};
+        const savingResult = await writeJsonWithSchema(atomStudyPath, QuizzesDictSchema, quizzesDict);
+        if(savingResult.status ==='invalid'){
+            return {
+                status:'error', 
+                code: 'ERR_QUIZ_INVALID',
+                details: `${savingResult.status} - ${atomStudyPath}`
+            }
+        }else if(savingResult.status === 'write-failed'){
+            return {
+                status: 'error',
+                code: 'ERR_QUIZ_WRITE_FAILED',
+                details: `${savingResult.status} - ${atomStudyPath}`
+            }
         }
+        return {status: 'ok', data: contentToAdd}
     }
-    return {status: 'ok'}
 }

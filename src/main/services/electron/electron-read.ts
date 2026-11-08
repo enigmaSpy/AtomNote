@@ -1,4 +1,4 @@
-import { readFileApp } from "@shared/utils/file";
+import { readFileApp } from "@main/utils/file";
 
 export async function readElectron(rootPath:string, atomName: string, filename: string){
     try {
