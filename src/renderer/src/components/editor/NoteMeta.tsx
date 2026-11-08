@@ -1,6 +1,7 @@
 import { useStudyStore } from '@renderer/store/studyStore';
 import styles from './NoteEditor.module.css'
-import { getCurrentFileName } from '@renderer/utils/currentFileName';
+import { NoteTags } from './NoteTags';
+import { useActiveElectronName } from '@renderer/hooks/useActiveElectronName';
 interface NoteMetaProps{
     onOpenStudy: (type: 'flashcards' | 'quiz' | 'flashcardsPreview')=>void;
 }
@@ -13,10 +14,13 @@ interface NoteMetaProps{
 export const  NoteMeta = ({onOpenStudy}:NoteMetaProps) => {
     const flashcards = useStudyStore(state=>state.flashcards);
     const quizzes = useStudyStore(state=>state.quizzes);
-    const fileName = getCurrentFileName().electronName;
+    const fileName = useActiveElectronName();
+    console.log(flashcards);
+    
     return (
         <div className={styles.noteMeta}>
-            <h3>{fileName?.replace(/\.[^/.]+$/, "")}</h3>
+            <h3>{fileName??"Błąd odczytu nazwy atomu"}</h3>
+            <NoteTags/>
             <div>
                 <button onClick={()=>onOpenStudy('flashcardsPreview')}>
                     {flashcards[0]? "Edytuj Fiszki":"Stwórz Fiszki"}

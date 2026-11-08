@@ -2,18 +2,22 @@ import { useStudyActions, useStudyStore } from '@renderer/store/studyStore'
 import styles from './Study.module.css'
 import { useRef, useState } from 'react';
 import { useWorldlineStore } from '@renderer/store/worldlineStore';
+import type { FlashcardId } from '@shared/schemas/ids';
+import type { ErrorCode } from '@shared/utils/errors';
+import type { StudyItemEntry } from '@shared/domain/study';
 export const FlashcardsPreview = ({ onClose }) => {
   type Side = 'front'|'back';
   
-  const currentPath = useWorldlineStore(state => state.currentPath);
-  const currentElectronId = useWorldlineStore(state => state.activeElectronId);
+  const currentElectronId = useWorldlineStore(state => state.atomPointer.electronId);
 
   const flashcards = useStudyStore((state) => state.flashcards);
   const {addStudyData, deleteStudyData, editStudyData} = useStudyActions();
 
   const [searchInput, setSearchInput] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editingId, setEditingId] = useState('');
+  const [editingId, setEditingId] = useState<FlashcardId|null>();
+
+  const [errorResultCode, setErrorResultCode] = useState<string|null>(null);
 
 
   const [newFlashcard, setNewFlashcard] = useState({ front: "", back: "" });
@@ -25,28 +29,44 @@ export const FlashcardsPreview = ({ onClose }) => {
   }
   const focus=(side:Side)=>textareaRefs[side].current?.focus();
 
-  const addHandler=(e)=>{
+  const addHandler=async(e)=>{
     e.preventDefault();
+    setErrorResultCode(null);
     if (!newFlashcard.front.trim()) { focus('front'); return; }
     if (!newFlashcard.back.trim())  { focus('back');  return; }
 
-    addStudyData({ ...newFlashcard }, 'flashcards');
-    setNewFlashcard({ front: "", back: "" });
+    const addResult = await addStudyData({
+      kind: 'flashcards',
+      content: {...newFlashcard} 
+    });
+    if(addResult.status === 'error'){
+      setErrorResultCode(addResult.code);
+    }else{
+      setNewFlashcard({ front: "", back: "" });
+    }
     focus('front');
   }  
 
-  const deleteHandler =(cardId:string, e)=>{
+  const deleteHandler =async(cardId, e)=>{
     e.preventDefault();
-    if(!currentPath || !currentElectronId) return;
-    deleteStudyData(cardId, 'flashcards')
+    setErrorResultCode(null);
+    if(!currentElectronId){
+      const error: ErrorCode = 'ERR_ELECTRON_NOT_FOUND';
+      setErrorResultCode(error);
+      return;
+    };
+    const deleteResult = await deleteStudyData(cardId, 'flashcards');
+    if(deleteResult.status === 'error'){
+      setErrorResultCode(deleteResult.code);
+    }
   }
   
 const cancleEditHandle=()=>{
-    setEditingId('');
+    setEditingId(null);
     setIsEditMode(false);
     setNewFlashcard({ front:'', back: '' });
   }
-  const setEditHandler =(cardId: string,e)=>{
+  const setEditHandler =(cardId: FlashcardId,e)=>{
     e.preventDefault();
     setIsEditMode(true);
     setEditingId(cardId);
@@ -55,16 +75,33 @@ const cancleEditHandle=()=>{
       back: flashcards.find(({id})=>id===cardId)!.back
     });
   }
-  const editHandler = (e)=>{
+  const editHandler = async(e)=>{
     e.preventDefault();
+    setErrorResultCode(null);
+    if(!editingId){
+      return
+    }
     if (!newFlashcard.front.trim()) { focus('front'); return; }
     if (!newFlashcard.back.trim())  { focus('back');  return; }
     const content = {
       front: newFlashcard.front,
       back: newFlashcard.back
     }
-    if(!currentPath || !currentElectronId) return;
-    editStudyData(content, editingId, 'flashcards')
+    if(!currentElectronId){
+      const error: ErrorCode = 'ERR_ELECTRON_NOT_FOUND';
+      setErrorResultCode(error);
+      return;
+    };
+    const payload:StudyItemEntry = {
+      kind: 'flashcards',
+      content
+    }
+  
+    const editResult = await editStudyData(payload, editingId)
+    if(editResult.status === 'error'){
+      setErrorResultCode(editResult.code)
+      return;
+    }
     cancleEditHandle()
   }
   
@@ -76,7 +113,7 @@ const cancleEditHandle=()=>{
           ← Wróć
         </button>
       </div>
-
+      <div>{errorResultCode}</div>
       <form className={styles.form}>
         <h2 className={styles.formTitle}>Dodaj nową fiszkę</h2>
         <div className={styles.inputsGroup}>

@@ -1,8 +1,6 @@
 import { useUIActions } from "@renderer/store/uiStore";
-import { useWorldlineActions, useWorldlineStore } from "@renderer/store/worldlineStore";
-import type { AtomView, ElectronView } from "@shared/domain/types";
-import type { AtomId } from "@shared/schemas/ids";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { useWorldlineStore } from "@renderer/store/worldlineStore";
+
 import { Fragment } from "react/jsx-runtime";
 import styles from './Worldline.module.css';
 import { AtomWrapper } from "./atoms/AtomWrapper";

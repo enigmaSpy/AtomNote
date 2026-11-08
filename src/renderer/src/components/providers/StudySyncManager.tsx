@@ -6,15 +6,14 @@ interface StudySyncManagerProps{
     children: ReactNode;
 }
 export const StudySyncManager = ({children}:StudySyncManagerProps) => {
-    const activeElectronId = useWorldlineStore((state)=>state.activeElectronId);
-
+    const activeElectronId = useWorldlineStore((state)=>state.atomPointer.electronId);
     const {loadStudyData, clearStudyData} = useStudyActions();
     useEffect(()=>{
         if(activeElectronId){
             loadStudyData();
         }else{
             clearStudyData();
-        }        
+        }                
     },[activeElectronId, loadStudyData, clearStudyData]);
     return(
         <>
