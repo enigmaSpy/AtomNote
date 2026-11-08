@@ -11,7 +11,7 @@ import clsx from "clsx";
 type Props = {
     collapsed?: boolean;
     className?: string;
-    onOpenCreateAtom?: ()=>void;
+    
 }
 export const WorldlineLeftBar = ({collapsed,className}:Props) => {
     const { worldlineData, isLoading, actions } = useWorldlineStore();

@@ -5,14 +5,14 @@ import { memo, useCallback } from "react";
 import { RenameElectron } from "./Inputs/ElectronInput";
 
 export const ElectronTreeItem  = memo(({ electron, borrowedFrom }: { electron: ElectronView, borrowedFrom?:string }) => {
-    const { selectElectron } = useWorldlineActions();
+    const { setAtomPointer } = useWorldlineActions();
     const {openContextMenu} = useUIActions();
     const editingElectron = useUIStore(s=>s.editingElectron);
 
     
     const handleSelect = useCallback(() => {
-        selectElectron(electron.ownerAtomId, electron.id);
-    }, [electron.ownerAtomId, electron.id, selectElectron]);
+        setAtomPointer({atomId: electron.ownerAtomId, electronId: electron.id});
+    }, [electron.ownerAtomId, electron.id, setAtomPointer]);
     const handleContextMenu = useCallback((e:React.MouseEvent) => {
             e.preventDefault();
             openContextMenu({

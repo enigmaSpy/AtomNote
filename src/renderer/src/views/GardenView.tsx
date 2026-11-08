@@ -25,7 +25,7 @@ export const GardenView = () => {
   const [isStudyOpen, setIsStudyOpen] = useState(false);
   const [studyType, setStudyType] = useState<StudyType>(null);
 
-  const activeElectronId = useWorldlineStore(state => state.activeElectronId);
+  const atomPointer = useWorldlineStore(state => state.atomPointer);
   const isCreateAtomOpen = useUIStore(state => state.isCreateAtomOpen);
   const {setIsCreateAtomOpen} = useUIActions();
 
@@ -53,9 +53,8 @@ export const GardenView = () => {
       <main className={styles.gardenView}>
           <WorldlineLeftBar 
             collapsed={studyType === 'flashcardsPreview'}
-            onOpenCreateAtom={() => setIsCreateAtomOpen(true)}
           />
-          {activeElectronId? (
+          {atomPointer.electronId? (
             <>
                 <NoteEditor/>
                 {studyType==='flashcardsPreview'?(

@@ -3,15 +3,16 @@ import type { AtomView } from "@shared/domain/types";
 import { memo, useCallback, type MouseEvent } from "react";
 import style from './Atoms.module.css'
 import { AtomBtnWrapper } from "./AtomBtnWrapper";
-import { useWorldlineActions } from "@renderer/store/worldlineStore";
+import { useWorldlineActions, useWorldlineStore } from "@renderer/store/worldlineStore";
 import { AtomRenameInput } from "./Inputs/AtomRenameInput";
 import { CreateElectron } from "./Inputs/ElectronInput";
 
 export const Atom = memo(({ atom }: { atom: AtomView }) => {
     const {openContextMenu} = useUIActions();
-    const { selectAtom } = useWorldlineActions();
+    const { setAtomPointer } = useWorldlineActions();
     const isEditing = useUIStore(state=>state.editingAtomId === atom.meta.id);
     const isCreatingElectron = useUIStore(state=>state.creatingElectron === atom.meta.id);
+    const atomPointer = useWorldlineStore(state=>state.atomPointer);
 
     const handleContextMenu = useCallback((e:MouseEvent) => {
         e.preventDefault();
@@ -24,7 +25,11 @@ export const Atom = memo(({ atom }: { atom: AtomView }) => {
             }
         })
     }, [atom.meta.id, openContextMenu]);
-
+    const handleOnClick =()=>{
+        if(atomPointer.electronId===null){
+            setAtomPointer({atomId: atom.meta.id,electronId: null})
+        }
+    }
     return (
         <div className="cursor-pointer bg-amber-300 text-balance">
             {isEditing?(
@@ -35,7 +40,7 @@ export const Atom = memo(({ atom }: { atom: AtomView }) => {
                         <button 
                             className={style.atomBtn}
                             type="button" 
-                            onClick={()=>selectAtom(atom.meta.id)} 
+                            onClick={handleOnClick} 
                             
                         >
                             {atom.name} 

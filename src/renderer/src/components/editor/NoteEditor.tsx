@@ -7,7 +7,8 @@ import Markdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import styles from "./NoteEditor.module.css";
-import { getCurrentFileName } from "@renderer/utils/currentFileName";
+import { useActiveAtomName } from "@renderer/hooks/useActiveAtomName";
+import { useActiveElectronName } from "@renderer/hooks/useActiveElectronName";
 
 /**
  *  Widk notatki, pozwala edytować oraz wyświetlać notatkę
@@ -19,44 +20,55 @@ export const NoteEditor = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [content, setContent] = useState<string>("");
 
-    const currentPath = useWorldlineStore(state=>state.currentPath);
-    const electronId = useWorldlineStore(state =>state.activeElectronId);
-
-    const currentElectronName = getCurrentFileName().electronName;
+    const rootPath = useWorldlineStore(state=> state.worldlineData?.worldline.rootPath);
+    const atomName = useActiveAtomName();
+    const electronName  = useActiveElectronName();
+    const electronId = useWorldlineStore(state =>state.atomPointer.electronId);
+    
     const debounceContent = useDebounce(content, 500);
 
     const loadedElectronRef = useRef({
-        path: '',
-        electronName: '',
+        rootPath: '',
+        atomName: '',
+        fileName: '',
         content: ''
     });
 
 
     useEffect(()=>{
-        const {path,electronName:name, content:payload} = loadedElectronRef.current;
-        if (path && name && payload !== undefined) {
-            window.api.electron.save(path, name, payload).catch(console.error);
+        const {rootPath: rootSegment, atomName: atomSegment,fileName: saveName, content: savePayload} = loadedElectronRef.current;
+        if (rootSegment&&atomSegment && saveName && savePayload !== undefined) {
+            window.api.electron.save(rootSegment, atomSegment, saveName, savePayload).catch(console.error);
         }
     },[debounceContent]);
-
+    useEffect(() => {
+        if (rootPath && atomName && electronName && loadedElectronRef.current.fileName) {
+            loadedElectronRef.current.rootPath = rootPath;
+            loadedElectronRef.current.atomName = atomName;
+            loadedElectronRef.current.fileName = `${electronName}.md`;
+        }
+    }, [rootPath, atomName, electronName]);
+    
     useEffect(()=>{
-        if (!currentPath||!currentElectronName)return;        
+        if (!electronName)return;        
         
         let isCancelled = false;
         const loadNewElectron=async()=>{
             setIsLoading(true);
             try {
-                const targetPath = currentPath;
-                const targetName = currentElectronName;
-
-                const noteContent = await window.api.electron.read(targetPath, targetName);
-                if (!isCancelled) {
-                    setContent(noteContent);
-                    loadedElectronRef.current ={
-                        path: targetPath,
-                        electronName: targetName,
-                        content: noteContent
-                    };
+                const targetName = electronName;
+                if (rootPath&&atomName) {
+                    
+                    const noteContent = await window.api.electron.read(rootPath, atomName, `${targetName}.md`);
+                    if (!isCancelled) {
+                        setContent(noteContent);
+                        loadedElectronRef.current ={
+                            rootPath: rootPath,
+                            atomName: atomName,
+                            fileName: `${targetName}.md`,
+                            content: noteContent
+                        };
+                    }
                 }
             } catch (error) {
                 console.error("Błąd załadowania elektronu: ", error);
@@ -69,9 +81,9 @@ export const NoteEditor = () => {
 
         return ()=>{
             isCancelled = true;
-            const {path:savePath, electronName: saveName, content: savePayload}= loadedElectronRef.current;
-            if(savePath && saveName){
-                window.api.electron.save(savePath, saveName, savePayload);
+            const {rootPath: rootSegment, atomName: atomSegment,fileName: saveName, content: savePayload}= loadedElectronRef.current;
+            if(saveName && rootSegment && atomSegment){
+                window.api.electron.save(rootSegment, atomSegment, saveName, savePayload);
             }
         }
     },[electronId]);
