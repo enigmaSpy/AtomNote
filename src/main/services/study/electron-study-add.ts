@@ -5,7 +5,7 @@ import { join } from "path";
 import { QuizzesDiscSchema, type QuizQuestion, type QuizzesDisc  } from "@shared/schemas/quiz";
 import type { Status } from "@shared/domain/types";
 import { randomUUID } from "crypto";
-import type { FlashcardId, QuizId } from "@shared/schemas/ids";
+import type { FlashcardId, QuizQuestionId } from "@shared/schemas/ids";
 import type { StudyItemEntry } from "@shared/domain/study";
 
 export async function addElectronStudyData(rootPath: string, atomName: string, electronId:string, payload:StudyItemEntry):Promise<Status<Flashcard|QuizQuestion>>{
@@ -28,7 +28,7 @@ export async function addElectronStudyData(rootPath: string, atomName: string, e
         };
     }else{
         contentToAdd = {
-            id: newId as QuizId,
+            id: newId as QuizQuestionId,
             mastery: 0,
             ...payload.content
         }

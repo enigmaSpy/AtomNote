@@ -1,6 +1,6 @@
 import type { StudyItemEntry, StudyItemEntryEdit, StudyItemsPacket, StudyType } from "@shared/domain/study";
 import type { Status } from "@shared/domain/types";
-import type { FlashcardId, QuizId } from "@shared/schemas/ids";
+import type { FlashcardId, QuizQuestionId } from "@shared/schemas/ids";
 import { create } from "zustand";
 import { useWorldlineStore } from "./worldlineStore";
 import { immer } from "zustand/middleware/immer";
@@ -9,7 +9,7 @@ interface StudyStoreActions{
     loadStudyData: ()=> Promise<void>;
     clearStudyData: ()=>void;
     addStudyData: (payload: StudyItemEntry)=>Promise<Status>;
-    deleteStudyData: (targetId:FlashcardId|QuizId, target:StudyType)=>Promise<Status>;
+    deleteStudyData: (targetId:FlashcardId|QuizQuestionId, target:StudyType)=>Promise<Status>;
     editStudyData:(target: StudyItemEntryEdit,targetId:string,)=>Promise<Status>;
 }
 

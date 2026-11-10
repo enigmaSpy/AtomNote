@@ -1,14 +1,14 @@
 import { writeJsonWithSchema } from "@main/utils/json";
 import type { Status } from "@shared/domain/types";
 import { FlashcardsDiscSchema, type FlashcardsDisc } from "@shared/schemas/flashcard";
-import type { ElectronId, FlashcardId, QuizId } from "@shared/schemas/ids";
+import type { ElectronId, FlashcardId, QuizQuestionId } from "@shared/schemas/ids";
 import { QuizzesDiscSchema, type QuizzesDisc } from "@shared/schemas/quiz";
 import { join } from "path";
 import { fetchFullStudyData } from "./electron-study-read";
 import type { StudyType } from "@shared/domain/study";
 
 
-export async function deleteElectronStudy(rootPath: string, atomName: string, electronId:ElectronId, targetId: FlashcardId | QuizId, target: StudyType):Promise<Status>{
+export async function deleteElectronStudy(rootPath: string, atomName: string, electronId:ElectronId, targetId: FlashcardId | QuizQuestionId, target: StudyType):Promise<Status>{
     const atomPath = join(rootPath, atomName)
     const fileName = target === 'flashcards' ? 'flashcards.json' : 'quizzes.json';
     const dataDict = await fetchFullStudyData(atomPath, target);

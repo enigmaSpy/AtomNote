@@ -1,8 +1,8 @@
 import {z} from 'zod'
-import { ElectronIdSchema, QuizIdSchema } from './ids'
+import { ElectronIdSchema, QuizQuestionIdSchema } from './ids'
 
 export const QuizQuestionSchema = z.object({
-  id: QuizIdSchema,
+  id: QuizQuestionIdSchema,
   question: z.string(),
   answers: z.array(z.string()).min(2),
   correctAnswerIndex: z.array(z.number().int().min(0)).min(1),
