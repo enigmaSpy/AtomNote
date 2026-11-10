@@ -9,14 +9,15 @@ export const QuizQuestionSchema = z.object({
   mastery: z.number().min(0).max(1).default(0)
 })
 
-export const QuizSchema = z.object({
-  questions: z.array(QuizQuestionSchema)
+export const QuizDeckSchema = z.object({
+  lastStudiedAt: z.string().nullable().default(null),
+  items: z.array(QuizQuestionSchema)
 })
 
-export const QuizzesDictSchema = z.record(
+export const QuizzesDiscSchema = z.record(
   ElectronIdSchema,
-  QuizSchema
+  QuizDeckSchema
 )
-export type QuizzesDict = z.infer<typeof QuizzesDictSchema>
+export type QuizzesDisc = z.infer<typeof QuizzesDiscSchema>
 export type QuizQuestion = z.infer<typeof QuizQuestionSchema>
-export type Quiz = z.infer<typeof QuizSchema>
+export type QuizDeck = z.infer<typeof QuizDeckSchema>

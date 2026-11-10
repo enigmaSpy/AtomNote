@@ -8,12 +8,10 @@ import { randomUUID } from "node:crypto";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { assignDomain } from "../worldline/wordline-domain-add";
+import type { CreateAtomOutput } from "@shared/domain/study";
 
 export type AtomCreatePayload = Omit<AtomMeta, 'id'|'domainId'|'createdAt'|'updatedAt'>
-export type CreateAtomOutput = {
-    atomMeta: AtomMeta
-    domain: DomainsDict | null
-}
+
 
 export  async function createAtom(rootPath:string, name: string, domainName:string|null, atomPayload:AtomCreatePayload):Promise<Status<CreateAtomOutput>>{
     const id= randomUUID() as AtomId;

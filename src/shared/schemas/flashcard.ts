@@ -8,14 +8,15 @@ export const FlashcardSchema = z.object({
   mastery: z.number().min(0).max(1).default(0)
 })
 
-export const FlashcardSetSchema = z.object({
-  cards: z.array(FlashcardSchema)
+export const FlashcardDeckSchema = z.object({
+  lastStudiedAt: z.string().nullable().default(null),
+  items: z.array(FlashcardSchema)
 })
 
-export const FlashcardsDictSchema = z.record(
+export const FlashcardsDiscSchema = z.record(
   ElectronIdSchema,
-  FlashcardSetSchema
+  FlashcardDeckSchema
 )
-export type FlashcardsDict = z.infer<typeof FlashcardsDictSchema>;
+export type FlashcardsDisc = z.infer<typeof FlashcardsDiscSchema>;
 export type Flashcard = z.infer<typeof FlashcardSchema>
-export type FlashcardSet = z.infer<typeof FlashcardSetSchema>
+export type FlashcardDeck = z.infer<typeof FlashcardDeckSchema>

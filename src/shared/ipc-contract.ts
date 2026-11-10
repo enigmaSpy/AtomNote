@@ -1,10 +1,10 @@
-import type { AtomCreatePayload, CreateAtomOutput } from "@main/services/atom/atom-create";
+import type { AtomCreatePayload } from "@main/services/atom/atom-create";
 import type { DomainsDict, ParsedWorldline, Status } from "./domain/types";
 import type { ElectronsMetaDict } from "./schemas/electron";
 import type { Flashcard } from "./schemas/flashcard";
 import type { ElectronId, FlashcardId, QuizId } from "./schemas/ids";
 import type { QuizQuestion } from "./schemas/quiz";
-import type { StudyItemEntry, StudyItemEntryEdit, StudyItemsPacket, StudyType } from "./domain/study";
+import type { CreateAtomOutput, StudyItemEntry, StudyItemEntryEdit, StudyItemsPacket, StudyType } from "./domain/study";
 
 export interface IpcApi{
     worldline:{
