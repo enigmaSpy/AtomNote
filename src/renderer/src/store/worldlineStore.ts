@@ -84,33 +84,6 @@ export const useWorldlineStore = create<WorldlineStore>()(immer((set, get)=>({
                 set({isLoading:false})
             }
         },
-        //assignDomain:async(domainName)=>{
-        //    const {worldlineData} = get();
-        //    const rootPath = worldlineData?.worldline.rootPath
-        //    if(!rootPath) return{
-        //        status: 'error',
-        //        message: 'Brak ścieżki głównek'
-        //    }
-        //    const addingResult = await window.api.worldline.assignDomain(rootPath, domainName);
-        //    if(addingResult.status === 'error') return addingResult;
-        //    const domainId = Object.keys(addingResult.data)[0] as DomainId;
-        //    set((state)=>{
-        //        if(!state.worldlineData) return state;
-        //        return {
-        //            worldlineData:{
-        //                ...state.worldlineData,
-        //                worldline: {
-        //                    ...state.worldlineData.worldline,
-        //                    domains:{
-        //                        ...state.worldlineData.worldline.domains,
-        //                        ...addingResult.data
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    })
-        //    return {status: 'ok', data: domainId}
-        //},
         setAtomPointer: (pointer)=> {
             const {worldlineData} = get();
             const rootPath = worldlineData?.worldline.rootPath;
@@ -142,13 +115,11 @@ export const useWorldlineStore = create<WorldlineStore>()(immer((set, get)=>({
             if (createStatus.status === 'error') {
                 return createStatus;
             }
-            if (!('data' in createStatus)) {
-                return {
-                    status: 'error',
-                    code: 'ERR_ATOM_READ_FAILED'
-                };
-            }
-
+            
+            if (!createStatus.data) return {
+                status: 'error',
+                code: 'ERR_ATOM_READ_FAILED'
+            };
             const {atomMeta, domain}: CreateAtomOutput = createStatus.data;
 
             const newAtomData: AtomView = {

@@ -1,6 +1,6 @@
 import { useStudyActions, useStudyStore } from '@renderer/store/studyStore'
 import styles from './Study.module.css'
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useWorldlineStore } from '@renderer/store/worldlineStore';
 import type { FlashcardId } from '@shared/schemas/ids';
 import type { ErrorCode } from '@shared/utils/errors';
@@ -10,7 +10,7 @@ export const FlashcardsPreview = ({ onClose }) => {
   
   const currentElectronId = useWorldlineStore(state => state.atomPointer.electronId);
 
-  const flashcards = useStudyStore((state) => state.flashcards);
+  const flashcardsDict = useStudyStore((state) => state.flashcards);
   const {addStudyData, deleteStudyData, editStudyData} = useStudyActions();
 
   const [searchInput, setSearchInput] = useState('');
@@ -28,7 +28,14 @@ export const FlashcardsPreview = ({ onClose }) => {
     back
   }
   const focus=(side:Side)=>textareaRefs[side].current?.focus();
-
+  const visibleCards = useMemo(()=>{
+    const searchQuery = searchInput.toLowerCase();
+    return Object.values(flashcardsDict).filter(({id, front, back})=>
+      id!==editingId && (
+        (front.toLowerCase().includes(searchQuery)) || (back.toLowerCase().includes(searchQuery))
+      )
+    )
+  },[flashcardsDict, editingId, searchInput])
   const addHandler=async(e)=>{
     e.preventDefault();
     setErrorResultCode(null);
@@ -66,13 +73,15 @@ const cancleEditHandle=()=>{
     setIsEditMode(false);
     setNewFlashcard({ front:'', back: '' });
   }
-  const setEditHandler =(cardId: FlashcardId,e)=>{
+  const setEditHandler =(cardId: FlashcardId,e: React.MouseEvent)=>{
     e.preventDefault();
+    const targetCard = flashcardsDict[cardId];
+    if(!targetCard) return;
     setIsEditMode(true);
     setEditingId(cardId);
     setNewFlashcard({ 
-      front: flashcards.find(({id})=>id===cardId)!.front, 
-      back: flashcards.find(({id})=>id===cardId)!.back
+      front: targetCard.front, 
+      back: targetCard.back
     });
   }
   const editHandler = async(e)=>{
@@ -168,10 +177,8 @@ const cancleEditHandle=()=>{
         </div>
       <div className={styles.listSection}>
         <div className={styles.cardsList}>
-          {flashcards
-            .filter(({id})=>id!==editingId)
-            .filter(({front, back})=>front.includes(searchInput) || back.includes(searchInput))
-            .map((flashcard) => (
+          {
+            visibleCards.map((flashcard) => (
             <div key={flashcard.id} className={styles.flashcardItem}>
               <div className={styles.cardContent}>
                 <div className={styles.cardFront}>{flashcard.front}</div>

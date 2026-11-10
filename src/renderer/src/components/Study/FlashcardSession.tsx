@@ -3,24 +3,11 @@ import { useState } from "react";
 import styles from './study.module.css'
 export const FlashcardSession = () => {
     const flashcards = useStudyStore(state=>state.flashcards);
-    const [unknownCards,setUnknownCards] = useState([...flashcards]);
+    const [unknownCards,setUnknownCards] = useState([]);
     const [isFrontCard, setIsFrontCard] = useState(false);
     const [cardPointer, setCardPointer] = useState(0);
     const [round, setRound]=useState(0);
 
-    if (flashcards.length<=0){
-        return (
-            <div>
-                Brak zestawu do nauki
-            </div>
-        )
-    }
-   
-    const newStudySession = ()=>{
-        setUnknownCards([...flashcards]);
-        setCardPointer(0);
-        setRound(0);
-    }
 
         
     const nextCardHandler=(known:boolean)=>{
@@ -36,7 +23,7 @@ export const FlashcardSession = () => {
             {unknownCards.length === 0?
             (
                 <div>
-                    <button onClick={()=>newStudySession()}>Zacznij od nowa!</button>
+                    <button onClick={()=>{}}>Zacznij od nowa!</button>
                 </div>
             ):(
                 <>

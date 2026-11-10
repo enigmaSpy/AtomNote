@@ -1,10 +1,9 @@
-import type { StudyItemEntry, StudyItemEntryEdit, StudyType } from "@shared/domain/study";
+import type { StudyItemEntry, StudyItemEntryEdit, StudyItemsPacket, StudyType } from "@shared/domain/study";
 import type { Status } from "@shared/domain/types";
-import type { Flashcard } from "@shared/schemas/flashcard";
 import type { FlashcardId, QuizId } from "@shared/schemas/ids";
-import type { QuizQuestion } from "@shared/schemas/quiz";
 import { create } from "zustand";
 import { useWorldlineStore } from "./worldlineStore";
+import { immer } from "zustand/middleware/immer";
 
 interface StudyStoreActions{
     loadStudyData: ()=> Promise<void>;
@@ -13,17 +12,19 @@ interface StudyStoreActions{
     deleteStudyData: (targetId:FlashcardId|QuizId, target:StudyType)=>Promise<Status>;
     editStudyData:(target: StudyItemEntryEdit,targetId:string,)=>Promise<Status>;
 }
-interface StudyStore {
-    flashcards: Flashcard[];
-    quizzes: QuizQuestion[];
+
+interface StudyStore extends StudyItemsPacket{
     isLoading: boolean;
     error: string|null;
-
     actions: StudyStoreActions;
 }
-export const useStudyStore = create<StudyStore>((set, get)=>({
-    flashcards: [],
-    quizzes: [],
+export const useStudyStore = create<StudyStore>()(immer((set, get)=>({
+    flashcards: {},
+    quizzes: {},
+    lastStudiedAt: {
+        flashcards: null,
+        quizzes: null
+    },
     isLoading: false,
     error: null,
 
@@ -36,7 +37,11 @@ export const useStudyStore = create<StudyStore>((set, get)=>({
             const activeAtomId = atomPointer.atomId;
             const rootPath = worldlineData?.worldline.rootPath;
             if (! rootPath|| !activeElectronId||!activeAtomId){
-                set({flashcards:[], quizzes:[], isLoading: false});
+                set({
+                    flashcards:{}, 
+                    quizzes:{}, 
+                    isLoading: false
+                });
                 return; //!
             }
             set({
@@ -55,11 +60,12 @@ export const useStudyStore = create<StudyStore>((set, get)=>({
                 set({
                     flashcards: readResult.data.flashcards,
                     quizzes: readResult.data.quizzes,
+                    lastStudiedAt: readResult.data.lastStudiedAt
                 });
             } catch (error) {
                 set({
-                    flashcards: [],
-                    quizzes: [],
+                    flashcards: {},
+                    quizzes: {},
                     error: (error as Error).message
                 });   
             }finally{
@@ -68,8 +74,8 @@ export const useStudyStore = create<StudyStore>((set, get)=>({
         },
         clearStudyData:()=> {
             set({
-                flashcards: [],
-                quizzes: [],
+                flashcards: {},
+                quizzes: {},
                 error: null,
                 isLoading: false
             });
@@ -95,17 +101,12 @@ export const useStudyStore = create<StudyStore>((set, get)=>({
             if(studyAddResult.status === 'error'){
                 return studyAddResult;
             }
-            const newData = studyAddResult.data;
+            const studyData = studyAddResult.data;
+            const studyTarget = payload.kind
+            const studyId = studyData.id;
             set((state)=>{
-                if (payload.kind === 'flashcards') {
-                    return {
-                        flashcards: [newData as Flashcard, ...state.flashcards],
-                    };
-                }
-                return {
-                    quizzes: [newData as QuizQuestion, ...state.quizzes],
-                };
-            });
+                state[studyTarget][studyId] = studyData;
+            })
             return {status: 'ok'}
         },
         deleteStudyData: async(targetId, target)=>{
@@ -122,16 +123,14 @@ export const useStudyStore = create<StudyStore>((set, get)=>({
                 status: 'error',
                 code: 'ERR_PATH_NOT_FOUND'
             }
-            const prev = get()[target];
-
-            set({
-                [target]: prev.filter(({id})=>id!==targetId),
-            })
+            const backupItem = get()[target][targetId];
+            
+            set((state)=>{
+                delete state[target][targetId]
+            });
             const deleteResult = await window.api.study.delete(rootPath, atomName, activeElectronId, targetId, target);
             if (deleteResult.status === 'error') {
-                set({
-                    [target]:prev,
-                });
+                set((state)=>{ state[target][targetId] = backupItem});
                 return {
                     status: 'error',
                     code: 'ERR_DELETE_FAILED'
@@ -153,24 +152,20 @@ export const useStudyStore = create<StudyStore>((set, get)=>({
                 status: 'error',
                 code: 'ERR_PATH_NOT_FOUND'
             }
-            const prev = get()[payload.kind];
-
-            set({
-                [payload.kind]: prev.map((item) =>
-                item.id === targetId
-                    ? { ...item, ...payload.content }
-                    : item
-                ),
-            });
+            const backupItem = get()[payload.kind][targetId];
+            set((state)=>{
+                state[payload.kind][targetId] ={
+                    id: targetId,
+                    ...payload.content
+                }
+            })
             const editResult = await window.api.study.edit(rootPath, atomName, activeElectronId, targetId, payload);
             if(editResult.status ==='error'){
-                set({
-                    [payload.kind]: prev,
-                });
+                set((state)=>{state[payload.kind][targetId] = backupItem});
                 return editResult;
             }
             return {status: 'ok'}
         },
     }
-}));
+})));
 export const useStudyActions = ()=> useStudyStore((state)=>state.actions);

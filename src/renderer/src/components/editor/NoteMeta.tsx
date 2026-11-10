@@ -13,7 +13,9 @@ interface NoteMetaProps{
  */
 export const  NoteMeta = ({onOpenStudy}:NoteMetaProps) => {
     const flashcards = useStudyStore(state=>state.flashcards);
+    const isFlashcardEmpty = Object.keys(flashcards).length === 0;
     const quizzes = useStudyStore(state=>state.quizzes);
+    const isQuizEmpty = Object.keys(quizzes).length === 0;
     const fileName = useActiveElectronName();
     console.log(flashcards);
     
@@ -23,9 +25,9 @@ export const  NoteMeta = ({onOpenStudy}:NoteMetaProps) => {
             <NoteTags/>
             <div>
                 <button onClick={()=>onOpenStudy('flashcardsPreview')}>
-                    {flashcards[0]? "Edytuj Fiszki":"Stwórz Fiszki"}
+                    {!isFlashcardEmpty  ? "Edytuj Fiszki":"Stwórz Fiszki"}
                 </button>
-                {flashcards[0]? 
+                {!isFlashcardEmpty? 
                     (
                         <button onClick={()=>onOpenStudy('flashcards')}>
                             ▶
@@ -37,9 +39,9 @@ export const  NoteMeta = ({onOpenStudy}:NoteMetaProps) => {
 
             <div>
                 <button>
-                    {quizzes[0]? "Edytuj Quiz":"Stwórz Quiz"}
+                    {!isQuizEmpty? "Edytuj Quiz":"Stwórz Quiz"}
                 </button>
-                {quizzes[0]? 
+                {!isQuizEmpty? 
                     (
                         <button onClick={()=>onOpenStudy('quiz')}>
                             ▶
