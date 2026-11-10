@@ -10,7 +10,7 @@ interface StudyStoreActions{
     clearStudyData: ()=>void;
     addStudyData: (payload: StudyItemEntry)=>Promise<Status>;
     deleteStudyData: (targetId:FlashcardId|QuizQuestionId, target:StudyType)=>Promise<Status>;
-    editStudyData:(target: StudyItemEntryEdit,targetId:string,)=>Promise<Status>;
+    editStudyData:(target: StudyItemEntryEdit,targetId:FlashcardId|QuizQuestionId,)=>Promise<Status>;
 }
 
 interface StudyStore extends StudyItemsPacket{
