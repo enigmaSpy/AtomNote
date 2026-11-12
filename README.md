@@ -52,7 +52,7 @@ WORLDLINE/
         - [x] Read
         - [x] Update
         - [x] Delete
-        - [ ] Study Session
+        - [x] Study Session
     - Quizzes:
         - [ ] Create
         - [ ] Read

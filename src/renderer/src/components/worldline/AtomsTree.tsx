@@ -13,14 +13,14 @@ import { AtomWrapper } from "./atoms/AtomWrapper";
  */
 export const AtomsTree = () => {
     const worldline = useWorldlineStore((state)=> state.worldlineData);
-    const {setIsCreateAtomOpen} = useUIActions();
+    const {setModalType} = useUIActions();
 
     const atoms = Object.values(worldline?.worldline.atoms??{})
     return (
         <div>
             <button 
                 className={styles.newElectronBtn}
-                onClick={()=>setIsCreateAtomOpen(true)}
+                onClick={()=>setModalType('createAtom')}
             >
                 + Dodaj Atom
             </button>
