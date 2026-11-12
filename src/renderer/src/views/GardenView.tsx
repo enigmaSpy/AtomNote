@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { NoteMeta } from "../components/editor/NoteMeta"
 import { NoteEditor } from "../components/editor/NoteEditor"
 import { WorldlineLeftBar} from "../components/worldline/WorldlineLeftbar"
@@ -14,7 +13,6 @@ import { FlashcardSession } from "@renderer/components/study/FlashcardSession"
 import { QuizPreview } from "@renderer/components/study/QuizPreview"
 import { FlashcardsPreview } from "@renderer/components/study/FlashcardsPreview"
 import { GlobalContextMenu } from "@renderer/components/worldline/GlobalContextMenu"
-type StudyType = 'flashcards'|'quiz'|'flashcardsPreview'|null;
 
 /**
  * Widok Ogrodu
@@ -22,46 +20,30 @@ type StudyType = 'flashcards'|'quiz'|'flashcardsPreview'|null;
  * @returns Zwraca wiodok Ogrodu (Notatki ustrukturyzwne)
  */
 export const GardenView = () => {
-  const [isStudyOpen, setIsStudyOpen] = useState(false);
-  const [studyType, setStudyType] = useState<StudyType>(null);
+  const activeModal = useUIStore(state=>state.activeModal);
+  const sidePanel = useUIStore(state=>state.sidePanel);
+  const {setModalType} = useUIActions();
 
   const atomPointer = useWorldlineStore(state => state.atomPointer);
-  const isCreateAtomOpen = useUIStore(state => state.isCreateAtomOpen);
-  const {setIsCreateAtomOpen} = useUIActions();
-
-  const openStudyModal = (type: Exclude<StudyType, null>)=>{
-    setStudyType(type);
-    setIsStudyOpen(true);
-  }
-  const closeStudyModal = ()=>{
-    setStudyType(null);
-    setIsStudyOpen(false);
-  }
   
 
   //TODO: Przenieść logikę renderowania Grafu do głównego widoku
   return (
       <StudySyncManager>
       <GlobalContextMenu/>
-      <Modal onClose={closeStudyModal} isOpen={isStudyOpen&&studyType!='flashcardsPreview'}>
-        {studyType === 'flashcards' && <FlashcardSession />}
-        {studyType === 'quiz' && <QuizPreview />}
-      </Modal>
-      <Modal onClose={()=>setIsCreateAtomOpen(false)} isOpen={isCreateAtomOpen}>
-        <CreateAtomModal />
+      <Modal isOpen={activeModal !==null} onClose={()=>setModalType(null)}>
+        {activeModal === 'createAtom' && <CreateAtomModal />}
+        {activeModal === 'flashcardsSession' && <FlashcardSession />}
+        {activeModal === 'quizzesSession' && <QuizPreview />}
       </Modal>
       <main className={styles.gardenView}>
-          <WorldlineLeftBar 
-            collapsed={studyType === 'flashcardsPreview'}
-          />
+          <WorldlineLeftBar collapsed={sidePanel!=='meta'}/>
           {atomPointer.electronId? (
             <>
                 <NoteEditor/>
-                {studyType==='flashcardsPreview'?(
-                  <FlashcardsPreview onClose={closeStudyModal}/>
-                  ):(
-                  <NoteMeta onOpenStudy={openStudyModal}/>
-                )}
+                {sidePanel === 'flashcardsPreview' && <FlashcardsPreview />}
+                {sidePanel === 'meta' && <NoteMeta />}
+                {sidePanel === 'quizzesPreview' && <QuizPreview />}
             </>
           ):(
             <WorldlineGraph/>

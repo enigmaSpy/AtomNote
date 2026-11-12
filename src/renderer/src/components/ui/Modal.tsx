@@ -13,19 +13,19 @@ export const Modal = ({isOpen, onClose, children}) => {
         }
     },[isOpen])
     if(!isOpen) return null;
-  return (
-    <dialog
-        className={styles.modal}
-        ref={dialogRef}
-        onClose={onClose}
-    >
-        {children}
-        <button
-            className={styles.exit}
-            onClick={onClose}
+    return (
+        <dialog
+            className={styles.modal}
+            ref={dialogRef}
+            onClose={onClose}
         >
-            X
-        </button>
-    </dialog>
-  )
+            {children}
+            <button
+                className={styles.exit}
+                onClick={onClose}
+            >
+                X
+            </button>
+        </dialog>
+    )
 }

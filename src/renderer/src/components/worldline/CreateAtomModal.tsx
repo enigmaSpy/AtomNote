@@ -1,14 +1,16 @@
-import { useWorldlineActions, useWorldlineStore } from "@renderer/store/worldlineStore"
-import styles from './Worldline.module.css'
-import { useRef, useState } from "react";
+import { useWorldlineActions, useWorldlineStore } from "@renderer/store/worldlineStore";
 import type { AtomMeta } from "@shared/schemas/atom";
+import type { DomainId } from "@shared/schemas/ids";
 import { validateFileName } from "@shared/utils/fileName";
+import { useRef, useState } from "react";
+import styles from './Worldline.module.css';
 export const CreateAtomModal = () => {
     const domains = useWorldlineStore(state=> state.worldlineData)?.worldline.domains;
     const {createAtom} = useWorldlineActions();
 
     const [atomName, setAtomName] = useState("");
     const [atomDomain, setAtomDomain] = useState<string>("");
+    const [atomDomainId, setAtomDomainId] = useState<DomainId|null>(null);
     const [atomDescription, setAtomDescription] = useState("");
     const [createError, setCreateError] = useState<string|null>(null);
     const atomNameRef = useRef<HTMLInputElement>(null);
@@ -26,12 +28,13 @@ export const CreateAtomModal = () => {
             atomDomainRef.current?.focus();
             return;
         }
-        const atomContent:Omit<AtomMeta, 'id'|'domainId'|'createdAt'|'updatedAt'> = {
+        const atomContent:Omit<AtomMeta, 'id'|'createdAt'|'updatedAt'> = {
+            domainId: atomDomainId,
             description: atomDescription,
         }
         const createResult = await createAtom(atomContent, atomName.trim(), atomDomain);
         if (createResult.status === 'error') {
-            setCreateError(createResult.message);            
+            setCreateError(createResult.code);            
         }else{
             setCreateError(null);
             setAtomName('');

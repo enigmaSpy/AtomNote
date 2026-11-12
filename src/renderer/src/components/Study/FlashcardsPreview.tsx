@@ -5,11 +5,12 @@ import { useWorldlineStore } from '@renderer/store/worldlineStore';
 import type { FlashcardId } from '@shared/schemas/ids';
 import type { ErrorCode } from '@shared/utils/errors';
 import type { StudyItemEntry } from '@shared/domain/study';
-export const FlashcardsPreview = ({ onClose }) => {
+import { useUIActions } from '@renderer/store/uiStore';
+export const FlashcardsPreview = () => {
   type Side = 'front'|'back';
   
   const currentElectronId = useWorldlineStore(state => state.atomPointer.electronId);
-
+  const {setSidePanel} = useUIActions();
   const flashcardsDict = useStudyStore((state) => state.flashcards);
   const {addStudyData, deleteStudyData, editStudyData} = useStudyActions();
 
@@ -118,7 +119,7 @@ const cancleEditHandle=()=>{
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <button className={styles.backButton} onClick={() => onClose()}>
+        <button className={styles.backButton} onClick={() => setSidePanel('meta')}>
           ← Wróć
         </button>
       </div>

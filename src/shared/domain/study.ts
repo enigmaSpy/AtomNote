@@ -1,6 +1,6 @@
 import type { AtomMeta } from "@shared/schemas/atom";
 import type { Flashcard } from "@shared/schemas/flashcard";
-import type { FlashcardId, QuizId } from "@shared/schemas/ids";
+import type { FlashcardId, QuizQuestionId } from "@shared/schemas/ids";
 import type { QuizQuestion } from "@shared/schemas/quiz";
 import type { DomainsDict } from "./types";
 
@@ -16,7 +16,7 @@ export type StudyItem = Flashcard | QuizQuestion;
 export type StudyItems = StudyItem[];
 
 export type FlashcardsDict = Record<FlashcardId, Flashcard>;
-export type QuizzesDict = Record<QuizId, QuizQuestion>;
+export type QuizzesDict = Record<QuizQuestionId, QuizQuestion>;
 export type StudyItemsPacket = {
     lastStudiedAt: {
         flashcards: string|null,
@@ -39,8 +39,3 @@ export type CreateAtomOutput = {
     atomMeta: AtomMeta
     domain: DomainsDict | null
 }
-
-//export interface StudyData {
-//    flashcards: FlashcardsDict;
-//    quizzes: QuizzesDict;
-//}
