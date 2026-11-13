@@ -45,7 +45,7 @@ WORLDLINE/
     - [x] Read
     - [x] Update
     - [x] Delete
-    - [ ] Tag system
+    - [x] Tag system
 - Study Section:
     - Flashcards:
         - [x] Create
