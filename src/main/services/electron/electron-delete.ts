@@ -1,17 +1,17 @@
 import { readJsonWithSchema, writeJsonWithSchema } from "@main/utils/json";
 import type { Status } from "@shared/domain/types";
-import { ElectronsDictSchema } from "@shared/schemas/electron";
+import { ElectronsDiscSchema } from "@shared/schemas/electron";
 import type { ElectronId } from "@shared/schemas/ids";
 import { isEacces, isEbusy, isEnoent, isEperm } from "@shared/utils/warning";
 import { rm } from "fs/promises";
 import { join } from "path";
 
-export async function deleteElectron(rootPath: string, atomName:string, electronId:ElectronId):Promise<Status>{
+export async function deleteElectron(rootPath: string, atomName:string, electronId:ElectronId):Promise<Status<string[]>>{//TODO: Zwrócić aktualną tablicę tagów
     const atomPath = join(rootPath, atomName);
     const electronMetaPath = join(atomPath, '.atom_data', 'electrons.json')
     const readResult = await readJsonWithSchema(
         electronMetaPath,
-        ElectronsDictSchema
+        ElectronsDiscSchema
     );
     if(readResult.status === 'not-found'){
         return {
@@ -26,7 +26,10 @@ export async function deleteElectron(rootPath: string, atomName:string, electron
             details: `${electronMetaPath}`
         }
     }
-    if(!readResult.data) return {status: 'ok'}
+    if(!readResult.data) return {
+        status: 'error',
+        code: 'ERR_ELECTRON_DELETE_FAILED'
+    }
     const targetElectron = readResult.data[electronId];
     if (!targetElectron) {
         return {
@@ -35,11 +38,12 @@ export async function deleteElectron(rootPath: string, atomName:string, electron
             details: `electron not exists in electrons.json - ${electronMetaPath}`
         };
     }
-    const updatedElectrons = {...readResult.data};
+    const electronsDict = readResult.data;
+    const updatedElectrons = {electronsDict};
     delete updatedElectrons[electronId];
     const writeResult = await writeJsonWithSchema(
         electronMetaPath,
-        ElectronsDictSchema,
+        ElectronsDiscSchema,
         updatedElectrons
     );
     if(writeResult.status === 'write-failed') return {
@@ -85,8 +89,8 @@ export async function deleteElectron(rootPath: string, atomName:string, electron
         }
         const rollbackResult = await writeJsonWithSchema(
             electronMetaPath,
-            ElectronsDictSchema,
-            readResult.data
+            ElectronsDiscSchema,
+            electronsDict
         );
         if(rollbackResult.status !== "ok"){
             status = {
@@ -97,6 +101,6 @@ export async function deleteElectron(rootPath: string, atomName:string, electron
         }
         return status;
     }
-    
-    return {status: 'ok'}
+    const atomTags = [...new Set(Object.values(electronsDict).flatMap(({tags})=>tags))];
+    return {status: 'ok', data: atomTags}
 }

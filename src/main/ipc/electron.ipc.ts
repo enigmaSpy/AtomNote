@@ -3,6 +3,7 @@ import { deleteElectron } from "@main/services/electron/electron-delete";
 import { readElectron } from "@main/services/electron/electron-read";
 import { renameElectron } from "@main/services/electron/electron-rename";
 import { saveElectron } from "@main/services/electron/electron-save";
+import { setElectronTags } from "@main/services/electron/electron-set-tags";
 import { IPC_CHANNELS } from "@shared/ipc-contract";
 import { ipcMain } from "electron";
 
@@ -21,5 +22,8 @@ export function registerElectronIpc():void{
     });
     ipcMain.handle(IPC_CHANNELS.ELECTRON_DELETE, async(_event, rootPath, atomName, electronId)=>{
         return deleteElectron(rootPath, atomName, electronId);
+    });
+    ipcMain.handle(IPC_CHANNELS.ELECTRON_SETTAGS, async(_event, rootPath, atomName, electronId, tagNames)=>{
+        return setElectronTags(rootPath, atomName, electronId, tagNames);
     })
 }

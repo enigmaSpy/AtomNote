@@ -1,6 +1,6 @@
 import type { AtomCreatePayload } from "@main/services/atom/atom-create";
-import type { DomainsDict, ParsedWorldline, Status } from "./domain/types";
-import type { ElectronsMetaDict } from "./schemas/electron";
+import type { DomainsDict, ParsedWorldline, Status, UpdateElectronTagsReturn } from "./domain/types";
+import type { ElectronsMetaDisc } from "./schemas/electron";
 import type { Flashcard } from "./schemas/flashcard";
 import type { ElectronId, FlashcardId, QuizQuestionId } from "./schemas/ids";
 import type { QuizQuestion } from "./schemas/quiz";
@@ -19,9 +19,10 @@ export interface IpcApi{
     electron:{
         read(rootPath: string, atomName: string, filename:string):Promise<string>,
         save(rootPath: string, atomName: string, filename:string, content: string): Promise<void>,
-        create(rootPath: string, atomName: string, electronName: string):Promise<Status<ElectronsMetaDict>>,
+        create(rootPath: string, atomName: string, electronName: string):Promise<Status<ElectronsMetaDisc>>,
         rename(rootPath: string,atomName: string,electronId: ElectronId,newElectronName: string):Promise<Status<string>>,
-        delete(rootPath: string, atomName:string, electronId:ElectronId):Promise<Status>,
+        delete(rootPath: string, atomName:string, electronId:ElectronId):Promise<Status<string[]>>,
+        setTags(rootPath: string, atomName:string, electronId: ElectronId, tagNames: string[]):Promise<Status<UpdateElectronTagsReturn>>,
     },
     study:{
         read(rootPath:string, atomName:string, electronId:ElectronId): Promise<Status<StudyItemsPacket>>;
@@ -47,6 +48,7 @@ export const IPC_CHANNELS = {
     ELECTRON_CREATE: 'electron:create',
     ELECTRON_RENAME: 'electron:rename',
     ELECTRON_DELETE: 'electron:delete',
+    ELECTRON_SETTAGS: 'electron:setTags',
 
     STUDY_READ:'study:read',
     STUDY_ADD: 'study:add',

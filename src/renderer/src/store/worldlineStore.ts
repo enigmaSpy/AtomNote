@@ -25,16 +25,17 @@ export type AtomPointer =
     }
 interface WorldlineStoreActions{
     loadWorldline: (rootPath: string)=> Promise<void>;
-    //assignDomain: (domainName: string)=>Promise<ActionStatus>;
 
     createAtom: (atomContent:Omit<AtomMeta, 'id'|'domainId'|'createdAt'|'updatedAt'>, atomName:string, domainName: string|null)=>Promise<Status>;
-    deleteAtom: (atomId: AtomId)=>Promise<Status>;
     renameAtom: (atomId:AtomId, newAtomName: string)=>Promise<Status>;
+    deleteAtom: (atomId: AtomId)=>Promise<Status>;
 
     createElectron: (atomId: AtomId, electronName: string)=>Promise<Status>;
-    deleteElectron: (atomId: AtomId, electronId: ElectronId)=>Promise<Status>;
     renameElectron: (atomId: AtomId, electronId: ElectronId, newElectronName:string)=>Promise<Status>;
+    deleteElectron: (atomId: AtomId, electronId: ElectronId)=>Promise<Status>;
 
+    addTags: (atomId: AtomId, electronId: ElectronId, newTags: string[])=>Promise<Status>
+    deleteTags: (atomId: AtomId, electronId: ElectronId, newTags: string[])=>Promise<Status>
     
     setAtomPointer: (pointer:AtomPointer)=>void;
 
@@ -125,7 +126,7 @@ export const useWorldlineStore = create<WorldlineStore>()(immer((set, get)=>({
             const newAtomData: AtomView = {
                 name: atomName,
                 meta: atomMeta,
-                tags: new Set<string>(),
+                tags: [],
                 mastery: 0,
                 electrons: {},
                 references: {
@@ -272,6 +273,7 @@ export const useWorldlineStore = create<WorldlineStore>()(immer((set, get)=>({
                     if(state.atomPointer.electronId === electronId && state.atomPointer.atomId === atomId){
                         state.atomPointer ={atomId: atomId, electronId: null}
                     }
+                    atom.tags = deleteResult.data;
                     delete atom.electrons[electronId];
                 })
             }
@@ -304,7 +306,70 @@ export const useWorldlineStore = create<WorldlineStore>()(immer((set, get)=>({
             }
             return {status: 'ok'}
         },
+        addTags: async (atomId, electronId, newTags): Promise<Status>=>{
+            const currentWorldline = get().worldlineData?.worldline;
+            if(!currentWorldline) return{
+                status: 'error',
+                code: 'ERR_WORLDLINE_NOT_FOUND'
+            }
+            const rootPath = currentWorldline.rootPath;
+            const currentAtom = currentWorldline.atoms[atomId];
+            if(!currentAtom) return{
+                status: 'error',
+                code: 'ERR_ATOM_NOT_FOUND'
+            }
+            if(!currentAtom.name) return{
+                status: 'error',
+                code: 'ERR_ATOM_NOT_FOUND'
+            }
+            const currentTags = currentAtom.electrons[electronId]?.tags ?? [];
+            const updatedTags = [...currentTags, ...newTags];
 
+            const addResult = await window.api.electron.setTags(rootPath,currentAtom.name,electronId,[...new Set(updatedTags)]);
+            if(addResult.status === 'error')return addResult;
+            const {electronTags, atomTags} = addResult.data;
+
+            set((state) => {
+                const atom = state.worldlineData?.worldline.atoms[atomId];
+                const electron = atom?.electrons[electronId];
+                if (!atom || !electron) return;
+
+                atom.tags = atomTags;
+                electron.tags = electronTags;
+            });
+            return {status: 'ok'}
+        },
+        deleteTags: async (atomId, electronId, tagsToDelete): Promise<Status>=>{
+            const currentWorldline = get().worldlineData?.worldline;
+            if(!currentWorldline) return{
+                status: 'error',
+                code: 'ERR_WORLDLINE_NOT_FOUND'
+            }
+            const rootPath = currentWorldline.rootPath;
+            const currentAtom = currentWorldline.atoms[atomId];
+            if(!currentAtom) return{
+                status: 'error',
+                code: 'ERR_ATOM_NOT_FOUND'
+            }
+            if(!currentAtom.name) return{
+                status: 'error',
+                code: 'ERR_ATOM_NOT_FOUND'
+            }
+            const currentTags = currentAtom.electrons[electronId]?.tags ?? [];
+            const updatedTags = currentTags.filter((currentTag) => !tagsToDelete.includes(currentTag));
+            const addResult = await window.api.electron.setTags(rootPath,currentAtom.name,electronId,[...new Set(updatedTags)]);
+            if(addResult.status === 'error')return addResult;
+            const {electronTags, atomTags} = addResult.data;
+            set((state)=>{
+                const atom = state.worldlineData?.worldline.atoms[atomId];
+                const electron = atom?.electrons[electronId];
+                if (!atom || !electron) return;
+
+                atom.tags = atomTags;
+                electron.tags = electronTags;
+            })
+            return {status: 'ok'};
+        },
         clearError:()=>set({error:null}),  
     },
     

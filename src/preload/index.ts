@@ -15,6 +15,7 @@ const api: IpcApi = {
     create: (rootPath, atomName, electronName) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_CREATE, rootPath, atomName, electronName),
     rename: (rootPath,atomName, electronId, newElectronName) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_RENAME, rootPath, atomName, electronId, newElectronName),
     delete: (rootPath, atomName, electronId) => ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_DELETE, rootPath, atomName, electronId),
+    setTags: (rootPath, atomName, electronId, tagNames)=> ipcRenderer.invoke(IPC_CHANNELS.ELECTRON_SETTAGS, rootPath, atomName, electronId, tagNames),
   },
   atom:{
     create: (rootPath, name, domainName, content)=>ipcRenderer.invoke(IPC_CHANNELS.ATOM_CREATE, rootPath, name, domainName, content),
