@@ -1,7 +1,7 @@
 import { renameFile } from "@main/utils/file";
 import { readJsonWithSchema, writeJsonWithSchema } from "@main/utils/json";
 import type { Status } from "@shared/domain/types";
-import { ElectronsDictSchema, type ElectronsMetaDict } from "@shared/schemas/electron";
+import { ElectronsDiscSchema, type ElectronsMetaDisc } from "@shared/schemas/electron";
 import type { ElectronId } from "@shared/schemas/ids";
 import { join } from "path";
 
@@ -16,7 +16,7 @@ export async function renameElectron(
     const electronMetaPath = join(atomPath,'.atom_data','electrons.json');
     const readResult = await readJsonWithSchema(
         electronMetaPath,
-        ElectronsDictSchema
+        ElectronsDiscSchema
     );
 
     if(readResult.status === 'not-found'){
@@ -60,7 +60,7 @@ export async function renameElectron(
         return renameResult;
     }
 
-    const newData: ElectronsMetaDict = {
+    const newData: ElectronsMetaDisc = {
         ...readResult.data,
         [electronId]: {
             ...electronMeta,
@@ -71,7 +71,7 @@ export async function renameElectron(
 
     const writeResult = await writeJsonWithSchema(
         electronMetaPath,
-        ElectronsDictSchema,
+        ElectronsDiscSchema,
         newData
     );
 

@@ -2,7 +2,7 @@
 import { readJsonWithSchema, writeJsonWithSchema } from "@main/utils/json"
 import type { AtomView, ElectronsViewDict } from "@shared/domain/types"
 import { AtomMetaSchema, type AtomMeta } from "@shared/schemas/atom"
-import { ElectronsDictSchema, type ElectronMeta, type ElectronsMetaDict } from "@shared/schemas/electron"
+import { ElectronsDiscSchema, type ElectronMeta, type ElectronsMetaDisc } from "@shared/schemas/electron"
 import type { AtomId, ElectronId } from "@shared/schemas/ids"
 import type { WarningCollector } from "@shared/utils/warning"
 import { randomUUID } from "crypto"
@@ -60,10 +60,10 @@ export async function atomParse(
     const currentAtomId = atomMeta.id;
 
     const electronsPath = join(atomPath, '.atom_data', 'electrons.json');
-    const electronsRes = await readJsonWithSchema(electronsPath, ElectronsDictSchema, collector);
+    const electronsRes = await readJsonWithSchema(electronsPath, ElectronsDiscSchema, collector);
     
     let isElectronsDirty = false;
-    const electronsDict: ElectronsMetaDict =
+    const electronsDict: ElectronsMetaDisc =
         electronsRes.status === 'ok' && electronsRes.data !== undefined
             ? electronsRes.data
             : {};
@@ -78,7 +78,6 @@ export async function atomParse(
     );
 
     let electronsViewDict: ElectronsViewDict = {};
-    const tagsSet = new Set<string>();
 
     for(const currentElectron of currentAtomFiles){
         const isReserved = currentElectron.name.startsWith('.')||currentElectron.name.startsWith('__');
@@ -115,7 +114,7 @@ export async function atomParse(
 
                 electronMeta = {
                     filename: currentElectron.name,
-                    tags: new Set<string>(),
+                    tags: [],
                     mastery: 0,
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
@@ -127,7 +126,7 @@ export async function atomParse(
             electronId = randomUUID() as ElectronId;
             electronMeta = {
                 filename: currentElectron.name,
-                tags: new Set<string>(),
+                tags: [],
                 mastery: 0,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
@@ -145,7 +144,7 @@ export async function atomParse(
     }
 
     if (isElectronsDirty){
-        await writeJsonWithSchema(electronsPath,ElectronsDictSchema, electronsDict, collector);
+        await writeJsonWithSchema(electronsPath,ElectronsDiscSchema, electronsDict, collector);
     }
     const electronMeta = Object.values(electronsDict);
     const totalElectronMastery = electronMeta.reduce((acc, cur)=> acc + cur.mastery, 0);
@@ -153,7 +152,7 @@ export async function atomParse(
 
     return {
         meta: atomMeta,
-        tags: tagsSet,
+        tags: [],
         name: basename(entry.name),
         mastery: Number(atomMastery.toFixed(2)),
         electrons: electronsViewDict,

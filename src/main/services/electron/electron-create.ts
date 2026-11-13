@@ -1,6 +1,6 @@
 import { readJsonWithSchema, writeJsonWithSchema } from "@main/utils/json";
 import type { Status } from "@shared/domain/types";
-import { ElectronsDictSchema, type ElectronMeta, type ElectronsMetaDict } from "@shared/schemas/electron";
+import { ElectronsDiscSchema, type ElectronMeta, type ElectronsMetaDisc } from "@shared/schemas/electron";
 import type { ElectronId } from "@shared/schemas/ids";
 import { isEexist, isEnotEmpty, isEperm } from "@shared/utils/warning";
 import { randomUUID } from "crypto";
@@ -8,7 +8,7 @@ import { writeFile } from "fs/promises";
 import { join } from "path";
 
 
-export async function createElectron(rootPath:string, atomName:string, electronName:string):Promise<Status<ElectronsMetaDict>> {
+export async function createElectron(rootPath:string, atomName:string, electronName:string):Promise<Status<ElectronsMetaDisc>> {
     const electronId = randomUUID() as ElectronId;
 
     const atomPath = join(rootPath, atomName);
@@ -22,13 +22,13 @@ export async function createElectron(rootPath:string, atomName:string, electronN
 
     const electronMeta: ElectronMeta={
         filename: electronFilename,
-        tags: new Set<string>(),
+        tags: [],
         mastery: 0,
         createdAt: now,
         updatedAt: now 
     }
     
-    const readResult = await readJsonWithSchema(electronMetaPath, ElectronsDictSchema);
+    const readResult = await readJsonWithSchema(electronMetaPath, ElectronsDiscSchema);
     if(readResult.status === 'not-found'){
         return {
             status: 'error', 
@@ -64,11 +64,11 @@ export async function createElectron(rootPath:string, atomName:string, electronN
         }
     }
     
-    const updatedElectrons:ElectronsMetaDict = {
+    const updatedElectrons:ElectronsMetaDisc = {
         ...readResult.data,
         [electronId]:electronMeta
     }
-    const writeResult = await writeJsonWithSchema(electronMetaPath, ElectronsDictSchema, updatedElectrons);
+    const writeResult = await writeJsonWithSchema(electronMetaPath, ElectronsDiscSchema, updatedElectrons);
     if(writeResult.status !== 'ok'){
         return {
             status: 'error', 

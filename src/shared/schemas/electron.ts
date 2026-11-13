@@ -1,25 +1,17 @@
 import {z} from 'zod'
 import { ElectronIdSchema } from './ids';
 
-const TagsSchema = z.codec(
-    z.array(z.string()),
-    z.set(z.string()),
-    {
-        decode: (arr) => new Set(arr),
-        encode: (set) => [...set]
-    }
-);
 export const ElectronMetaSchema = z.object({
     filename: z.string().min(1),
-    tags: TagsSchema,
+    tags: z.array(z.string().min(1)).default([]),
     mastery: z.number().min(0).max(1).default(0),
     createdAt: z.iso.datetime(),
     updatedAt:  z.iso.datetime()
 });
 export type ElectronMeta = z.infer<typeof ElectronMetaSchema>;
 
-export const ElectronsDictSchema = z.record(
+export const ElectronsDiscSchema = z.record(
     ElectronIdSchema, 
     ElectronMetaSchema
 );
-export type ElectronsMetaDict = z.infer<typeof ElectronsDictSchema>;
+export type ElectronsMetaDisc = z.infer<typeof ElectronsDiscSchema>;

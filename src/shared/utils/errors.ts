@@ -68,9 +68,9 @@ export type TagErrorCode =
     | 'ERR_TAG_NOT_FOUND'
     //| 'ERR_TAG_ALREADY_EXISTS'
     //| 'ERR_TAG_INVALID'
-    //| 'ERR_TAG_ADD_FAILED'
+    | 'ERR_TAG_ADD_FAILED'
     //| 'ERR_TAG_DELETE_FAILED'
-    //| 'ERR_TAG_WRITE_FAILED';
+    | 'ERR_TAG_WRITE_FAILED';
 
 
 export type ReferenceErrorCode =

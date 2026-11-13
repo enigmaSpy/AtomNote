@@ -15,7 +15,7 @@ export type DomainsDict = Record<DomainId, Domain>;
 export interface AtomView{
     name: string
     meta: AtomMeta;
-    tags: Set<string>;
+    tags: string[];
     mastery: number;
 
     electrons: ElectronsViewDict;
@@ -29,7 +29,7 @@ export interface ElectronView{
     id: ElectronId
     ownerAtomId: AtomId
     filename: string
-    tags: Set<string>;
+    tags: string[];
     mastery: number
     createdAt: string
     updatedAt: string
@@ -75,3 +75,8 @@ export type Status<T = void> =
             ? { status: 'ok' }
             : { status: 'ok'; data: T })
     | { status: 'error'; code: ErrorCode; details?: string };
+
+export interface UpdateElectronTagsReturn {
+    electronTags: string[],
+    atomTags: string[]
+}

@@ -1,7 +1,7 @@
 import { writeJsonWithSchema } from "@main/utils/json";
 import type { DomainsDict, Status } from "@shared/domain/types";
 import { AtomMetaSchema, type AtomMeta } from "@shared/schemas/atom";
-import { ElectronsDictSchema } from "@shared/schemas/electron";
+import { ElectronsDiscSchema } from "@shared/schemas/electron";
 import type { AtomId, DomainId } from "@shared/schemas/ids";
 import { isEexist } from "@shared/utils/warning";
 import { randomUUID } from "node:crypto";
@@ -72,7 +72,7 @@ export  async function createAtom(rootPath:string, name: string, domainName:stri
     }
     const electronsWriteResult = await writeJsonWithSchema(
         join(atomMetaPath, "electrons.json"),
-        ElectronsDictSchema,
+        ElectronsDiscSchema,
         {}
     );
     if (electronsWriteResult.status === 'write-failed') {
